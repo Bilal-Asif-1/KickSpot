@@ -1,22 +1,18 @@
-import styled from 'styled-components';
+import { motion } from 'framer-motion';
 import { Link } from 'react-router-dom';
 
-const Card = styled.div`
-  border: 1px solid #eee;
-  padding: 1rem;
-  text-align: center;
-  &:hover {
-    box-shadow: 0 2px 4px rgba(0,0,0,0.1);
-  }
-`;
-
 const ProductCard = ({ product }) => (
-  <Card>
-    <img src={product.image || 'placeholder.jpg'} alt={product.name} style={{ width: '100%' }} />
-    <h3>{product.name}</h3>
-    <p>${product.price}</p>
-    <Link to={`/product/${product.id}`}>View Details</Link>
-  </Card>
+  <motion.div
+    initial={{ opacity: 0 }}
+    animate={{ opacity: 1 }}
+    transition={{ duration: 0.5 }}
+    className="border border-gray-200 p-4 text-center shadow-sm hover:shadow-md transition-shadow duration-300 rounded-lg"
+  >
+    <img src={product.image || 'placeholder.jpg'} alt={product.name} className="w-full h-48 object-cover mb-4 rounded-md" />
+    <h3 className="text-lg font-semibold mb-2">{product.name}</h3>
+    <p className="text-gray-700 mb-4">${product.price}</p>
+    <Link to={`/product/${product.id}`} className="text-blue-600 hover:underline">View Details</Link>
+  </motion.div>
 );
 
 export default ProductCard;
