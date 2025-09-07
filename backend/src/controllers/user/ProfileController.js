@@ -1,5 +1,5 @@
 import BaseController from '../base/BaseController.js';
-import { userService } from '../../services/index.js';
+import { userService, authService } from '../../services/index.js';
 
 class ProfileController extends BaseController {
 
@@ -49,7 +49,7 @@ class ProfileController extends BaseController {
       const { currentPassword, newPassword } = req.body;
       const userId = req.userId;
 
-      const success = await userService.changePassword(userId, currentPassword, newPassword);
+      const success = await authService.changePassword(userId, currentPassword, newPassword);
       
       if (!success) {
         return this.sendError(res, 'Failed to change password', 400);

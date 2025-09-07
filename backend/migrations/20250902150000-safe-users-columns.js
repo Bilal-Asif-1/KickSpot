@@ -1,6 +1,6 @@
 'use strict';
 
-module.exports = {
+export default {
   async up(queryInterface, Sequelize) {
     // Only add new columns, don't recreate table
     const tableInfo = await queryInterface.describeTable('Users');

@@ -3,12 +3,14 @@ import express from 'express';
 import authRoutes from './authRoutes.js';
 import userRoutes from './userRoutes.js';
 import productRoutes from './productRoutes.js';
+import orderRoutes from './orderRoutes.js';
 
 const configureRoutes = (app) => {
   // API Routes
   app.use('/api/auth', authRoutes);
   app.use('/api/users', userRoutes);
   app.use('/api/products', productRoutes);
+  app.use('/api/orders', orderRoutes);
 
   // Default route
   app.get('/', (req, res) => {
@@ -27,7 +29,8 @@ const configureRoutes = (app) => {
       endpoints: {
         auth: '/api/auth',
         users: '/api/users', 
-        products: '/api/products'
+        products: '/api/products',
+        orders: '/api/orders'
       }
     });
   });

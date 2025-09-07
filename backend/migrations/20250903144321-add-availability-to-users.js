@@ -1,7 +1,7 @@
 'use strict';
 
 /** @type {import('sequelize-cli').Migration} */
-module.exports = {
+export default {
   async up(queryInterface, Sequelize) {
     const table = await queryInterface.describeTable('Users');
     if (!table.Availability) {
@@ -17,3 +17,4 @@ module.exports = {
     await queryInterface.removeColumn('Users', 'Availability');
   }
 };
+
