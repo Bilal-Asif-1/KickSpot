@@ -38,10 +38,10 @@ await sequelize.sync(); // no alter
     console.log('✅ Database synchronized successfully.');
     
     // Start server
-    app.listen(appConfig.port, () => {
-      console.log(`Server running on port ${appConfig.port}`);
-      console.log(`Health Check: http://localhost:${appConfig.port}/health`);
-      console.log(`Test API: http://localhost:${appConfig.port}/api/test`);
+    app.listen(3000, () => {
+      console.log(`Server running on port 3000`);
+      console.log(`Health Check: http://localhost:3000/health`);
+      console.log(`Test API: http://localhost:3000/api/test`);
     });
   } catch (error) {
     console.error('Unable to start server:', error);
