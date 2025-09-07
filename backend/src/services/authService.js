@@ -1,9 +1,9 @@
 
-const { User } = require('../models');
-const bcrypt = require('bcryptjs');
-const jwt = require('jsonwebtoken');
+import { User } from '../models/index.js';
+import bcrypt from 'bcryptjs';
+import jwt from 'jsonwebtoken';
 
-exports.login = async (credentials) => {
+export const login = async (credentials) => {
   const { email, password } = credentials;
 
   // Find user
@@ -36,7 +36,7 @@ exports.login = async (credentials) => {
 };
 
 
-exports.verifyToken = async (token) => {
+export const verifyToken = async (token) => {
   try {
     const decoded = jwt.verify(token, process.env.JWT_SECRET);
     
@@ -53,7 +53,7 @@ exports.verifyToken = async (token) => {
 };
 
 
-exports.generateToken = (user) => {
+export const generateToken = (user) => {
   return jwt.sign(
     { id: user.id, email: user.email }, 
     process.env.JWT_SECRET, 
@@ -62,7 +62,7 @@ exports.generateToken = (user) => {
 };
 
 
-exports.changePassword = async (userId, currentPassword, newPassword) => {
+export const changePassword = async (userId, currentPassword, newPassword) => {
   // Find user
   const user = await User.findByPk(userId);
   if (!user) {

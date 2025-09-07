@@ -1,6 +1,6 @@
 
 
-const { successResponse, errorResponse, paginationResponse } = require('../utils/helpers/responseFormatter');
+import { successResponse, errorResponse, paginationResponse } from '../utils/helpers/responseFormatter.js';
 
 
 const responseHandler = (req, res, next) => {
@@ -42,4 +42,4 @@ const responseHandler = (req, res, next) => {
   next();
 };
 
-module.exports = responseHandler;
+export default responseHandler;

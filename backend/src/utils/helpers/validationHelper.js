@@ -1,11 +1,11 @@
 
-exports.isValidEmail = (email) => {
+export const isValidEmail = (email) => {
   const emailRegex = /^[^\s@]+@[^\s@]+\.[^\s@]+$/;
   return emailRegex.test(email);
 };
 
 
-exports.validatePassword = (password) => {
+export const validatePassword = (password) => {
   if (!password || password.length < 8) {
     return {
       isValid: false,
@@ -48,7 +48,7 @@ exports.validatePassword = (password) => {
  * @param {string} input - Input to sanitize
  * @returns {string} Sanitized input
  */
-exports.sanitizeInput = (input) => {
+export const sanitizeInput = (input) => {
   if (typeof input !== 'string') return input;
   
   return input
@@ -60,7 +60,7 @@ exports.sanitizeInput = (input) => {
     .replace(/\//g, '&#x2F;');
 };
 
-exports.validateRequestData = (data, requiredFields = []) => {
+export const validateRequestData = (data, requiredFields = []) => {
   const errors = {};
   let isValid = true;
 

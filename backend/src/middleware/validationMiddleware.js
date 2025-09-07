@@ -1,6 +1,6 @@
 
 
-const { body, param, query, validationResult } = require('express-validator');
+import { body, param, query, validationResult } from 'express-validator';
 
 
 const validate = (req, res, next) => {
@@ -108,7 +108,7 @@ const paginationValidation = [
   validate
 ];
 
-module.exports = {
+export {
   registerValidation,
   loginValidation,
   profileUpdateValidation,

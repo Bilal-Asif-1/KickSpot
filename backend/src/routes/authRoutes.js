@@ -1,13 +1,13 @@
-const express = require('express');
+import express from 'express';
 const router = express.Router();
-const { AuthController, ProfileController } = require('../controllers/user');
-const auth = require('../middleware/auth');
-const {
+import { AuthController, ProfileController } from '../controllers/user/index.js';
+import auth from '../middleware/auth.js';
+import {
   registerValidation,
   loginValidation,
   profileUpdateValidation,
   passwordChangeValidation
-} = require('../middleware/validationMiddleware');
+} from '../middleware/validationMiddleware.js';
 
 // Public routes
 router.post('/register', registerValidation, AuthController.register);
@@ -18,4 +18,4 @@ router.get('/profile', auth, ProfileController.getProfile);
 router.put('/profile', auth, profileUpdateValidation, ProfileController.updateProfile);
 router.put('/change-password', auth, passwordChangeValidation, ProfileController.changePassword);
 
-module.exports = router;
+export default router;

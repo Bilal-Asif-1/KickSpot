@@ -1,9 +1,9 @@
 
 
-const ProductController = require('./ProductController');
-const ProductQueryController = require('./ProductQueryController');
+import ProductController from './ProductController.js';
+import ProductQueryController from './ProductQueryController.js';
 
-module.exports = {
+export {
   ProductController,
   ProductQueryController
 };

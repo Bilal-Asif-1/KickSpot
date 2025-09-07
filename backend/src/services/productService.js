@@ -1,8 +1,8 @@
-const { Product, User } = require('../models');
-const { Op } = require('sequelize');
+import { Product, User } from '../models/index.js';
+import { Op } from 'sequelize';
 
 
-exports.createProduct = async (productData, userId) => {
+export const createProduct = async (productData, userId) => {
   const { name, description, price, category, stock } = productData;
 
   const product = await Product.create({
@@ -25,7 +25,7 @@ exports.createProduct = async (productData, userId) => {
 };
 
 
-exports.getAllProducts = async (options) => {
+export const getAllProducts = async (options) => {
   const { 
     page = 1, 
     limit = 10, 
@@ -71,7 +71,7 @@ exports.getAllProducts = async (options) => {
   };
 };
 
-exports.getProductById = async (id) => {
+export const getProductById = async (id) => {
   return await Product.findByPk(id, {
     include: [{
       model: User,
@@ -82,7 +82,7 @@ exports.getProductById = async (id) => {
 };
 
 
-exports.getProductsByCategory = async (category) => {
+export const getProductsByCategory = async (category) => {
   return await Product.findAll({
     where: { category },
     include: [{
@@ -94,7 +94,7 @@ exports.getProductsByCategory = async (category) => {
 };
 
 
-exports.getUserProducts = async (userId) => {
+export const getUserProducts = async (userId) => {
   return await Product.findAll({
     where: { userId },
     include: [{
@@ -106,7 +106,7 @@ exports.getUserProducts = async (userId) => {
 };
 
 
-exports.updateProduct = async (id, productData, userId) => {
+export const updateProduct = async (id, productData, userId) => {
   // Check if product exists and belongs to user
   const product = await Product.findOne({
     where: { id, userId }
@@ -130,7 +130,7 @@ exports.updateProduct = async (id, productData, userId) => {
 };
 
 
-exports.deleteProduct = async (id, userId) => {
+export const deleteProduct = async (id, userId) => {
   // Check if product exists and belongs to user
   const product = await Product.findOne({
     where: { id, userId }

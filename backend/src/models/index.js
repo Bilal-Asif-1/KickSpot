@@ -1,15 +1,18 @@
 // Import database configuration
-const { sequelize, Sequelize } = require("../config/database.js");
+import { sequelize, Sequelize } from "../config/database.js";
 
 // Import models
-const User = require("./user.js")(sequelize, Sequelize.DataTypes);
-const Product = require("./product.js")(sequelize, Sequelize.DataTypes);
+import UserModel from "./user.js";
+import ProductModel from "./product.js";
+
+const User = UserModel(sequelize, Sequelize.DataTypes);
+const Product = ProductModel(sequelize, Sequelize.DataTypes);
 
 // Define associations
 User.hasMany(Product, { foreignKey: 'userId', as: 'products' });
 Product.belongsTo(User, { foreignKey: 'userId', as: 'user' });
 
-module.exports = {
+export {
   sequelize,
   User,
   Product,

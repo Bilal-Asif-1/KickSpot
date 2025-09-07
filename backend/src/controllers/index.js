@@ -3,10 +3,10 @@
  * Export all controllers
  */
 
-const userControllers = require('./user');
-const productControllers = require('./product');
+import * as userControllers from './user/index.js';
+import * as productControllers from './product/index.js';
 
-module.exports = {
+export {
   // User Controllers
   ...userControllers,
   

@@ -1,14 +1,14 @@
-const express = require('express');
+import express from 'express';
 const router = express.Router();
-const { ProductController, ProductQueryController } = require('../controllers/product');
-const auth = require('../middleware/auth');
-const { isAdmin } = require('../middleware/roleCheck');
-const {
+import { ProductController, ProductQueryController } from '../controllers/product/index.js';
+import auth from '../middleware/auth.js';
+import { isAdmin } from '../middleware/roleCheck.js';
+import {
   productCreateValidation,
   productUpdateValidation,
   idParamValidation,
   paginationValidation
-} = require('../middleware/validationMiddleware');
+} from '../middleware/validationMiddleware.js';
 
 // Public routes (no authentication required)
 router.get('/', paginationValidation, ProductQueryController.getAllProducts);
@@ -32,4 +32,4 @@ router.put('/:id', idParamValidation, productUpdateValidation, isAdmin, ProductC
 // Delete product (admin only)
 router.delete('/:id', idParamValidation, isAdmin, ProductController.deleteProduct);
 
-module.exports = router;
+export default router;

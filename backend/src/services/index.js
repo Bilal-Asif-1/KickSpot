@@ -1,8 +1,8 @@
-const productService = require('./productService');
-const userService = require('./userService');
-const authService = require('./authService');
+import * as productService from './productService.js';
+import * as userService from './userService.js';
+import * as authService from './authService.js';
 
-module.exports = {
+export {
   productService,
   userService,
   authService

@@ -1,8 +1,8 @@
 
-const express = require('express');
-const authRoutes = require('./authRoutes');
-const userRoutes = require('./userRoutes');
-const productRoutes = require('./productRoutes');
+import express from 'express';
+import authRoutes from './authRoutes.js';
+import userRoutes from './userRoutes.js';
+import productRoutes from './productRoutes.js';
 
 const configureRoutes = (app) => {
   // API Routes
@@ -51,4 +51,4 @@ const configureRoutes = (app) => {
   });
 };
 
-module.exports = configureRoutes;
+export default configureRoutes;

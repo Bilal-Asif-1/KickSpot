@@ -1,5 +1,5 @@
-const BaseController = require('../base/BaseController');
-const { userService } = require('../../services');
+import BaseController from '../base/BaseController.js';
+import { userService } from '../../services/index.js';
 
 class ProfileController extends BaseController {
 
@@ -66,4 +66,4 @@ class ProfileController extends BaseController {
   };
 }
 
-module.exports = new ProfileController();
+export default new ProfileController();

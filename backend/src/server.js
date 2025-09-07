@@ -1,11 +1,11 @@
-const express = require("express");
-const { sequelize } = require("./config/database");
-const errorHandler = require("./middleware/errorHandler");
-const responseHandler = require("./middleware/responseHandler");
-const cors = require("cors");
-const { body, validationResult } = require("express-validator");
-const configureRoutes = require("./routes");
-const appConfig = require("./config/app");
+import express from "express";
+import { sequelize } from "./config/database.js";
+import errorHandler from "./middleware/errorHandler.js";
+import responseHandler from "./middleware/responseHandler.js";
+import cors from "cors";
+import { body, validationResult } from "express-validator";
+import configureRoutes from "./routes/index.js";
+import appConfig from "./config/app.js";
 
 const app = express();
 

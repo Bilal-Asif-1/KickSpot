@@ -2,13 +2,13 @@
  * Application Configuration
  */
 
-const dotenv = require('dotenv');
-const path = require('path');
+import dotenv from 'dotenv';
+import path from 'path';
 
 // Load environment variables
 dotenv.config();
 
-module.exports = {
+export default {
   // Server configuration
   port: process.env.PORT || 5000,
   nodeEnv: process.env.NODE_ENV || 'development',

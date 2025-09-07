@@ -1,5 +1,5 @@
 
-exports.successResponse = (message = 'Operation successful', data = {}, statusCode = 200) => {
+export const successResponse = (message = 'Operation successful', data = {}, statusCode = 200) => {
   return {
     success: true,
     message,
@@ -9,7 +9,7 @@ exports.successResponse = (message = 'Operation successful', data = {}, statusCo
 };
 
 
-exports.errorResponse = (message = 'Operation failed', statusCode = 500, errors = null) => {
+export const errorResponse = (message = 'Operation failed', statusCode = 500, errors = null) => {
   return {
     success: false,
     message,
@@ -19,7 +19,7 @@ exports.errorResponse = (message = 'Operation failed', statusCode = 500, errors 
 };
 
 
-exports.paginationResponse = (data = [], page = 1, limit = 10, total = 0, message = 'Data retrieved successfully') => {
+export const paginationResponse = (data = [], page = 1, limit = 10, total = 0, message = 'Data retrieved successfully') => {
   const totalPages = Math.ceil(total / limit);
   const hasNextPage = page < totalPages;
   const hasPrevPage = page > 1;

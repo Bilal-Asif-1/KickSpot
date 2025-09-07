@@ -1,13 +1,13 @@
-const express = require('express');
+import express from 'express';
 const router = express.Router();
-const { AdminController } = require('../controllers/user');
-const auth = require('../middleware/auth');
-const { isAdmin } = require('../middleware/roleCheck');
-const { idParamValidation, paginationValidation } = require('../middleware/validationMiddleware');
+import { AdminController } from '../controllers/user/index.js';
+import auth from '../middleware/auth.js';
+import { isAdmin } from '../middleware/roleCheck.js';
+import { idParamValidation, paginationValidation } from '../middleware/validationMiddleware.js';
 
 // Admin routes
 router.get('/', auth, isAdmin, paginationValidation, AdminController.getAllUsers);
 router.get('/:id', auth, isAdmin, idParamValidation, AdminController.getUserById);
 router.delete('/:id', auth, isAdmin, idParamValidation, AdminController.deleteUser);
 
-module.exports = router;
+export default router;

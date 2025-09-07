@@ -40,4 +40,4 @@ class BaseController {
   }
 }
 
-module.exports = BaseController;
+export default BaseController;

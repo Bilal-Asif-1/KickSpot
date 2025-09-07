@@ -26,4 +26,4 @@ const isAdmin = (req, res, next) => {
   return res.forbidden('Admin access required');
 };
 
-module.exports = { isAdmin };
+export { isAdmin };

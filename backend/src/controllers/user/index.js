@@ -3,11 +3,11 @@
  * Export all user-related controllers
  */
 
-const AuthController = require('./AuthController');
-const ProfileController = require('./ProfileController');
-const AdminController = require('./AdminController');
+import AuthController from './AuthController.js';
+import ProfileController from './ProfileController.js';
+import AdminController from './AdminController.js';
 
-module.exports = {
+export {
   AuthController,
   ProfileController,
   AdminController

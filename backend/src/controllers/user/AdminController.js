@@ -1,5 +1,5 @@
-const BaseController = require('../base/BaseController');
-const { userService } = require('../../services');
+import BaseController from '../base/BaseController.js';
+import { userService } from '../../services/index.js';
 
 class AdminController extends BaseController {
 
@@ -51,4 +51,4 @@ class AdminController extends BaseController {
   };
 }
 
-module.exports = new AdminController();
+export default new AdminController();

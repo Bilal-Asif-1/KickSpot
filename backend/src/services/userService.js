@@ -1,10 +1,10 @@
 
-const { User } = require('../models');
-const bcrypt = require('bcryptjs');
-const jwt = require('jsonwebtoken');
+import { User } from '../models/index.js';
+import bcrypt from 'bcryptjs';
+import jwt from 'jsonwebtoken';
 
 
-exports.register = async (userData) => {
+export const register = async (userData) => {
   const { name, email, password, role = 'user' } = userData;
 
   // Check if user exists
@@ -43,7 +43,7 @@ exports.register = async (userData) => {
 };
 
 
-exports.login = async (credentials) => {
+export const login = async (credentials) => {
   const { email, password } = credentials;
 
   // Find user
@@ -77,21 +77,21 @@ exports.login = async (credentials) => {
 };
 
 
-exports.getAllUsers = async () => {
+export const getAllUsers = async () => {
   return await User.findAll({
     attributes: ['id', 'name', 'email', 'role', 'createdAt']
   });
 };
 
 
-exports.getUserById = async (id) => {
+export const getUserById = async (id) => {
   return await User.findByPk(id, {
     attributes: ['id', 'name', 'email', 'role', 'createdAt']
   });
 };
 
 
-exports.updateUser = async (id, userData) => {
+export const updateUser = async (id, userData) => {
   const user = await User.findByPk(id);
   
   if (!user) {
@@ -119,7 +119,7 @@ exports.updateUser = async (id, userData) => {
  * @param {number} id - User ID
  * @returns {Promise<boolean>} Success status
  */
-exports.deleteUser = async (id) => {
+export const deleteUser = async (id) => {
   const user = await User.findByPk(id);
   
   if (!user) {

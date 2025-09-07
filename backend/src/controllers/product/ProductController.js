@@ -1,5 +1,5 @@
-const BaseController = require('../base/BaseController');
-const { productService } = require('../../services');
+import BaseController from '../base/BaseController.js';
+import { productService } from '../../services/index.js';
 
 class ProductController extends BaseController {
 
@@ -92,4 +92,4 @@ class ProductController extends BaseController {
   };
 }
 
-module.exports = new ProductController();
+export default new ProductController();

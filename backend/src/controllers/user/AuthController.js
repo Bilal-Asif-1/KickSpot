@@ -1,5 +1,5 @@
-const BaseController = require('../base/BaseController');
-const { userService } = require('../../services');
+import BaseController from '../base/BaseController.js';
+import { userService } from '../../services/index.js';
 
 class AuthController extends BaseController {
 
@@ -52,4 +52,4 @@ class AuthController extends BaseController {
   };
 }
 
-module.exports = new AuthController();
+export default new AuthController();
