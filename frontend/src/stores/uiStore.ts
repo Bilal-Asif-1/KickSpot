@@ -1,4 +1,5 @@
 import { create } from 'zustand';
+import { useShallow } from 'zustand/react/shallow';
 
 interface UIState {
   // Navigation
@@ -185,49 +186,67 @@ export const useUIStore = create<UIStore>()((set, get) => ({
 }));
 
 // Selectors for better performance
-export const useNavigation = () => useUIStore((state) => ({
-  isMobileMenuOpen: state.isMobileMenuOpen,
-  isSidebarOpen: state.isSidebarOpen,
-  toggleMobileMenu: state.toggleMobileMenu,
-  setMobileMenuOpen: state.setMobileMenuOpen,
-  toggleSidebar: state.toggleSidebar,
-  setSidebarOpen: state.setSidebarOpen,
-}));
+export const useNavigation = () =>
+  useUIStore(
+    useShallow((state) => ({
+      isMobileMenuOpen: state.isMobileMenuOpen,
+      isSidebarOpen: state.isSidebarOpen,
+      toggleMobileMenu: state.toggleMobileMenu,
+      setMobileMenuOpen: state.setMobileMenuOpen,
+      toggleSidebar: state.toggleSidebar,
+      setSidebarOpen: state.setSidebarOpen,
+    }))
+  );
 
-export const useModal = () => useUIStore((state) => ({
-  isProductModalOpen: state.isProductModalOpen,
-  selectedProductId: state.selectedProductId,
-  openProductModal: state.openProductModal,
-  closeProductModal: state.closeProductModal,
-}));
+export const useModal = () =>
+  useUIStore(
+    useShallow((state) => ({
+      isProductModalOpen: state.isProductModalOpen,
+      selectedProductId: state.selectedProductId,
+      openProductModal: state.openProductModal,
+      closeProductModal: state.closeProductModal,
+    }))
+  );
 
-export const useLoading = () => useUIStore((state) => ({
-  isGlobalLoading: state.isGlobalLoading,
-  loadingStates: state.loadingStates,
-  setGlobalLoading: state.setGlobalLoading,
-  setLoadingState: state.setLoadingState,
-}));
+export const useLoading = () =>
+  useUIStore(
+    useShallow((state) => ({
+      isGlobalLoading: state.isGlobalLoading,
+      loadingStates: state.loadingStates,
+      setGlobalLoading: state.setGlobalLoading,
+      setLoadingState: state.setLoadingState,
+    }))
+  );
 
-export const useNotifications = () => useUIStore((state) => ({
-  notifications: state.notifications,
-  addNotification: state.addNotification,
-  removeNotification: state.removeNotification,
-  clearAllNotifications: state.clearAllNotifications,
-}));
+export const useNotifications = () =>
+  useUIStore(
+    useShallow((state) => ({
+      notifications: state.notifications,
+      addNotification: state.addNotification,
+      removeNotification: state.removeNotification,
+      clearAllNotifications: state.clearAllNotifications,
+    }))
+  );
 
-export const useFilters = () => useUIStore((state) => ({
-  searchQuery: state.searchQuery,
-  selectedCategory: state.selectedCategory,
-  priceRange: state.priceRange,
-  sortBy: state.sortBy,
-  setSearchQuery: state.setSearchQuery,
-  setSelectedCategory: state.setSelectedCategory,
-  setPriceRange: state.setPriceRange,
-  setSortBy: state.setSortBy,
-  clearFilters: state.clearFilters,
-}));
+export const useFilters = () =>
+  useUIStore(
+    useShallow((state) => ({
+      searchQuery: state.searchQuery,
+      selectedCategory: state.selectedCategory,
+      priceRange: state.priceRange,
+      sortBy: state.sortBy,
+      setSearchQuery: state.setSearchQuery,
+      setSelectedCategory: state.setSelectedCategory,
+      setPriceRange: state.setPriceRange,
+      setSortBy: state.setSortBy,
+      clearFilters: state.clearFilters,
+    }))
+  );
 
-export const useTheme = () => useUIStore((state) => ({
-  theme: state.theme,
-  setTheme: state.setTheme,
-}));
+export const useTheme = () =>
+  useUIStore(
+    useShallow((state) => ({
+      theme: state.theme,
+      setTheme: state.setTheme,
+    }))
+  );

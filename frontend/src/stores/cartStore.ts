@@ -1,5 +1,6 @@
 import { create } from 'zustand';
 import { persist } from 'zustand/middleware';
+import { useShallow } from 'zustand/react/shallow';
 import { CartItem, Product } from '../types';
 
 interface CartState {
@@ -144,18 +145,24 @@ export const useCartStore = create<CartStore>()(
 );
 
 // Selectors
-export const useCart = () => useCartStore((state) => ({
-  items: state.items,
-  isOpen: state.isOpen,
-  totalItems: state.totalItems,
-  totalPrice: state.totalPrice,
-}));
+export const useCart = () =>
+  useCartStore(
+    useShallow((state) => ({
+      items: state.items,
+      isOpen: state.isOpen,
+      totalItems: state.totalItems,
+      totalPrice: state.totalPrice,
+    }))
+  );
 
-export const useCartActions = () => useCartStore((state) => ({
-  addItem: state.addItem,
-  removeItem: state.removeItem,
-  updateQuantity: state.updateQuantity,
-  clearCart: state.clearCart,
-  toggleCart: state.toggleCart,
-  setCartOpen: state.setCartOpen,
-}));
+export const useCartActions = () =>
+  useCartStore(
+    useShallow((state) => ({
+      addItem: state.addItem,
+      removeItem: state.removeItem,
+      updateQuantity: state.updateQuantity,
+      clearCart: state.clearCart,
+      toggleCart: state.toggleCart,
+      setCartOpen: state.setCartOpen,
+    }))
+  );

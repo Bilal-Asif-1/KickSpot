@@ -1,5 +1,6 @@
 import { create } from 'zustand';
 import { persist } from 'zustand/middleware';
+import { useShallow } from 'zustand/react/shallow';
 import { User } from '../types';
 
 interface AuthState {
@@ -65,16 +66,22 @@ export const useAuthStore = create<AuthStore>()(
   )
 );
 
-// Selectors for better performance
-export const useAuth = () => useAuthStore((state) => ({
-  user: state.user,
-  isAuthenticated: state.isAuthenticated,
-  isLoading: state.isLoading,
-}));
+// Selectors for better performance (use shallow to avoid new object refs)
+export const useAuth = () =>
+  useAuthStore(
+    useShallow((state) => ({
+      user: state.user,
+      isAuthenticated: state.isAuthenticated,
+      isLoading: state.isLoading,
+    }))
+  );
 
-export const useAuthActions = () => useAuthStore((state) => ({
-  login: state.login,
-  logout: state.logout,
-  setUser: state.setUser,
-  setLoading: state.setLoading,
-}));
+export const useAuthActions = () =>
+  useAuthStore(
+    useShallow((state) => ({
+      login: state.login,
+      logout: state.logout,
+      setUser: state.setUser,
+      setLoading: state.setLoading,
+    }))
+  );
