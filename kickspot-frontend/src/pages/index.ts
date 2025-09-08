@@ -1,0 +1,6 @@
+export { default as HomePage } from './user/HomePage'
+export { default as ProductsPage } from './user/ProductsPage'
+export { default as CartPage } from './user/CartPage'
+export { default as CheckoutPage } from './user/CheckoutPage'
+export { default as OrdersPage } from './user/OrdersPage'
+export { default as AdminDashboardPage } from './admin/AdminDashboardPage'

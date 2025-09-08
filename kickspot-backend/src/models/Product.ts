@@ -1,0 +1,27 @@
+import { DataTypes, InferAttributes, InferCreationAttributes, Model } from 'sequelize'
+import { sequelize } from '@/lib/sequelize'
+
+export class Product extends Model<InferAttributes<Product>, InferCreationAttributes<Product>> {
+  declare id: number
+  declare name: string
+  declare category: string
+  declare price: number
+  declare stock: number
+  declare description: string | null
+  declare image_url: string | null
+}
+
+Product.init(
+  {
+    id: { type: DataTypes.INTEGER.UNSIGNED, autoIncrement: true, primaryKey: true },
+    name: { type: DataTypes.STRING, allowNull: false },
+    category: { type: DataTypes.STRING, allowNull: false },
+    price: { type: DataTypes.FLOAT.UNSIGNED, allowNull: false },
+    stock: { type: DataTypes.INTEGER.UNSIGNED, allowNull: false, defaultValue: 0 },
+    description: { type: DataTypes.TEXT, allowNull: true },
+    image_url: { type: DataTypes.STRING, allowNull: true },
+  },
+  { sequelize, tableName: 'products', timestamps: true, createdAt: 'created_at', updatedAt: false }
+)
+
+
