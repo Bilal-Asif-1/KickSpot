@@ -8,7 +8,7 @@ export const registerValidators = [
   body('name').isString().isLength({ min: 2 }),
   body('email').isEmail(),
   body('password').isLength({ min: 6 }),
-  body('role').optional().isIn(['user', 'admin']),
+  body('role').optional().isIn(['user', 'seller', 'admin']),
 ]
 
 export async function register(req: Request, res: Response) {

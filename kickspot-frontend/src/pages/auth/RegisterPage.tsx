@@ -13,7 +13,7 @@ const schema = z.object({
   name: z.string().min(2),
   email: z.string().email(),
   password: z.string().min(6),
-  role: z.enum(['user', 'admin']),
+  role: z.enum(['user', 'seller', 'admin']),
 })
 
 export default function RegisterPage() {
@@ -77,7 +77,8 @@ export default function RegisterPage() {
                   </SelectTrigger>
                 </FormControl>
                 <SelectContent>
-                  <SelectItem value="user">Customer</SelectItem>
+                  <SelectItem value="user">Customer (Buyer)</SelectItem>
+                  <SelectItem value="seller">Seller</SelectItem>
                   <SelectItem value="admin">Admin</SelectItem>
                 </SelectContent>
               </Select>

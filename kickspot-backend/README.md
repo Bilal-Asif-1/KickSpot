@@ -45,3 +45,4 @@ npm run dev
 - MySQL
 - Socket.io
 - JWT Authentication
+

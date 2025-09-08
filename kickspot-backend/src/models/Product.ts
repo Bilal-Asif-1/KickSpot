@@ -9,6 +9,7 @@ export class Product extends Model<InferAttributes<Product>, InferCreationAttrib
   declare stock: number
   declare description: string | null
   declare image_url: string | null
+  declare seller_id: number
 }
 
 Product.init(
@@ -20,6 +21,7 @@ Product.init(
     stock: { type: DataTypes.INTEGER.UNSIGNED, allowNull: false, defaultValue: 0 },
     description: { type: DataTypes.TEXT, allowNull: true },
     image_url: { type: DataTypes.STRING, allowNull: true },
+    seller_id: { type: DataTypes.INTEGER.UNSIGNED, allowNull: false },
   },
   { sequelize, tableName: 'products', timestamps: true, createdAt: 'created_at', updatedAt: false }
 )

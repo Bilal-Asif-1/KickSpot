@@ -12,12 +12,12 @@ export default function ProductCard({ product }: { product: Product }) {
 
   const handleAddToCart = () => {
     if (!user) {
-      // Redirect to login if user is not authenticated
-      navigate('/login')
+      // Redirect to login with return path
+      navigate('/login', { state: { from: { pathname: '/' } } })
       return
     }
-    if (user.role === 'admin') {
-      // Admins cannot buy products
+    if (user.role === 'admin' || user.role === 'seller') {
+      // Admins and sellers cannot buy products
       return
     }
     dispatch(addToCart(product))
@@ -25,12 +25,12 @@ export default function ProductCard({ product }: { product: Product }) {
 
   const handleBuyNow = () => {
     if (!user) {
-      // Redirect to login if user is not authenticated
-      navigate('/login')
+      // Redirect to login with return path
+      navigate('/login', { state: { from: { pathname: '/' } } })
       return
     }
-    if (user.role === 'admin') {
-      // Admins cannot buy products
+    if (user.role === 'admin' || user.role === 'seller') {
+      // Admins and sellers cannot buy products
       return
     }
     dispatch(addToCart(product))
@@ -43,14 +43,31 @@ export default function ProductCard({ product }: { product: Product }) {
         <CardTitle className="text-base font-semibold">{product.name}</CardTitle>
       </CardHeader>
       <CardContent className="flex-1">
-        <div className="aspect-video w-full bg-muted rounded" />
+        <div className="aspect-video w-full bg-muted rounded overflow-hidden">
+          {product.image_url ? (
+            <img 
+              src={product.image_url} 
+              alt={product.name}
+              className="w-full h-full object-cover"
+            />
+          ) : (
+            <div className="w-full h-full flex items-center justify-center text-muted-foreground">
+              No Image
+            </div>
+          )}
+        </div>
         <p className="mt-2 text-sm text-muted-foreground">{product.category}</p>
         <p className="mt-1 font-semibold">${product.price.toFixed(2)}</p>
+        {product.description && (
+          <p className="mt-1 text-xs text-muted-foreground line-clamp-2">
+            {product.description}
+          </p>
+        )}
       </CardContent>
       <CardFooter className="gap-2">
-        {user?.role === 'admin' ? (
+        {user?.role === 'admin' || user?.role === 'seller' ? (
           <div className="w-full text-center text-sm text-muted-foreground">
-            Admin View Only
+            {user.role === 'admin' ? 'Admin View Only' : 'Seller View Only'}
           </div>
         ) : (
           <>

@@ -4,6 +4,7 @@ import cors from 'cors'
 import morgan from 'morgan'
 import http from 'http'
 import { Server } from 'socket.io'
+import path from 'path'
 import { sequelize } from './lib/sequelize'
 import router from './routes'
 
@@ -11,6 +12,9 @@ const app = express()
 app.use(cors())
 app.use(express.json())
 app.use(morgan('dev'))
+
+// Serve uploaded files
+app.use('/uploads', express.static(path.join(process.cwd(), 'uploads')))
 
 app.use('/api', router)
 

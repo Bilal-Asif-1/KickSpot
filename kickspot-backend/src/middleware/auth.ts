@@ -2,7 +2,7 @@ import { Request, Response, NextFunction } from 'express'
 import jwt from 'jsonwebtoken'
 
 export interface AuthRequest extends Request {
-  user?: { id: number; role: 'admin' | 'user' }
+  user?: { id: number; role: 'admin' | 'seller' | 'user' }
 }
 
 export function authenticate(req: AuthRequest, res: Response, next: NextFunction) {
@@ -18,7 +18,7 @@ export function authenticate(req: AuthRequest, res: Response, next: NextFunction
   }
 }
 
-export function authorize(roles: Array<'admin' | 'user'>) {
+export function authorize(roles: Array<'admin' | 'seller' | 'user'>) {
   return (req: AuthRequest, res: Response, next: NextFunction) => {
     if (!req.user || !roles.includes(req.user.role)) return res.status(403).json({ message: 'Forbidden' })
     next()
