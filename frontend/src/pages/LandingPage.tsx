@@ -1,6 +1,6 @@
 import React from "react";
 import { motion } from "framer-motion";
-import { AppNavbar } from "@/components/AppNavbar";
+import SiteNavbar from "@/components/SiteNavbar";
 import { 
   ArrowRight, 
   Search,
@@ -13,8 +13,8 @@ import {
 const LandingPage = () => {
   return (
     <div className="relative w-full min-h-screen bg-black text-white">
-      {/* Round Pill Navbar */}
-      <AppNavbar />
+      {/* Site Navbar */}
+      <SiteNavbar />
       
       {/* Background gradient effects */}
       <div className="absolute inset-0 overflow-hidden">
