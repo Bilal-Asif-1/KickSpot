@@ -51,6 +51,15 @@ export interface ProductsResponse {
   };
 }
 
+// Cart Types
+export interface CartItem {
+  id: string;
+  product: Product;
+  quantity: number;
+  size?: string;
+  color?: string;
+}
+
 // Order Types
 export interface OrderItem {
   id?: number;
@@ -66,7 +75,6 @@ export interface OrderItem {
   size?: string;
   color?: string;
   variant?: string;
-  product?: Product;
 }
 
 export interface Order {
@@ -75,63 +83,25 @@ export interface Order {
   userId: number;
   status: 'pending' | 'confirmed' | 'processing' | 'shipped' | 'delivered' | 'cancelled';
   totalAmount: string;
-  
-  // Buyer Details
   buyerName: string;
   buyerEmail: string;
   buyerPhone?: string;
-  
-  // Shipping Address
   shippingAddress: string;
   shippingCity: string;
   shippingState: string;
   shippingZip: string;
   shippingCountry: string;
-  
-  // Payment Info
   paymentMethod: 'credit_card' | 'debit_card' | 'paypal' | 'cash_on_delivery';
   paymentStatus: 'pending' | 'paid' | 'failed' | 'refunded';
-  
-  // Notes
   orderNotes?: string;
   adminNotes?: string;
-  
-  // Tracking
   trackingNumber?: string;
   estimatedDelivery?: string;
   deliveredAt?: string;
-  
-  // Relations
   items: OrderItem[];
   customer?: User;
-  
   createdAt: string;
   updatedAt: string;
-}
-
-// Create Order Request
-export interface CreateOrderRequest {
-  items: Array<{
-    productId: number;
-    quantity: number;
-    size?: string;
-    color?: string;
-    variant?: string;
-  }>;
-  shippingDetails: {
-    name: string;
-    email: string;
-    phone?: string;
-    address: string;
-    city: string;
-    state: string;
-    zip: string;
-    country?: string;
-  };
-  paymentDetails?: {
-    method: 'credit_card' | 'debit_card' | 'paypal' | 'cash_on_delivery';
-  };
-  orderNotes?: string;
 }
 
 // API Response Types
@@ -149,27 +119,6 @@ export interface PaginationInfo {
   limit: number;
 }
 
-// Dashboard Stats (Admin)
-export interface OrderStats {
-  totalOrders: number;
-  ordersToday: number;
-  ordersThisMonth: number;
-  totalRevenue: number;
-  revenueToday: number;
-  revenueThisMonth: number;
-  statusBreakdown: Record<string, number>;
-  recentOrders: Order[];
-}
-
-// Cart Types (Frontend State)
-export interface CartItem {
-  product: Product;
-  quantity: number;
-  size?: string;
-  color?: string;
-  variant?: string;
-}
-
 // Form Types
 export interface LoginFormData {
   email: string;
@@ -180,7 +129,7 @@ export interface RegisterFormData {
   name: string;
   email: string;
   password: string;
-  confirmPassword: string;
+  confirmPassword?: string;
 }
 
 export interface ShippingFormData {
@@ -192,4 +141,19 @@ export interface ShippingFormData {
   state: string;
   zip: string;
   country: string;
+}
+
+export interface CreateOrderRequest {
+  items: Array<{
+    productId: number;
+    quantity: number;
+    size?: string;
+    color?: string;
+    variant?: string;
+  }>;
+  shippingDetails: ShippingFormData;
+  paymentDetails?: {
+    method: 'credit_card' | 'debit_card' | 'paypal' | 'cash_on_delivery';
+  };
+  orderNotes?: string;
 }
