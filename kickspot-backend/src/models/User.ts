@@ -1,12 +1,12 @@
-import { DataTypes, InferAttributes, InferCreationAttributes, Model, CreationOptional } from 'sequelize'
-import { sequelize } from '@/lib/sequelize'
+import { DataTypes, Model } from 'sequelize'
+import { sequelize } from '../lib/sequelize.ts'
 
-export class User extends Model<InferAttributes<User>, InferCreationAttributes<User>> {
-  declare id: CreationOptional<number>
+export class User extends Model {
+  declare id: number
   declare name: string
   declare email: string
   declare password: string
-  declare role: CreationOptional<'admin' | 'seller' | 'user'>
+  declare role: 'admin' | 'user'
 }
 
 User.init(
@@ -15,7 +15,7 @@ User.init(
     name: { type: DataTypes.STRING, allowNull: false },
     email: { type: DataTypes.STRING, allowNull: false, unique: true },
     password: { type: DataTypes.STRING, allowNull: false },
-    role: { type: DataTypes.ENUM('admin', 'seller', 'user'), allowNull: false, defaultValue: 'user' },
+    role: { type: DataTypes.ENUM('admin', 'user'), allowNull: false, defaultValue: 'user' },
   },
   { sequelize, tableName: 'users', timestamps: true, createdAt: 'created_at', updatedAt: false }
 )

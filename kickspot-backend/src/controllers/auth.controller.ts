@@ -1,5 +1,5 @@
 import { Request, Response } from 'express'
-import { User } from '@/models'
+import { User } from '../models/index.js'
 import bcrypt from 'bcryptjs'
 import jwt from 'jsonwebtoken'
 import { body, validationResult } from 'express-validator'
@@ -8,7 +8,7 @@ export const registerValidators = [
   body('name').isString().isLength({ min: 2 }),
   body('email').isEmail(),
   body('password').isLength({ min: 6 }),
-  body('role').optional().isIn(['user', 'seller', 'admin']),
+  body('role').optional().isIn(['user', 'admin']),
 ]
 
 export async function register(req: Request, res: Response) {

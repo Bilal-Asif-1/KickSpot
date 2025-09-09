@@ -1,15 +1,16 @@
-import { User } from './User'
-import { Product } from './Product'
-import { Order } from './Order'
-import { OrderItem } from './OrderItem'
-import { Notification } from './Notification'
+import { User } from './User.ts'
+import { Product } from './Product.ts'
+import { Order } from './Order.ts'
+import { OrderItem } from './OrderItem.ts'
+import { Notification } from './Notification.ts'
 
-Order.belongsTo(User, { foreignKey: 'user_id' })
+Order.belongsTo(User, { foreignKey: 'user_id', as: 'user' })
 OrderItem.belongsTo(Order, { foreignKey: 'order_id' })
-OrderItem.belongsTo(Product, { foreignKey: 'product_id' })
-Order.hasMany(OrderItem, { foreignKey: 'order_id' })
-Product.belongsTo(User, { foreignKey: 'seller_id', as: 'seller' })
-User.hasMany(Product, { foreignKey: 'seller_id', as: 'products' })
+OrderItem.belongsTo(Product, { foreignKey: 'product_id', as: 'product' })
+Order.hasMany(OrderItem, { foreignKey: 'order_id', as: 'orderItems' })
+Product.belongsTo(User, { foreignKey: 'seller_id', as: 'seller', constraints: false })
+User.hasMany(Product, { foreignKey: 'seller_id', as: 'products', constraints: false })
+User.hasMany(Order, { foreignKey: 'user_id', as: 'orders' })
 
 export { User, Product, Order, OrderItem, Notification }
 

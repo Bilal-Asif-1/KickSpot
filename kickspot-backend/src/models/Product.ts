@@ -1,7 +1,7 @@
-import { DataTypes, InferAttributes, InferCreationAttributes, Model } from 'sequelize'
-import { sequelize } from '@/lib/sequelize'
+import { DataTypes, Model } from 'sequelize'
+import { sequelize } from '../lib/sequelize.ts'
 
-export class Product extends Model<InferAttributes<Product>, InferCreationAttributes<Product>> {
+export class Product extends Model {
   declare id: number
   declare name: string
   declare category: string
@@ -9,7 +9,7 @@ export class Product extends Model<InferAttributes<Product>, InferCreationAttrib
   declare stock: number
   declare description: string | null
   declare image_url: string | null
-  declare seller_id: number
+  declare seller_id: number | null
 }
 
 Product.init(
@@ -21,7 +21,7 @@ Product.init(
     stock: { type: DataTypes.INTEGER.UNSIGNED, allowNull: false, defaultValue: 0 },
     description: { type: DataTypes.TEXT, allowNull: true },
     image_url: { type: DataTypes.STRING, allowNull: true },
-    seller_id: { type: DataTypes.INTEGER.UNSIGNED, allowNull: false },
+    seller_id: { type: DataTypes.INTEGER.UNSIGNED, allowNull: true },
   },
   { sequelize, tableName: 'products', timestamps: true, createdAt: 'created_at', updatedAt: false }
 )

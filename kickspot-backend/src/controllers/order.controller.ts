@@ -1,8 +1,8 @@
 import { Response } from 'express'
-import { AuthRequest } from '@/middleware/auth'
-import { Order, OrderItem, Product, Notification } from '@/models'
+import { AuthRequest } from '../middleware/auth.js'
+import { Order, OrderItem, Product, Notification } from '../models/index.js'
 import { body, param, validationResult } from 'express-validator'
-import { io } from '@/index'
+import { io } from '../index.js'
 
 export const placeOrderValidators = [
   body('items').isArray({ min: 1 }),

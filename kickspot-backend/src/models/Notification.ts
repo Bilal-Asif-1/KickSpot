@@ -1,11 +1,11 @@
-import { DataTypes, InferAttributes, InferCreationAttributes, Model, CreationOptional } from 'sequelize'
-import { sequelize } from '@/lib/sequelize'
+import { DataTypes, Model } from 'sequelize'
+import { sequelize } from '../lib/sequelize.ts'
 
-export class Notification extends Model<InferAttributes<Notification>, InferCreationAttributes<Notification>> {
-  declare id: CreationOptional<number>
+export class Notification extends Model {
+  declare id: number
   declare message: string
   declare type: 'order' | 'new-customer' | 'low-stock'
-  declare is_read: CreationOptional<boolean>
+  declare is_read: boolean
 }
 
 Notification.init(

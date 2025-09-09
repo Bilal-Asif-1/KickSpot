@@ -1,11 +1,11 @@
-import { DataTypes, InferAttributes, InferCreationAttributes, Model, CreationOptional } from 'sequelize'
-import { sequelize } from '@/lib/sequelize'
+import { DataTypes, Model } from 'sequelize'
+import { sequelize } from '../lib/sequelize.ts'
 
-export class Order extends Model<InferAttributes<Order>, InferCreationAttributes<Order>> {
-  declare id: CreationOptional<number>
+export class Order extends Model {
+  declare id: number
   declare user_id: number
   declare total_price: number
-  declare status: CreationOptional<'pending' | 'processing' | 'delivered'>
+  declare status: 'pending' | 'processing' | 'delivered'
 }
 
 Order.init(

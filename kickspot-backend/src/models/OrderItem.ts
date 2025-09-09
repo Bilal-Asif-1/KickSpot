@@ -1,8 +1,8 @@
-import { DataTypes, InferAttributes, InferCreationAttributes, Model, CreationOptional } from 'sequelize'
-import { sequelize } from '@/lib/sequelize'
+import { DataTypes, Model } from 'sequelize'
+import { sequelize } from '../lib/sequelize.ts'
 
-export class OrderItem extends Model<InferAttributes<OrderItem>, InferCreationAttributes<OrderItem>> {
-  declare id: CreationOptional<number>
+export class OrderItem extends Model {
+  declare id: number
   declare order_id: number
   declare product_id: number
   declare quantity: number

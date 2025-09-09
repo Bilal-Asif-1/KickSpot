@@ -1,6 +1,6 @@
 import { Router } from 'express'
-import { authenticate, authorize } from '@/middleware/auth'
-import { listNotifications, markAsRead } from '@/controllers/notification.controller'
+import { authenticate, authorize } from '../../middleware/auth.js'
+import { listNotifications, markAsRead } from '../../controllers/notification.controller.js'
 
 const r = Router()
 

@@ -1,5 +1,5 @@
 import { Request, Response } from 'express'
-import { Notification } from '@/models'
+import { Notification } from '../models/index.js'
 
 export async function listNotifications(_req: Request, res: Response) {
   const notifications = await Notification.findAll({ order: [['created_at', 'DESC']] })

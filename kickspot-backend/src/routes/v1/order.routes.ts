@@ -1,6 +1,6 @@
 import { Router } from 'express'
-import { authenticate, authorize } from '@/middleware/auth'
-import { listOrders, placeOrder, placeOrderValidators, updateStatus, updateStatusValidators } from '@/controllers/order.controller'
+import { authenticate, authorize } from '../../middleware/auth.js'
+import { listOrders, placeOrder, placeOrderValidators, updateStatus, updateStatusValidators } from '../../controllers/order.controller.js'
 
 const r = Router()
 

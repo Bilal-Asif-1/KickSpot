@@ -1,7 +1,7 @@
 import { Router } from 'express'
-import { authenticate, authorize } from '@/middleware/auth'
-import { createProduct, createProductValidators, deleteProduct, deleteProductValidators, getProduct, getSellerBuyers, getSellerProducts, listProducts, updateProduct, updateProductValidators } from '@/controllers/product.controller'
-import { uploadSingle } from '@/middleware/upload'
+import { authenticate, authorize } from '../../middleware/auth.js'
+import { createProduct, createProductValidators, deleteProduct, deleteProductValidators, getProduct, listProducts, updateProduct, updateProductValidators } from '../../controllers/product.controller.js'
+import { uploadSingle } from '../../middleware/upload.js'
 
 const r = Router()
 
@@ -9,14 +9,11 @@ const r = Router()
 r.get('/', listProducts)
 r.get('/:id', getProduct)
 
-// Admin/Seller routes
-r.post('/', authenticate, authorize(['admin', 'seller']), uploadSingle, createProductValidators, createProduct)
+// Admin routes
+r.post('/', authenticate, authorize(['admin']), uploadSingle, createProduct)
 r.put('/:id', authenticate, authorize(['admin']), updateProductValidators, updateProduct)
 r.delete('/:id', authenticate, authorize(['admin']), deleteProductValidators, deleteProduct)
 
-// Seller-specific routes
-r.get('/seller/my-products', authenticate, authorize(['seller', 'admin']), getSellerProducts)
-r.get('/seller/my-buyers', authenticate, authorize(['seller', 'admin']), getSellerBuyers)
 
 export default r
 

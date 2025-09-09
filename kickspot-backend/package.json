@@ -10,7 +10,7 @@
     "start": "tsx src/index.ts",
     "lint": "eslint .",
     "lint:fix": "eslint . --fix",
-    "create-seller": "tsx src/scripts/createSeller.ts",
+    "create-admin": "tsx src/scripts/createAdmin.ts",
     "seed-products": "tsx src/scripts/seedProducts.ts"
   },
   "dependencies": {

@@ -16,8 +16,8 @@ export default function ProductCard({ product }: { product: Product }) {
       navigate('/login', { state: { from: { pathname: '/' } } })
       return
     }
-    if (user.role === 'admin' || user.role === 'seller') {
-      // Admins and sellers cannot buy products
+    if (user.role === 'admin') {
+      // Admins cannot buy products
       return
     }
     dispatch(addToCart(product))
@@ -29,8 +29,8 @@ export default function ProductCard({ product }: { product: Product }) {
       navigate('/login', { state: { from: { pathname: '/' } } })
       return
     }
-    if (user.role === 'admin' || user.role === 'seller') {
-      // Admins and sellers cannot buy products
+    if (user.role === 'admin') {
+      // Admins cannot buy products
       return
     }
     dispatch(addToCart(product))
@@ -65,9 +65,9 @@ export default function ProductCard({ product }: { product: Product }) {
         )}
       </CardContent>
       <CardFooter className="gap-2">
-        {user?.role === 'admin' || user?.role === 'seller' ? (
+        {user?.role === 'admin' ? (
           <div className="w-full text-center text-sm text-muted-foreground">
-            {user.role === 'admin' ? 'Admin View Only' : 'Seller View Only'}
+            Admin View Only
           </div>
         ) : (
           <>

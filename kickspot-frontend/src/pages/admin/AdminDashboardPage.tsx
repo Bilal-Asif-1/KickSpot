@@ -4,7 +4,7 @@ import { Button } from '@/components/ui/button'
 import { useSocket } from '@/hooks/useSocket'
 import ProductForm from '@/components/ProductForm'
 
-type Product = { id: number; name: string; category: string; price: number; stock: number }
+type Product = { id: number; name: string; category: string; price: number; stock: number; image_url?: string; description?: string }
 type Order = { id: number; user_id: number; total_price: number; status: 'pending' | 'processing' | 'delivered' }
 type Customer = { id: number; name: string; email: string; role: string }
 
@@ -24,9 +24,9 @@ export default function AdminDashboardPage() {
       setLoading(true)
       setError(undefined)
       const [p, o, c] = await Promise.all([
-        api.get<Product[]>('/api/v1/products'),
-        api.get<Order[]>('/api/v1/orders').catch(() => ({ data: [] as Order[] })),
-        api.get<Customer[]>('/api/v1/customers').catch(() => ({ data: [] as Customer[] })),
+        api.get<Product[]>('/api/v1/admin/products'),
+        api.get<Order[]>('/api/v1/admin/orders').catch(() => ({ data: [] as Order[] })),
+        api.get<Customer[]>('/api/v1/admin/buyers').catch(() => ({ data: [] as Customer[] })),
       ])
       setProducts(p.data)
       setOrders(o.data)
@@ -76,15 +76,15 @@ export default function AdminDashboardPage() {
         {/* Statistics Cards */}
         <div className="grid grid-cols-1 md:grid-cols-4 gap-4 mb-6">
           <div className="bg-white p-4 rounded-lg shadow">
-            <h3 className="text-sm font-medium text-slate-600">Total Products</h3>
+            <h3 className="text-sm font-medium text-slate-600">My Products</h3>
             <p className="text-2xl font-bold text-slate-800">{products.length}</p>
           </div>
           <div className="bg-white p-4 rounded-lg shadow">
-            <h3 className="text-sm font-medium text-slate-600">Total Orders</h3>
+            <h3 className="text-sm font-medium text-slate-600">My Orders</h3>
             <p className="text-2xl font-bold text-slate-800">{orders.length}</p>
           </div>
           <div className="bg-white p-4 rounded-lg shadow">
-            <h3 className="text-sm font-medium text-slate-600">Total Customers</h3>
+            <h3 className="text-sm font-medium text-slate-600">My Buyers</h3>
             <p className="text-2xl font-bold text-slate-800">{customers.length}</p>
           </div>
           <div className="bg-white p-4 rounded-lg shadow">
@@ -104,7 +104,7 @@ export default function AdminDashboardPage() {
         <div className="grid grid-cols-1 gap-6">
           <section>
             <div className="flex justify-between items-center mb-2">
-              <h2 className="text-xl font-semibold">Products</h2>
+              <h2 className="text-xl font-semibold">My Products</h2>
               <Button onClick={() => setShowProductForm(true)}>Add Product</Button>
             </div>
             <div className="overflow-x-auto">
@@ -112,6 +112,7 @@ export default function AdminDashboardPage() {
                 <thead>
                   <tr className="text-left border-b">
                     <th className="p-2">ID</th>
+                    <th className="p-2">Image</th>
                     <th className="p-2">Name</th>
                     <th className="p-2">Category</th>
                     <th className="p-2">Price</th>
@@ -123,6 +124,15 @@ export default function AdminDashboardPage() {
                   {products.map(p => (
                     <tr key={p.id} className="border-b">
                       <td className="p-2">{p.id}</td>
+                      <td className="p-2">
+                        {p.image_url ? (
+                          <img src={p.image_url} alt={p.name} className="w-12 h-12 object-cover rounded" />
+                        ) : (
+                          <div className="w-12 h-12 bg-gray-200 rounded flex items-center justify-center text-xs text-gray-500">
+                            No Image
+                          </div>
+                        )}
+                      </td>
                       <td className="p-2">{p.name}</td>
                       <td className="p-2">{p.category}</td>
                       <td className="p-2">${p.price.toFixed(2)}</td>
@@ -140,7 +150,7 @@ export default function AdminDashboardPage() {
             </div>
           </section>
           <section>
-            <h2 className="text-xl font-semibold mb-2">Orders</h2>
+            <h2 className="text-xl font-semibold mb-2">My Orders</h2>
             <div className="overflow-x-auto">
               <table className="w-full text-sm">
                 <thead>
@@ -170,7 +180,7 @@ export default function AdminDashboardPage() {
             </div>
           </section>
           <section>
-            <h2 className="text-xl font-semibold mb-2">Customers</h2>
+            <h2 className="text-xl font-semibold mb-2">My Buyers</h2>
             <div className="overflow-x-auto">
               <table className="w-full text-sm">
                 <thead>

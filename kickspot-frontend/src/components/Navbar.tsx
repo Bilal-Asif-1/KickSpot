@@ -32,7 +32,7 @@ export default function Navbar() {
           {user ? (
             <div className="flex items-center gap-2">
               <span className="text-sm text-muted-foreground">
-                {user.name} ({user.role === 'user' ? 'Buyer' : user.role === 'seller' ? 'Seller' : 'Admin'})
+                {user.name} ({user.role === 'user' ? 'Buyer' : 'Admin'})
               </span>
               <Button variant="outline" size="sm" onClick={() => dispatch(logout())}>
                 Logout

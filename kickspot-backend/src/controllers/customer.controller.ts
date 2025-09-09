@@ -1,5 +1,5 @@
 import { Request, Response } from 'express'
-import { User } from '@/models'
+import { User } from '../models/index.js'
 import { param, validationResult } from 'express-validator'
 
 export async function listCustomers(_req: Request, res: Response) {
