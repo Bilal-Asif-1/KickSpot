@@ -46,7 +46,7 @@ export default function ProductCard({ product }: { product: Product }) {
         <div className="aspect-video w-full bg-muted rounded overflow-hidden">
           {product.image_url ? (
             <img 
-              src={product.image_url} 
+              src={product.image_url.startsWith('http') ? product.image_url : `${import.meta.env.VITE_API_URL || 'http://localhost:5000'}${product.image_url}`}
               alt={product.name}
               className="w-full h-full object-cover"
             />

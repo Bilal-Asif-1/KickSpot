@@ -11,7 +11,7 @@ r.get('/:id', getProduct)
 
 // Admin routes
 r.post('/', authenticate, authorize(['admin']), uploadSingle, createProduct)
-r.put('/:id', authenticate, authorize(['admin']), updateProductValidators, updateProduct)
+r.put('/:id', authenticate, authorize(['admin']), uploadSingle, updateProductValidators, updateProduct)
 r.delete('/:id', authenticate, authorize(['admin']), deleteProductValidators, deleteProduct)
 
 

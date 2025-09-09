@@ -2,11 +2,13 @@ import { useAppDispatch, useAppSelector } from '@/store'
 import { removeFromCart, setQuantity, clearCart } from '@/store/cartSlice'
 import { Button } from '@/components/ui/button'
 import { Input } from '@/components/ui/input'
+import { useNavigate } from 'react-router-dom'
 
 export default function CartPage() {
   const { items } = useAppSelector(s => s.cart)
   const dispatch = useAppDispatch()
   const total = items.reduce((sum, i) => sum + i.product.price * i.quantity, 0)
+  const navigate = useNavigate()
 
   return (
     <div>
@@ -41,7 +43,7 @@ export default function CartPage() {
                 <span className="font-medium">Subtotal</span>
                 <span className="font-semibold">${total.toFixed(2)}</span>
               </div>
-              <Button className="w-full">Proceed to Checkout</Button>
+              <Button className="w-full" onClick={() => navigate('/checkout')}>Proceed to Checkout</Button>
               <Button variant="outline" className="w-full" onClick={() => dispatch(clearCart())}>Clear Cart</Button>
             </aside>
           </div>

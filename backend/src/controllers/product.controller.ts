@@ -120,7 +120,36 @@ export async function updateProduct(req: Request, res: Response) {
   const { id } = req.params
   const product = await Product.findByPk(id)
   if (!product) return res.status(404).json({ message: 'Not found' })
-  await product.update(req.body)
+
+  const updates: any = {}
+  const { name, category, price, stock, description, image_url } = req.body as any
+  if (name !== undefined) updates.name = name
+  if (category !== undefined) {
+    if (!['Men', 'Women', 'Kids'].includes(category)) {
+      return res.status(400).json({ message: 'Category must be Men, Women, or Kids' })
+    }
+    updates.category = category
+  }
+  if (price !== undefined) {
+    const p = parseFloat(price)
+    if (!(p > 0)) return res.status(400).json({ message: 'Price must be greater than 0' })
+    updates.price = p
+  }
+  if (stock !== undefined) {
+    const s = parseInt(stock)
+    if (isNaN(s) || s < 0) return res.status(400).json({ message: 'Stock must be 0 or greater' })
+    updates.stock = s
+  }
+  if (description !== undefined) updates.description = description || null
+
+  // Image: prefer uploaded file; otherwise respect provided image_url (can be empty string to clear)
+  if (req.file) {
+    updates.image_url = `/uploads/products/${req.file.filename}`
+  } else if (image_url !== undefined) {
+    updates.image_url = image_url || null
+  }
+
+  await product.update(updates)
   res.json(product)
 }
 

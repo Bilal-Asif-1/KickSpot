@@ -11,10 +11,17 @@ interface AuthState {
   error?: string
 }
 
+function loadUser(): User | undefined {
+  try {
+    const raw = localStorage.getItem('user')
+    return raw ? JSON.parse(raw) as User : undefined
+  } catch { return undefined }
+}
+
 const initialState: AuthState = { 
   loading: false,
   token: localStorage.getItem('token') || undefined,
-  user: undefined
+  user: loadUser()
 }
 
 export const login = createAsyncThunk(
@@ -61,7 +68,10 @@ const authSlice = createSlice({
         state.loading = false
         state.user = action.payload.user
         state.token = action.payload.token
-        try { localStorage.setItem('token', action.payload.token) } catch {}
+        try { 
+          localStorage.setItem('token', action.payload.token)
+          localStorage.setItem('user', JSON.stringify(action.payload.user))
+        } catch {}
       })
       .addCase(login.rejected, (state, action) => {
         state.loading = false
@@ -75,6 +85,7 @@ const authSlice = createSlice({
         state.loading = false
         state.user = action.payload
         state.error = undefined
+        try { localStorage.setItem('user', JSON.stringify(action.payload)) } catch {}
       })
       .addCase(registerUser.rejected, (state, action) => {
         state.loading = false
