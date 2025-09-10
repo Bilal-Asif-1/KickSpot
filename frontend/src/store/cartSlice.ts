@@ -57,8 +57,17 @@ const cartSlice = createSlice({
       state.total = state.items.reduce((sum, item) => sum + (item.price * item.quantity), 0)
     },
     clearCart(state) {
+      console.log('Clearing cart - items before:', state.items.length)
       state.items = []
       state.total = 0
+      console.log('Cart cleared - items after:', state.items.length)
+      // Also clear localStorage
+      try {
+        localStorage.removeItem('kickspot_cart')
+        console.log('localStorage cleared')
+      } catch (error) {
+        console.error('Failed to clear cart from localStorage:', error)
+      }
     },
     loadCartFromStorage(state, action: PayloadAction<CartItem[]>) {
       state.items = action.payload

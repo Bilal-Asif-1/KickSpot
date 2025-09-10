@@ -2,6 +2,7 @@ import { BrowserRouter, Routes, Route, Navigate } from 'react-router-dom'
 import './index.css'
 import BuyerNavbar from '@/components/BuyerNavbar'
 import AdminNavbar from '@/components/AdminNavbar'
+import CustomNavbarWrapper from '@/components/CustomNavbarWrapper'
 import ProtectedRoute from '@/components/ProtectedRoute'
 import { ErrorBoundary } from '@/components/ErrorBoundary'
 import { Toaster } from '@/components/ui/sonner'
@@ -12,6 +13,8 @@ import AdminNotifications from '@/pages/admin/AdminNotificationsPage'
 import UserNotificationsPage from '@/pages/user/UserNotificationsPage'
 import LoginPage from '@/pages/auth/LoginPage'
 import RegisterPage from '@/pages/auth/RegisterPage'
+import CustomLayoutPage from '@/pages/CustomLayoutPage'
+import OriginalLayoutPage from '@/pages/OriginalLayoutPage'
 import { useAppSelector, useAppDispatch } from '@/store'
 import { useEffect } from 'react'
 import { useLocation } from 'react-router-dom'
@@ -23,6 +26,8 @@ function AppContent() {
   const dispatch = useAppDispatch()
   const location = useLocation()
   const isAdminRoute = location.pathname.startsWith('/admin')
+  const isOriginalLayout = location.pathname.startsWith('/original')
+  const isCustomLayout = location.pathname === '/custom'
   const isAdmin = user?.role === 'admin'
 
   // Initialize cart persistence
@@ -50,39 +55,97 @@ function AppContent() {
   
   return (
     <>
-      {(isAdminRoute || isAdmin) ? <AdminNavbar /> : <BuyerNavbar />}
+      {!isCustomLayout && !isOriginalLayout && ((isAdminRoute || isAdmin) ? <AdminNavbar /> : null)}
       <Routes>
         <Route path="/" element={
-          isAdmin ? <Navigate to="/admin" replace /> : <HomePage />
+          isAdmin ? <Navigate to="/admin" replace /> : (
+            <CustomNavbarWrapper>
+              <HomePage />
+            </CustomNavbarWrapper>
+          )
+        } />
+        <Route path="/custom" element={<CustomLayoutPage />} />
+        <Route path="/original" element={
+          isAdmin ? <Navigate to="/admin" replace /> : (
+            <OriginalLayoutPage>
+              <HomePage />
+            </OriginalLayoutPage>
+          )
+        } />
+        <Route path="/original/products" element={
+          isAdmin ? <Navigate to="/admin" replace /> : (
+            <OriginalLayoutPage>
+              <ProductsPage />
+            </OriginalLayoutPage>
+          )
+        } />
+        <Route path="/original/cart" element={
+          isAdmin ? <Navigate to="/admin" replace /> : (
+            <ProtectedRoute>
+              <OriginalLayoutPage>
+                <CartPage />
+              </OriginalLayoutPage>
+            </ProtectedRoute>
+          )
+        } />
+        <Route path="/original/checkout" element={
+          isAdmin ? <Navigate to="/admin" replace /> : (
+            <ProtectedRoute>
+              <OriginalLayoutPage>
+                <CheckoutPage />
+              </OriginalLayoutPage>
+            </ProtectedRoute>
+          )
+        } />
+        <Route path="/original/orders" element={
+          isAdmin ? <Navigate to="/admin" replace /> : (
+            <ProtectedRoute>
+              <OriginalLayoutPage>
+                <OrdersPage />
+              </OriginalLayoutPage>
+            </ProtectedRoute>
+          )
         } />
         <Route path="/products" element={
-          isAdmin ? <Navigate to="/admin" replace /> : <ProductsPage />
+          isAdmin ? <Navigate to="/admin" replace /> : (
+            <CustomNavbarWrapper>
+              <ProductsPage />
+            </CustomNavbarWrapper>
+          )
         } />
         <Route path="/cart" element={
           isAdmin ? <Navigate to="/admin" replace /> : (
             <ProtectedRoute>
-              <CartPage />
+              <CustomNavbarWrapper>
+                <CartPage />
+              </CustomNavbarWrapper>
             </ProtectedRoute>
           )
         } />
         <Route path="/checkout" element={
           isAdmin ? <Navigate to="/admin" replace /> : (
             <ProtectedRoute>
-              <CheckoutPage />
+              <CustomNavbarWrapper>
+                <CheckoutPage />
+              </CustomNavbarWrapper>
             </ProtectedRoute>
           )
         } />
         <Route path="/orders" element={
           isAdmin ? <Navigate to="/admin" replace /> : (
             <ProtectedRoute>
-              <OrdersPage />
+              <CustomNavbarWrapper>
+                <OrdersPage />
+              </CustomNavbarWrapper>
             </ProtectedRoute>
           )
         } />
         <Route path="/notifications" element={
           isAdmin ? <Navigate to="/admin" replace /> : (
             <ProtectedRoute>
-              <UserNotificationsPage />
+              <CustomNavbarWrapper>
+                <UserNotificationsPage />
+              </CustomNavbarWrapper>
             </ProtectedRoute>
           )
         } />

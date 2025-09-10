@@ -51,16 +51,16 @@ export default function HomePage() {
   }
 
   return (
-    <div className="min-h-screen">
+    <div className="min-h-screen bg-black">
       {/* Hero Carousel (shadcn/ui + embla) */}
-      <section className="py-8 flex justify-center">
+      <section className="flex justify-center">
         <CarouselPlugin />
       </section>
 
       <main className="mx-auto max-w-7xl p-4">
         {/* Categories Section */}
         <section className="my-12">
-          <h2 className="mb-6 text-3xl font-bold text-center">Shop by Category</h2>
+          <h2 className="mb-6 text-3xl font-bold text-center text-white">Shop by Category</h2>
           <div className="grid grid-cols-2 md:grid-cols-4 gap-4">
             {categories.slice(1).map(category => (
               <Card 
@@ -85,7 +85,7 @@ export default function HomePage() {
         {/* Featured Products Section */}
         <section className="my-12">
           <div className="flex items-center justify-between mb-6">
-            <h2 className="text-3xl font-bold">
+            <h2 className="text-3xl font-bold text-white">
               {selectedCategory === 'All' ? 'All Products' : `${selectedCategory} Shoes`}
             </h2>
             
@@ -106,14 +106,14 @@ export default function HomePage() {
 
           {loading && (
             <div className="text-center py-12">
-              <div className="inline-block animate-spin rounded-full h-8 w-8 border-b-2 border-gray-900"></div>
-              <p className="mt-2 text-muted-foreground">Loading products...</p>
+              <div className="inline-block animate-spin rounded-full h-8 w-8 border-b-2 border-white"></div>
+              <p className="mt-2 text-gray-300">Loading products...</p>
             </div>
           )}
           
           {error && (
             <div className="text-center py-12">
-              <p className="text-red-600">{error}</p>
+              <p className="text-red-400">{error}</p>
             </div>
           )}
 
@@ -125,7 +125,7 @@ export default function HomePage() {
           
           {filteredProducts.length === 0 && !loading && (
             <div className="text-center py-12">
-              <p className="text-muted-foreground text-lg">
+              <p className="text-gray-300 text-lg">
                 No products found in this category.
               </p>
             </div>

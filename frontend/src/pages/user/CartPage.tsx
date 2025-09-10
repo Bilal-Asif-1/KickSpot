@@ -10,10 +10,22 @@ export default function CartPage() {
   const dispatch = useAppDispatch()
   const navigate = useNavigate()
 
+  const handleClearCart = () => {
+    dispatch(clearCart())
+    toast.success('Cart cleared successfully!')
+  }
+
   return (
     <div>
       <main className="mx-auto max-w-7xl p-4">
-        <h1 className="text-2xl font-semibold mb-4">Your Cart</h1>
+        <div className="flex justify-between items-center mb-4">
+          <h1 className="text-2xl font-semibold">Your Cart</h1>
+          {items.length > 0 && (
+            <Button variant="outline" onClick={handleClearCart}>
+              Clear Cart
+            </Button>
+          )}
+        </div>
         {items.length === 0 ? (
           <p className="text-muted-foreground">Your cart is empty.</p>
         ) : (
