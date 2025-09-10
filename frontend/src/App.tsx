@@ -56,7 +56,7 @@ function AppContent() {
   return (
     <>
       {!isCustomLayout && !isOriginalLayout && ((isAdminRoute || isAdmin) ? <AdminNavbar /> : null)}
-      <Routes>
+          <Routes>
         <Route path="/" element={
           isAdmin ? <Navigate to="/admin" replace /> : (
             <CustomNavbarWrapper>
@@ -169,13 +169,13 @@ function AppContent() {
             <AdminNotifications />
           </ProtectedRoute>
         } />
-        <Route path="/login" element={<LoginPage />} />
-        <Route path="/register" element={<RegisterPage />} />
+            <Route path="/login" element={<LoginPage />} />
+            <Route path="/register" element={<RegisterPage />} />
         <Route path="*" element={
           isAdmin ? <Navigate to="/admin" replace /> : <Navigate to="/" replace />
         } />
-      </Routes>
-      <Toaster />
+          </Routes>
+          <Toaster />
     </>
   )
 }

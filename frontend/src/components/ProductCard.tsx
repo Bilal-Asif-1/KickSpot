@@ -61,14 +61,16 @@ export default function ProductCard({ product }: { product: Product }) {
   }
 
   return (
-    <Card className="relative w-full aspect-[4/5] overflow-hidden bg-white rounded-lg shadow-lg">
+    <Card className="relative w-full aspect-[0.77] overflow-hidden bg-white rounded-lg shadow-lg">
       {/* Full Screen Image */}
       <div className="absolute inset-0">
         {product.image_url ? (
           <img 
             src={product.image_url.startsWith('http') ? product.image_url : `${import.meta.env.VITE_API_URL || 'http://localhost:5000'}${product.image_url}`}
             alt={product.name}
-            className="w-full h-full object-cover"
+            className="w-full h-full object-cover pointer-events-none select-none"
+            draggable={false}
+            onDragStart={(e) => e.preventDefault()}
           />
         ) : (
           <div className="w-full h-full flex items-center justify-center bg-gray-200 text-gray-500">

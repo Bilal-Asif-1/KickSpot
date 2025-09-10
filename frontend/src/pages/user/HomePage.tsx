@@ -71,24 +71,151 @@ export default function HomePage() {
     setCurrentBanner((prev) => (prev - 1 + banners.length) % banners.length)
   }
 
-  // Horizontal Product Slider Component
+  // Horizontal Product Slider Component with Momentum Scrolling
   const ProductSlider = ({ title, products, category }: { title: string, products: any[], category: string }) => {
-    const [scrollPosition, setScrollPosition] = useState(0)
     const scrollContainerRef = useRef<HTMLDivElement>(null)
+    const [isDragging, setIsDragging] = useState(false)
+    const [startX, setStartX] = useState(0)
+    const [scrollLeft, setScrollLeft] = useState(0)
+    const [velocity, setVelocity] = useState(0)
+    const [lastTime, setLastTime] = useState(0)
+    const [lastScrollLeft, setLastScrollLeft] = useState(0)
+    const animationRef = useRef<number>()
 
-    const scrollLeft = () => {
+    const scrollLeftAction = () => {
       if (scrollContainerRef.current) {
-        const scrollAmount = 300
-        scrollContainerRef.current.scrollBy({ left: -scrollAmount, behavior: 'smooth' })
+        const container = scrollContainerRef.current
+        const cardWidth = container.clientWidth / 4 // Account for 4 cards visible
+        container.scrollBy({ left: -cardWidth, behavior: 'smooth' })
       }
     }
 
-    const scrollRight = () => {
+    const scrollRightAction = () => {
       if (scrollContainerRef.current) {
-        const scrollAmount = 300
-        scrollContainerRef.current.scrollBy({ left: scrollAmount, behavior: 'smooth' })
+        const container = scrollContainerRef.current
+        const cardWidth = container.clientWidth / 4 // Account for 4 cards visible
+        container.scrollBy({ left: cardWidth, behavior: 'smooth' })
       }
     }
+
+    // Simplified momentum scrolling (CSS scroll-snap handles snapping)
+    const animateScroll = () => {
+      if (scrollContainerRef.current && Math.abs(velocity) > 0.1) {
+        const container = scrollContainerRef.current
+        const newScrollLeft = container.scrollLeft + velocity
+        container.scrollLeft = newScrollLeft
+        
+        // Apply friction
+        setVelocity(prev => prev * 0.95)
+        
+        animationRef.current = requestAnimationFrame(animateScroll)
+      } else {
+        setVelocity(0)
+      }
+    }
+
+    // Mouse/Touch event handlers
+    const handleStart = (clientX: number) => {
+      if (scrollContainerRef.current) {
+        setIsDragging(true)
+        setStartX(clientX)
+        setScrollLeft(scrollContainerRef.current.scrollLeft)
+        setVelocity(0)
+        setLastTime(Date.now())
+        setLastScrollLeft(scrollContainerRef.current.scrollLeft)
+        
+        // Cancel any ongoing momentum animation
+        if (animationRef.current) {
+          cancelAnimationFrame(animationRef.current)
+        }
+      }
+    }
+
+    const handleMove = (clientX: number) => {
+      if (!isDragging || !scrollContainerRef.current) return
+      
+      const container = scrollContainerRef.current
+      const x = clientX
+      const walk = (startX - x) * 1.2 // Reduced scroll speed multiplier
+      container.scrollLeft = scrollLeft + walk
+      
+      // Calculate velocity for momentum
+      const now = Date.now()
+      const timeDiff = now - lastTime
+      if (timeDiff > 0) {
+        const scrollDiff = container.scrollLeft - lastScrollLeft
+        setVelocity(scrollDiff / timeDiff)
+        setLastTime(now)
+        setLastScrollLeft(container.scrollLeft)
+      }
+    }
+
+    const handleEnd = () => {
+      if (!isDragging) return
+      
+      setIsDragging(false)
+      
+      // Start momentum animation if velocity is significant
+      if (Math.abs(velocity) > 0.5) {
+        animateScroll()
+      }
+      // CSS scroll-snap will handle snapping automatically
+    }
+
+    // Snap to center functionality
+    const snapToCenter = () => {
+      if (!scrollContainerRef.current) return
+      
+      const container = scrollContainerRef.current
+      const containerWidth = container.clientWidth
+      const cardWidth = containerWidth / 4
+      const scrollLeft = container.scrollLeft
+      
+      // Calculate which card should be centered
+      const cardIndex = Math.round(scrollLeft / cardWidth)
+      const targetScrollLeft = cardIndex * cardWidth
+      
+      // Smooth scroll to center the card
+      container.scrollTo({
+        left: targetScrollLeft,
+        behavior: 'smooth'
+      })
+    }
+
+    const handleMouseDown = (e: React.MouseEvent) => {
+      e.preventDefault()
+      handleStart(e.clientX)
+    }
+
+    const handleMouseMove = (e: React.MouseEvent) => {
+      handleMove(e.clientX)
+    }
+
+    const handleMouseUp = () => {
+      handleEnd()
+    }
+
+    const handleTouchStart = (e: React.TouchEvent) => {
+      handleStart(e.touches[0].clientX)
+    }
+
+    const handleTouchMove = (e: React.TouchEvent) => {
+      e.preventDefault()
+      handleMove(e.touches[0].clientX)
+    }
+
+    const handleTouchEnd = () => {
+      handleEnd()
+    }
+
+    // Cleanup animation on unmount
+    useEffect(() => {
+      return () => {
+        if (animationRef.current) {
+          cancelAnimationFrame(animationRef.current)
+        }
+      }
+    }, [])
 
     if (products.length === 0) return null
 
@@ -101,7 +228,7 @@ export default function HomePage() {
               <Button
                 variant="outline"
                 size="sm"
-                onClick={scrollLeft}
+                onClick={scrollLeftAction}
                 className="bg-white/10 border-white/20 text-white hover:bg-white/20"
               >
                 <ChevronLeft className="h-4 w-4" />
@@ -109,7 +236,7 @@ export default function HomePage() {
               <Button
                 variant="outline"
                 size="sm"
-                onClick={scrollRight}
+                onClick={scrollRightAction}
                 className="bg-white/10 border-white/20 text-white hover:bg-white/20"
               >
                 <ChevronRight className="h-4 w-4" />
@@ -119,11 +246,31 @@ export default function HomePage() {
           
           <div 
             ref={scrollContainerRef}
-            className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 xl:grid-cols-4 gap-4 overflow-x-auto scrollbar-hide pb-4"
-            style={{ scrollbarWidth: 'none', msOverflowStyle: 'none' }}
+            className="flex gap-4 overflow-x-auto scrollbar-hide cursor-grab active:cursor-grabbing select-none"
+            style={{ 
+              scrollbarWidth: 'none', 
+              msOverflowStyle: 'none',
+              scrollBehavior: 'smooth',
+              scrollSnapType: 'x mandatory',
+              scrollPaddingLeft: '0px'
+            }}
+            onMouseDown={handleMouseDown}
+            onMouseMove={isDragging ? handleMouseMove : undefined}
+            onMouseUp={handleMouseUp}
+            onMouseLeave={handleEnd}
+            onTouchStart={handleTouchStart}
+            onTouchMove={handleTouchMove}
+            onTouchEnd={handleTouchEnd}
           >
             {products.map(product => (
-              <div key={product.id} className="w-full">
+              <div 
+                key={product.id} 
+                className="flex-shrink-0" 
+                style={{ 
+                  width: 'calc(25% - 12px)',
+                  scrollSnapAlign: 'start'
+                }}
+              >
                 <ProductCard product={product} />
               </div>
             ))}
