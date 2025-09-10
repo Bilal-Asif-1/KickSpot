@@ -1,16 +1,111 @@
 import { Request, Response } from 'express'
-import { Notification } from '../models/index.js'
+import { AuthRequest } from '../middleware/auth.js'
+import { NotificationService } from '../services/notificationService.js'
+import { param, query, validationResult } from 'express-validator'
 
-export async function listNotifications(_req: Request, res: Response) {
-  const notifications = await Notification.findAll({ order: [['created_at', 'DESC']] })
-  res.json(notifications)
+// Get user notifications (for both admin and regular users)
+export async function getNotifications(req: AuthRequest, res: Response) {
+  try {
+    const userId = req.user!.id
+    const userRole = req.user!.role
+    const page = parseInt(req.query.page as string) || 1
+    const limit = parseInt(req.query.limit as string) || 20
+
+    let result
+    if (userRole === 'admin') {
+      result = await NotificationService.getAdminNotifications(userId, page, limit)
+    } else {
+      result = await NotificationService.getUserNotifications(userId, page, limit)
+    }
+    res.json(result)
+  } catch (error) {
+    console.error('Error fetching notifications:', error)
+    res.status(500).json({ message: 'Internal server error' })
+  }
 }
 
-export async function markAsRead(req: Request, res: Response) {
-  const { id } = req.params
-  const notification = await Notification.findByPk(id)
-  if (!notification) return res.status(404).json({ message: 'Not found' })
-  await notification.update({ is_read: true })
-  res.json(notification)
+// Get unread notification count (for both admin and regular users)
+export async function getUnreadCount(req: AuthRequest, res: Response) {
+  try {
+    const userId = req.user!.id
+    const userRole = req.user!.role
+    
+    let count
+    if (userRole === 'admin') {
+      count = await NotificationService.getUnreadCount(userId)
+    } else {
+      count = await NotificationService.getUserUnreadCount(userId)
+    }
+    res.json({ count })
+  } catch (error) {
+    console.error('Error fetching unread count:', error)
+    res.status(500).json({ message: 'Internal server error' })
+  }
 }
 
+// Mark notification as read
+export const markAsReadValidators = [
+  param('id').isInt({ min: 1 })
+]
+
+export async function markAsRead(req: AuthRequest, res: Response) {
+  const errors = validationResult(req)
+  if (!errors.isEmpty()) {
+    return res.status(400).json({ errors: errors.array() })
+  }
+
+  try {
+    const adminId = req.user!.id
+    const notificationId = parseInt(req.params.id)
+
+    const success = await NotificationService.markAsRead(notificationId, adminId)
+    if (!success) {
+      return res.status(404).json({ message: 'Notification not found' })
+    }
+
+    res.json({ message: 'Notification marked as read' })
+  } catch (error) {
+    console.error('Error marking notification as read:', error)
+    res.status(500).json({ message: 'Internal server error' })
+  }
+}
+
+// Mark all notifications as read
+export async function markAllAsRead(req: AuthRequest, res: Response) {
+  try {
+    const adminId = req.user!.id
+    const updatedCount = await NotificationService.markAllAsRead(adminId)
+    res.json({ message: `${updatedCount} notifications marked as read` })
+  } catch (error) {
+    console.error('Error marking all notifications as read:', error)
+    res.status(500).json({ message: 'Internal server error' })
+  }
+}
+
+// Delete notification
+export const deleteNotificationValidators = [
+  param('id').isInt({ min: 1 })
+]
+
+export async function deleteNotification(req: AuthRequest, res: Response) {
+  const errors = validationResult(req)
+  if (!errors.isEmpty()) {
+    return res.status(400).json({ errors: errors.array() })
+  }
+
+  try {
+    const userId = req.user!.id
+    const userRole = req.user!.role
+    const notificationId = parseInt(req.params.id)
+
+    const success = await NotificationService.deleteNotification(notificationId, userId, userRole)
+    if (!success) {
+      return res.status(404).json({ message: 'Notification not found' })
+    }
+
+    res.json({ message: 'Notification deleted' })
+  } catch (error) {
+    console.error('Error deleting notification:', error)
+    res.status(500).json({ message: 'Internal server error' })
+  }
+}

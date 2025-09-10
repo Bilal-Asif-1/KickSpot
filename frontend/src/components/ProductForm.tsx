@@ -27,12 +27,13 @@ interface ProductFormProps {
 export default function ProductForm({ product, onSuccess, onCancel }: ProductFormProps) {
   const [selectedFile, setSelectedFile] = useState<File | null>(null)
   const [imagePreview, setImagePreview] = useState<string | null>(null)
+  const [submitError, setSubmitError] = useState<string | undefined>()
   
   const form = useForm<z.infer<typeof schema>>({
     resolver: zodResolver(schema),
     defaultValues: {
       name: product?.name || '',
-      category: product?.category || '',
+      category: (product?.category as 'Men' | 'Women' | 'Kids') || 'Men',
       price: product?.price || 0,
       stock: product?.stock || 0,
       description: product?.description || '',
@@ -54,6 +55,7 @@ export default function ProductForm({ product, onSuccess, onCancel }: ProductFor
 
   async function onSubmit(values: z.infer<typeof schema>) {
     try {
+      setSubmitError(undefined)
       const formData = new FormData()
       formData.append('name', values.name)
       formData.append('category', values.category)
@@ -76,7 +78,9 @@ export default function ProductForm({ product, onSuccess, onCancel }: ProductFor
         })
       }
       onSuccess()
-    } catch (error) {
+    } catch (error: any) {
+      const errorMessage = error?.response?.data?.message || error?.message || 'Failed to save product'
+      setSubmitError(errorMessage)
       console.error('Failed to save product:', error)
     }
   }
@@ -186,6 +190,13 @@ export default function ProductForm({ product, onSuccess, onCancel }: ProductFor
               </FormItem>
             )} />
           </div>
+
+          {/* Error Display */}
+          {submitError && (
+            <div className="text-red-600 text-sm p-3 bg-red-50 border border-red-200 rounded">
+              {submitError}
+            </div>
+          )}
 
           {/* Action Buttons */}
           <div className="flex gap-3 pt-4">

@@ -15,6 +15,12 @@ export default function ProductsPage() {
     dispatch(fetchProducts())
   }, [dispatch])
 
+  // React to query param changes (e.g., clicking Men/Women/Kids in navbar)
+  useEffect(() => {
+    const q = searchParams.get('category') || 'All'
+    setSelectedCategory(q)
+  }, [searchParams])
+
   const categories = ['All', 'Men', 'Women', 'Kids']
   const filteredProducts = selectedCategory === 'All' 
     ? items 

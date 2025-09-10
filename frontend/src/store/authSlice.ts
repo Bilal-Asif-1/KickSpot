@@ -1,6 +1,7 @@
 import { createSlice, createAsyncThunk } from '@reduxjs/toolkit'
 import type { PayloadAction } from '@reduxjs/toolkit'
 import axios from 'axios'
+import { api } from '@/lib/api'
 
 interface User { id: number; name: string; email: string; role: 'admin' | 'user' }
 
@@ -48,6 +49,20 @@ export const registerUser = createAsyncThunk(
   }
 )
 
+export const fetchCurrentUser = createAsyncThunk('auth/me', async (_, { rejectWithValue, getState }) => {
+  try {
+    const state = getState() as any
+    const token: string | undefined = state.auth?.token || localStorage.getItem('token') || undefined
+    if (!token) throw new Error('No token')
+    const res = await axios.get<User>(`${import.meta.env.VITE_API_URL || 'http://localhost:5000'}/api/v1/auth/me`, {
+      headers: { Authorization: `Bearer ${token}` }
+    })
+    return { user: res.data, token }
+  } catch (error: any) {
+    return rejectWithValue(error.response?.data?.message || 'Unauthorized')
+  }
+})
+
 const authSlice = createSlice({
   name: 'auth',
   initialState,
@@ -56,6 +71,8 @@ const authSlice = createSlice({
       state.user = undefined
       state.token = undefined
       localStorage.removeItem('token')
+      localStorage.removeItem('user')
+      try { delete (api as any).defaults.headers.common.Authorization } catch {}
     },
   },
   extraReducers: builder => {
@@ -71,11 +88,12 @@ const authSlice = createSlice({
         try { 
           localStorage.setItem('token', action.payload.token)
           localStorage.setItem('user', JSON.stringify(action.payload.user))
+          api.defaults.headers.common.Authorization = `Bearer ${action.payload.token}`
         } catch {}
       })
       .addCase(login.rejected, (state, action) => {
         state.loading = false
-        state.error = action.payload as string || action.error.message
+        state.error = (action.payload as string) || action.error.message
       })
       .addCase(registerUser.pending, state => {
         state.loading = true
@@ -89,7 +107,38 @@ const authSlice = createSlice({
       })
       .addCase(registerUser.rejected, (state, action) => {
         state.loading = false
-        state.error = action.payload as string || action.error.message
+        state.error = (action.payload as string) || action.error.message
+      })
+      .addCase(fetchCurrentUser.pending, state => {
+        state.loading = true
+      })
+      .addCase(fetchCurrentUser.fulfilled, (state, action: PayloadAction<{ user: User; token: string }>) => {
+        state.loading = false
+        // Guard against stale responses: only accept if token matches current one
+        try {
+          const current = localStorage.getItem('token') || state.token
+          if (current && current !== action.payload.token) {
+            return
+          }
+        } catch {}
+        state.user = action.payload.user
+        state.token = action.payload.token
+        try {
+          localStorage.setItem('user', JSON.stringify(action.payload.user))
+          localStorage.setItem('token', action.payload.token)
+          api.defaults.headers.common.Authorization = `Bearer ${action.payload.token}`
+        } catch {}
+      })
+      .addCase(fetchCurrentUser.rejected, state => {
+        state.loading = false
+        // Clear auth state if token validation fails
+        state.user = undefined
+        state.token = undefined
+        try {
+          localStorage.removeItem('user')
+          localStorage.removeItem('token')
+          delete api.defaults.headers.common.Authorization
+        } catch {}
       })
   },
 })

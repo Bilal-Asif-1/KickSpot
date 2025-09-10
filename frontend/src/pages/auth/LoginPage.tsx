@@ -7,6 +7,7 @@ import { Button } from '@/components/ui/button'
 import { useAppDispatch, useAppSelector } from '@/store'
 import { login } from '@/store/authSlice'
 import { Link, useNavigate, useLocation } from 'react-router-dom'
+import { toast } from 'sonner'
 
 const schema = z.object({
   email: z.string().email(),
@@ -26,12 +27,16 @@ export default function LoginPage() {
       const user = (res as any).payload.user
       const from = (location.state as any)?.from?.pathname
       
+      toast.success(`Welcome back, ${user.name}!`)
+      
       // Role-based redirect
       if (user.role === 'admin') {
         navigate(from || '/admin', { replace: true })
       } else {
         navigate(from || '/', { replace: true })
       }
+    } else {
+      toast.error('Login failed. Please check your credentials.')
     }
   }
 

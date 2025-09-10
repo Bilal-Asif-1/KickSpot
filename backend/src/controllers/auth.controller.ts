@@ -39,4 +39,18 @@ export async function login(req: Request, res: Response) {
   return res.json({ token, user: { id: user.id, name: user.name, email: user.email, role: user.role } })
 }
 
+export async function me(req: Request, res: Response) {
+  const header = req.headers.authorization
+  if (!header?.startsWith('Bearer ')) return res.status(401).json({ message: 'Unauthorized' })
+  const token = header.slice(7)
+  try {
+    const payload = jwt.verify(token, process.env.JWT_SECRET || 'secret') as { id: number; role: 'admin' | 'user' }
+    const user = await User.findByPk(payload.id)
+    if (!user) return res.status(401).json({ message: 'Unauthorized' })
+    return res.json({ id: user.id, name: user.name, email: user.email, role: user.role })
+  } catch {
+    return res.status(401).json({ message: 'Unauthorized' })
+  }
+}
+
 

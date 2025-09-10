@@ -1,12 +1,47 @@
 import { Link } from 'react-router-dom'
 import { Package, Users, BarChart3, Bell } from 'lucide-react'
+import { useEffect } from 'react'
+import { useSocket } from '@/hooks/useSocket'
 import { Button } from '@/components/ui/button'
 import { useAppSelector, useAppDispatch } from '@/store'
 import { logout } from '@/store/authSlice'
+import { addNotification, fetchUnreadCount, setUnreadCount } from '@/store/notificationSlice'
+import type { Notification } from '@/store/notificationSlice'
+import ThemeToggle from '@/components/ThemeToggle'
+import { toast } from 'sonner'
 
 export default function AdminNavbar() {
   const { user } = useAppSelector(s => s.auth)
+  const { unreadCount } = useAppSelector(s => s.notifications)
   const dispatch = useAppDispatch()
+  const socket = useSocket()
+
+  const handleLogout = () => {
+    dispatch(logout())
+    toast.success('Logged out successfully!')
+  }
+
+  // Fetch initial unread count when component mounts
+  useEffect(() => {
+    if (user?.role === 'admin') {
+      dispatch(fetchUnreadCount())
+    }
+  }, [dispatch, user])
+
+  // Listen for real-time notifications
+  useEffect(() => {
+    if (!socket || user?.role !== 'admin') return
+    
+    const onNotification = (notification: Notification) => {
+      // Only add notifications for this admin
+      if (notification.admin_id === user.id) {
+        dispatch(addNotification(notification))
+      }
+    }
+    
+    socket.on('notification', onNotification)
+    return () => { socket.off('notification', onNotification) }
+  }, [socket, user, dispatch])
 
   return (
     <header className="border-b bg-slate-50">
@@ -25,18 +60,28 @@ export default function AdminNavbar() {
             <Users className="h-4 w-4" />
             Customers
           </Link>
-          <Link to="/admin/notifications" className="flex items-center gap-1 text-sm text-slate-600 hover:text-slate-900">
+          <Link 
+            to="/admin/notifications" 
+            className="relative flex items-center gap-1 text-sm text-slate-600 hover:text-slate-900"
+            onClick={() => dispatch(setUnreadCount(0))}
+          >
             <Bell className="h-4 w-4" />
             Notifications
+            {unreadCount > 0 && (
+              <span className="absolute -top-2 -right-3 inline-flex items-center justify-center rounded-full bg-red-600 text-white text-[10px] h-4 min-w-4 px-1">
+                {unreadCount > 99 ? '99+' : unreadCount}
+              </span>
+            )}
           </Link>
         </nav>
         <div className="ml-auto flex items-center gap-2 md:ml-4">
+          <ThemeToggle />
           {user && (
             <div className="flex items-center gap-2">
               <span className="text-sm text-slate-600">
                 Admin: {user.name}
               </span>
-              <Button variant="outline" size="sm" onClick={() => dispatch(logout())}>
+              <Button variant="outline" size="sm" onClick={handleLogout}>
                 Logout
               </Button>
             </div>

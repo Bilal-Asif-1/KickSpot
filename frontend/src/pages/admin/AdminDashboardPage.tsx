@@ -3,6 +3,7 @@ import { api } from '@/lib/api'
 import { Button } from '@/components/ui/button'
 import { useSocket } from '@/hooks/useSocket'
 import ProductForm from '@/components/ProductForm'
+import { toast } from 'sonner'
 
 type Product = { id: number; name: string; category: string; price: number; stock: number; image_url?: string; description?: string }
 type Order = { id: number; user_id: number; total_price: number; status: 'pending' | 'processing' | 'delivered' }
@@ -54,13 +55,33 @@ export default function AdminDashboardPage() {
   }, [socket])
 
   async function deleteProduct(id: number) {
-    await api.delete(`/api/v1/products/${id}`).catch(() => {})
-    await loadAll()
+    if (!confirm('Are you sure you want to delete this product? If it has existing orders, it will be archived instead.')) {
+      return
+    }
+    
+    try {
+      const response = await api.delete(`/api/v1/products/${id}`)
+      if (response.data?.archived) {
+        toast.info('Product has existing orders and has been archived (stock set to 0)')
+      } else {
+        toast.success('Product deleted successfully!')
+      }
+      await loadAll()
+    } catch (error: any) {
+      console.error('Failed to delete product:', error)
+      toast.error(error?.response?.data?.message || 'Failed to delete product')
+    }
   }
 
   async function updateOrderStatus(id: number, status: Order['status']) {
-    await api.put(`/api/v1/orders/${id}/status`, { status }).catch(() => {})
-    await loadAll()
+    try {
+      await api.put(`/api/v1/orders/${id}/status`, { status })
+      toast.success(`Order status updated to ${status}`)
+      await loadAll()
+    } catch (error: any) {
+      console.error('Failed to update order status:', error)
+      toast.error(error?.response?.data?.message || 'Failed to update order status')
+    }
   }
 
   return (
@@ -126,7 +147,11 @@ export default function AdminDashboardPage() {
                       <td className="p-2">{p.id}</td>
                       <td className="p-2">
                         {p.image_url ? (
-                          <img src={p.image_url} alt={p.name} className="w-12 h-12 object-cover rounded" />
+                          <img 
+                            src={p.image_url.startsWith('http') ? p.image_url : `${import.meta.env.VITE_API_URL || 'http://localhost:5000'}${p.image_url}`} 
+                            alt={p.name} 
+                            className="w-12 h-12 object-cover rounded" 
+                          />
                         ) : (
                           <div className="w-12 h-12 bg-gray-200 rounded flex items-center justify-center text-xs text-gray-500">
                             No Image

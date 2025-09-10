@@ -1,5 +1,6 @@
 import { Request, Response } from 'express'
 import { User, Product, Order, OrderItem } from '../models/index.js'
+import { Op } from 'sequelize'
 import { body, param, validationResult } from 'express-validator'
 import { sequelize } from '../lib/sequelize.js'
 
@@ -16,26 +17,29 @@ export async function getAdminDashboard(req: Request, res: Response) {
       attributes: ['id', 'name', 'email', 'created_at']
     })
 
-    // Get total products for this admin
+    // Get total products for this admin (including archived ones)
     const totalProducts = await Product.count({
       where: { seller_id: admin_id }
     })
 
-    // Get total orders for admin's products
-    const totalOrders = await Order.count({
+    // Get order IDs that contain admin's products
+    const adminOrderItems = await OrderItem.findAll({
       include: [{
-        model: OrderItem,
-        as: 'orderItems',
-        include: [{
-          model: Product,
-          as: 'product',
-          where: { seller_id: admin_id },
-          attributes: []
-        }]
-      }]
+        model: Product,
+        as: 'product',
+        where: { seller_id: admin_id },
+        attributes: []
+      }],
+      attributes: ['order_id'],
+      group: ['order_id']
     })
 
-    // Get total revenue
+    const adminOrderIds = adminOrderItems.map(item => item.order_id)
+
+    // Get total orders for admin's products
+    const totalOrders = adminOrderIds.length
+
+    // Get total revenue from admin's products only
     const revenueResult = await OrderItem.findAll({
       attributes: [
         [sequelize.fn('SUM', sequelize.literal('quantity * price')), 'total_revenue']
@@ -52,29 +56,17 @@ export async function getAdminDashboard(req: Request, res: Response) {
     const totalRevenue = revenueResult[0]?.total_revenue || 0
 
     // Get unique buyers who purchased admin's products
-    const totalBuyers = await User.count({
-      include: [{
-        model: Order,
-        as: 'orders',
-        include: [{
-          model: OrderItem,
-          as: 'orderItems',
-          include: [{
-            model: Product,
-            as: 'product',
-            where: { seller_id: admin_id },
-            attributes: []
-          }]
-        }]
-      }],
-      where: {
-        '$orders.orderItems.product.seller_id$': admin_id
-      },
-      distinct: true
-    })
+    const buyerIds = adminOrderIds.length > 0 ? await Order.findAll({
+      where: { id: adminOrderIds },
+      attributes: ['user_id'],
+      group: ['user_id']
+    }) : []
 
-    // Get recent orders
-    const recentOrders = await Order.findAll({
+    const totalBuyers = buyerIds.length
+
+    // Get recent orders containing admin's products
+    const recentOrders = adminOrderIds.length > 0 ? await Order.findAll({
+      where: { id: adminOrderIds },
       include: [{
         model: OrderItem,
         as: 'orderItems',
@@ -91,7 +83,7 @@ export async function getAdminDashboard(req: Request, res: Response) {
       }],
       order: [['created_at', 'DESC']],
       limit: 5
-    })
+    }) : []
 
     res.json({
       admin,
@@ -130,7 +122,7 @@ export async function getAdminProducts(req: Request, res: Response) {
   }
 }
 
-// Get admin's orders
+// Get admin's orders (only orders containing admin's products)
 export async function getAdminOrders(req: Request, res: Response) {
   try {
     const admin_id = (req as any).user?.id
@@ -138,7 +130,27 @@ export async function getAdminOrders(req: Request, res: Response) {
       return res.status(401).json({ message: 'Authentication required' })
     }
 
+    // First, get all order IDs that contain this admin's products
+    const orderItems = await OrderItem.findAll({
+      include: [{
+        model: Product,
+        as: 'product',
+        where: { seller_id: admin_id },
+        attributes: []
+      }],
+      attributes: ['order_id'],
+      group: ['order_id']
+    })
+
+    const orderIds = orderItems.map(item => item.order_id)
+
+    if (orderIds.length === 0) {
+      return res.json([])
+    }
+
+    // Now get the complete orders with only this admin's products
     const orders = await Order.findAll({
+      where: { id: orderIds },
       include: [{
         model: OrderItem,
         as: 'orderItems',
@@ -171,27 +183,37 @@ export async function getAdminBuyers(req: Request, res: Response) {
       return res.status(401).json({ message: 'Authentication required' })
     }
 
-    // Get unique buyers who purchased this admin's products
-    const buyers = await User.findAll({
-      attributes: ['id', 'name', 'email', 'created_at'],
+    // First, get order IDs that contain admin's products
+    const adminOrderItems = await OrderItem.findAll({
       include: [{
-        model: Order,
-        as: 'orders',
-        include: [{
-          model: OrderItem,
-          as: 'orderItems',
-          include: [{
-            model: Product,
-            as: 'product',
-            where: { seller_id: admin_id },
-            attributes: ['id', 'name', 'price']
-          }]
-        }]
+        model: Product,
+        as: 'product',
+        where: { seller_id: admin_id },
+        attributes: []
       }],
-      where: {
-        '$orders.orderItems.product.seller_id$': admin_id
-      },
-      distinct: true,
+      attributes: ['order_id'],
+      group: ['order_id']
+    })
+
+    const adminOrderIds = adminOrderItems.map(item => item.order_id)
+
+    if (adminOrderIds.length === 0) {
+      return res.json([])
+    }
+
+    // Get unique user IDs who placed these orders
+    const buyerOrders = await Order.findAll({
+      where: { id: adminOrderIds },
+      attributes: ['user_id'],
+      group: ['user_id']
+    })
+
+    const buyerIds = buyerOrders.map(order => order.user_id)
+
+    // Get buyer details
+    const buyers = await User.findAll({
+      where: { id: buyerIds, role: 'user' },
+      attributes: ['id', 'name', 'email', 'created_at'],
       order: [['created_at', 'DESC']]
     })
 

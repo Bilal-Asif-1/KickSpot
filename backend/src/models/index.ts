@@ -11,6 +11,8 @@ Order.hasMany(OrderItem, { foreignKey: 'order_id', as: 'orderItems' })
 Product.belongsTo(User, { foreignKey: 'seller_id', as: 'seller', constraints: false })
 User.hasMany(Product, { foreignKey: 'seller_id', as: 'products', constraints: false })
 User.hasMany(Order, { foreignKey: 'user_id', as: 'orders' })
+User.hasMany(Notification, { foreignKey: 'admin_id', as: 'notifications' })
+Notification.belongsTo(User, { foreignKey: 'admin_id', as: 'admin' })
 
 export { User, Product, Order, OrderItem, Notification }
 

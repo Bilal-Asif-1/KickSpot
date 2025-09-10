@@ -4,7 +4,7 @@ import { fetchProducts } from '@/store/productsSlice'
 import ProductCard from '@/components/ProductCard'
 import { Button } from '@/components/ui/button'
 import { Card, CardContent } from '@/components/ui/card'
-import { ChevronLeft, ChevronRight } from 'lucide-react'
+import { CarouselPlugin } from '@/components/CarouselPlugin'
 
 export default function HomePage() {
   const dispatch = useAppDispatch()
@@ -52,54 +52,9 @@ export default function HomePage() {
 
   return (
     <div className="min-h-screen">
-      {/* Hero Banner Carousel */}
-      <section className="relative h-96 overflow-hidden">
-        <div 
-          className="absolute inset-0 bg-cover bg-center transition-transform duration-500"
-          style={{ backgroundImage: `url(${banners[currentBanner].image})` }}
-        >
-          <div className="absolute inset-0 bg-black/40" />
-          <div className="relative z-10 flex h-full items-center justify-center text-center text-white">
-            <div className="max-w-2xl">
-              <h1 className="mb-4 text-4xl font-bold md:text-6xl">
-                {banners[currentBanner].title}
-              </h1>
-              <p className="mb-8 text-lg md:text-xl">
-                {banners[currentBanner].subtitle}
-              </p>
-              <Button size="lg" className="bg-white text-black hover:bg-gray-100">
-                {banners[currentBanner].cta}
-              </Button>
-            </div>
-          </div>
-        </div>
-        
-        {/* Banner Navigation */}
-        <button
-          onClick={prevBanner}
-          className="absolute left-4 top-1/2 -translate-y-1/2 rounded-full bg-white/20 p-2 text-white hover:bg-white/30"
-        >
-          <ChevronLeft className="h-6 w-6" />
-        </button>
-        <button
-          onClick={nextBanner}
-          className="absolute right-4 top-1/2 -translate-y-1/2 rounded-full bg-white/20 p-2 text-white hover:bg-white/30"
-        >
-          <ChevronRight className="h-6 w-6" />
-        </button>
-        
-        {/* Banner Indicators */}
-        <div className="absolute bottom-4 left-1/2 -translate-x-1/2 flex gap-2">
-          {banners.map((_, index) => (
-            <button
-              key={index}
-              onClick={() => setCurrentBanner(index)}
-              className={`h-2 w-2 rounded-full transition-colors ${
-                index === currentBanner ? 'bg-white' : 'bg-white/50'
-              }`}
-            />
-          ))}
-        </div>
+      {/* Hero Carousel (shadcn/ui + embla) */}
+      <section className="py-8 flex justify-center">
+        <CarouselPlugin />
       </section>
 
       <main className="mx-auto max-w-7xl p-4">

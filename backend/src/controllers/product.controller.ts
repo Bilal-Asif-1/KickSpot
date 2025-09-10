@@ -1,5 +1,6 @@
 import { Request, Response } from 'express'
-import { Product, User } from '../models/index.js'
+import { Op } from 'sequelize'
+import { Product, User, OrderItem } from '../models/index.js'
 import { body, param, validationResult } from 'express-validator'
 import { uploadSingle } from '../middleware/upload.js'
 import path from 'path'
@@ -118,8 +119,15 @@ export async function updateProduct(req: Request, res: Response) {
   const errors = validationResult(req)
   if (!errors.isEmpty()) return res.status(400).json({ errors: errors.array() })
   const { id } = req.params
+  const adminId = (req as any).user?.id
+  
   const product = await Product.findByPk(id)
   if (!product) return res.status(404).json({ message: 'Not found' })
+  
+  // Check if admin owns this product
+  if (product.seller_id !== adminId) {
+    return res.status(403).json({ message: 'You can only update your own products' })
+  }
 
   const updates: any = {}
   const { name, category, price, stock, description, image_url } = req.body as any
@@ -159,14 +167,42 @@ export async function deleteProduct(req: Request, res: Response) {
   const errors = validationResult(req)
   if (!errors.isEmpty()) return res.status(400).json({ errors: errors.array() })
   const { id } = req.params
+  const adminId = (req as any).user?.id
+  
   const product = await Product.findByPk(id)
   if (!product) return res.status(404).json({ message: 'Not found' })
-  await product.destroy()
-  res.status(204).send()
+  
+  // Check if admin owns this product
+  if (product.seller_id !== adminId) {
+    return res.status(403).json({ message: 'You can only delete your own products' })
+  }
+  
+  try {
+    // Prevent deleting products that have order history
+    const count = await OrderItem.count({ where: { product_id: product.id } as any })
+    if (count > 0) {
+      await product.update({ stock: 0 })
+      return res.status(200).json({ 
+        archived: true,
+        message: 'Product has existing orders. Stock set to 0 and hidden from listings.'
+      })
+    }
+    await product.destroy()
+    res.status(204).send()
+  } catch (error: any) {
+    if (error.name === 'SequelizeForeignKeyConstraintError') {
+      return res.status(400).json({ 
+        message: 'Cannot delete product due to existing references (orders).',
+        error: 'FK_CONSTRAINT'
+      })
+    }
+    res.status(500).json({ message: 'Internal server error', error: error.message })
+  }
 }
 
 export async function listProducts(_req: Request, res: Response) {
-  const products = await Product.findAll()
+  // Show only products with stock > 0 (hide archived items)
+  const products = await Product.findAll({ where: { stock: { [Op.gt]: 0 } } })
   res.json(products)
 }
 

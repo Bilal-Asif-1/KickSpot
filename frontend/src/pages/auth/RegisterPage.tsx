@@ -8,6 +8,7 @@ import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from '@
 import { useAppDispatch, useAppSelector } from '@/store'
 import { registerUser } from '@/store/authSlice'
 import { Link, useNavigate } from 'react-router-dom'
+import { toast } from 'sonner'
 
 const schema = z.object({
   name: z.string().min(2),
@@ -26,12 +27,15 @@ export default function RegisterPage() {
     const res = await dispatch(registerUser(values))
     if ((res as any).meta.requestStatus === 'fulfilled') {
       const user = (res as any).payload
+      toast.success(`Welcome to KickSpot, ${user.name}!`)
       // Role-based redirect after registration
       if (user.role === 'admin') {
         navigate('/admin')
       } else {
         navigate('/')
       }
+    } else {
+      toast.error('Registration failed. Please try again.')
     }
   }
 
