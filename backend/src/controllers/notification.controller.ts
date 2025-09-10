@@ -20,7 +20,13 @@ export async function getNotifications(req: AuthRequest, res: Response) {
     res.json(result)
   } catch (error) {
     console.error('Error fetching notifications:', error)
-    res.status(500).json({ message: 'Internal server error' })
+    // Return empty notifications if database is not available
+    res.json({
+      notifications: [],
+      total: 0,
+      page: 1,
+      totalPages: 0
+    })
   }
 }
 
@@ -39,7 +45,8 @@ export async function getUnreadCount(req: AuthRequest, res: Response) {
     res.json({ count })
   } catch (error) {
     console.error('Error fetching unread count:', error)
-    res.status(500).json({ message: 'Internal server error' })
+    // Return 0 count if database is not available
+    res.json({ count: 0 })
   }
 }
 

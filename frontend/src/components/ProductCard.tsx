@@ -4,6 +4,7 @@ import type { Product } from '@/store/productsSlice'
 import { useAppDispatch, useAppSelector } from '@/store'
 import { addToCart } from '@/store/cartSlice'
 import { useNavigate } from 'react-router-dom'
+import { toast } from 'sonner'
 
 export default function ProductCard({ product }: { product: Product }) {
   const dispatch = useAppDispatch()
@@ -20,7 +21,18 @@ export default function ProductCard({ product }: { product: Product }) {
       // Admins cannot buy products
       return
     }
-    dispatch(addToCart(product))
+    
+    const cartItem = {
+      id: product.id,
+      name: product.name,
+      price: product.price,
+      quantity: 1,
+      image_url: product.image_url,
+      category: product.category
+    }
+    
+    dispatch(addToCart(cartItem))
+    toast.success(`${product.name} added to cart!`)
   }
 
   const handleBuyNow = () => {
@@ -33,7 +45,18 @@ export default function ProductCard({ product }: { product: Product }) {
       // Admins cannot buy products
       return
     }
-    dispatch(addToCart(product))
+    
+    const cartItem = {
+      id: product.id,
+      name: product.name,
+      price: product.price,
+      quantity: 1,
+      image_url: product.image_url,
+      category: product.category
+    }
+    
+    dispatch(addToCart(cartItem))
+    toast.success(`${product.name} added to cart!`)
     navigate('/checkout')
   }
 

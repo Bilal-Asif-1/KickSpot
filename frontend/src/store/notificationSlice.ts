@@ -4,12 +4,16 @@ import { api } from '@/lib/api'
 
 export interface Notification {
   id: number
+  title: string
   message: string
-  type: 'order' | 'new-customer' | 'low-stock' | 'product-updated' | 'payment-received' | 'inventory-alert'
+  type: 'order_update' | 'account_security' | 'cart_wishlist' | 'offers_promotions' | 'order' | 'new-customer' | 'low-stock' | 'product-updated' | 'payment-received' | 'inventory-alert'
   priority: 'low' | 'medium' | 'high'
   is_read: boolean
-  admin_id: number
+  admin_id?: number
+  user_id?: number
   created_at: string
+  order_id?: number
+  product_id?: number
   metadata?: {
     orderId?: number
     productId?: number

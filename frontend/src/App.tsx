@@ -16,6 +16,7 @@ import { useAppSelector, useAppDispatch } from '@/store'
 import { useEffect } from 'react'
 import { useLocation } from 'react-router-dom'
 import { fetchCurrentUser } from '@/store/authSlice'
+import { useCartPersistence } from '@/hooks/useCartPersistence'
 
 function AppContent() {
   const { user, token, loading } = useAppSelector(state => state.auth)
@@ -23,6 +24,9 @@ function AppContent() {
   const location = useLocation()
   const isAdminRoute = location.pathname.startsWith('/admin')
   const isAdmin = user?.role === 'admin'
+
+  // Initialize cart persistence
+  useCartPersistence()
 
   useEffect(() => {
     if (!user && token) {

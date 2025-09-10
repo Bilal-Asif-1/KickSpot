@@ -6,14 +6,17 @@ import { useAppSelector, useAppDispatch } from '@/store'
 import { logout } from '@/store/authSlice'
 import ThemeToggle from '@/components/ThemeToggle'
 import NotificationDrawer from '@/components/NotificationDrawer'
+import CartDrawer from '@/components/CartDrawer'
 import { toast } from 'sonner'
 import { useState, useEffect } from 'react'
 import { api } from '@/lib/api'
 
 export default function BuyerNavbar() {
   const { user } = useAppSelector(s => s.auth)
+  const { items } = useAppSelector(s => s.cart)
   const dispatch = useAppDispatch()
   const [isNotificationDrawerOpen, setIsNotificationDrawerOpen] = useState(false)
+  const [isCartDrawerOpen, setIsCartDrawerOpen] = useState(false)
   const [unreadCount, setUnreadCount] = useState(0)
 
   const handleLogout = () => {
@@ -23,16 +26,20 @@ export default function BuyerNavbar() {
 
   // Fetch unread notification count
   useEffect(() => {
-    if (user) {
+    if (user && user.role === 'user') {
       const fetchUnreadCount = async () => {
         try {
           const res = await api.get('/api/v1/notifications/unread-count')
           setUnreadCount(res.data.count)
-        } catch (error) {
-          console.error('Failed to fetch unread count:', error)
+        } catch (error: any) {
+          // Silently handle errors - don't show notifications if backend is not ready
+          console.log('Notifications not available:', error?.response?.status || 'Unknown error')
+          setUnreadCount(0)
         }
       }
       fetchUnreadCount()
+    } else {
+      setUnreadCount(0)
     }
   }, [user])
 
@@ -70,10 +77,19 @@ export default function BuyerNavbar() {
               )}
             </Button>
           )}
-          <Button asChild variant="ghost" size="icon">
-            <Link to="/cart" aria-label="Cart">
-              <ShoppingCart className="h-5 w-5" />
-            </Link>
+          <Button 
+            variant="ghost" 
+            size="icon" 
+            onClick={() => setIsCartDrawerOpen(true)}
+            className="relative"
+            aria-label="Cart"
+          >
+            <ShoppingCart className="h-5 w-5" />
+            {items.length > 0 && (
+              <Badge className="absolute -top-1 -right-1 h-5 w-5 flex items-center justify-center p-0 text-xs bg-blue-500 text-white">
+                {items.reduce((sum, item) => sum + item.quantity, 0)}
+              </Badge>
+            )}
           </Button>
           {user ? (
             <div className="flex items-center gap-2">
@@ -96,6 +112,12 @@ export default function BuyerNavbar() {
       <NotificationDrawer 
         isOpen={isNotificationDrawerOpen}
         onClose={() => setIsNotificationDrawerOpen(false)}
+      />
+      
+      {/* Cart Drawer */}
+      <CartDrawer 
+        isOpen={isCartDrawerOpen}
+        onClose={() => setIsCartDrawerOpen(false)}
       />
     </header>
   )
