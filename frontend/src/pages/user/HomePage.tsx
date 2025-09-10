@@ -1,20 +1,41 @@
-import { useEffect, useState } from 'react'
+import { useEffect, useState, useRef } from 'react'
 import { useAppDispatch, useAppSelector } from '@/store'
 import { fetchProducts } from '@/store/productsSlice'
 import ProductCard from '@/components/ProductCard'
 import { Button } from '@/components/ui/button'
 import { Card, CardContent } from '@/components/ui/card'
 import { CarouselPlugin } from '@/components/CarouselPlugin'
+import { ChevronLeft, ChevronRight } from 'lucide-react'
 
 export default function HomePage() {
   const dispatch = useAppDispatch()
   const { items, loading, error } = useAppSelector(s => s.products)
   const [selectedCategory, setSelectedCategory] = useState('All')
   const [currentBanner, setCurrentBanner] = useState(0)
+  const [bestSellers, setBestSellers] = useState([])
+  const [menProducts, setMenProducts] = useState([])
+  const [womenProducts, setWomenProducts] = useState([])
+  const [kidsProducts, setKidsProducts] = useState([])
 
   useEffect(() => {
     dispatch(fetchProducts())
   }, [dispatch])
+
+  // Filter products by category and sort best sellers
+  useEffect(() => {
+    if (items.length > 0) {
+      // Best Sellers: Sort by buyCount (highest first)
+      const sortedByBuyCount = [...items]
+        .sort((a, b) => (b.buyCount || 0) - (a.buyCount || 0))
+        .slice(0, 8) // Top 8 best sellers
+      setBestSellers(sortedByBuyCount)
+
+      // Category products
+      setMenProducts(items.filter(p => p.category === 'Men').slice(0, 8))
+      setWomenProducts(items.filter(p => p.category === 'Women').slice(0, 8))
+      setKidsProducts(items.filter(p => p.category === 'Kids').slice(0, 8))
+    }
+  }, [items])
 
   const categories = ['All', 'Men', 'Women', 'Kids']
   const filteredProducts = selectedCategory === 'All' 
@@ -50,9 +71,176 @@ export default function HomePage() {
     setCurrentBanner((prev) => (prev - 1 + banners.length) % banners.length)
   }
 
+  // Horizontal Product Slider Component
+  const ProductSlider = ({ title, products, category }: { title: string, products: any[], category: string }) => {
+    const [scrollPosition, setScrollPosition] = useState(0)
+    const scrollContainerRef = useRef<HTMLDivElement>(null)
+
+    const scrollLeft = () => {
+      if (scrollContainerRef.current) {
+        const scrollAmount = 300
+        scrollContainerRef.current.scrollBy({ left: -scrollAmount, behavior: 'smooth' })
+      }
+    }
+
+    const scrollRight = () => {
+      if (scrollContainerRef.current) {
+        const scrollAmount = 300
+        scrollContainerRef.current.scrollBy({ left: scrollAmount, behavior: 'smooth' })
+      }
+    }
+
+    if (products.length === 0) return null
+
+    return (
+      <section className="py-12 px-4">
+        <div className="max-w-9xl mx-auto">
+          <div className="flex items-center justify-between mb-6">
+            <h2 className="text-3xl font-bold text-white">{title}</h2>
+            <div className="flex space-x-2">
+              <Button
+                variant="outline"
+                size="sm"
+                onClick={scrollLeft}
+                className="bg-white/10 border-white/20 text-white hover:bg-white/20"
+              >
+                <ChevronLeft className="h-4 w-4" />
+              </Button>
+              <Button
+                variant="outline"
+                size="sm"
+                onClick={scrollRight}
+                className="bg-white/10 border-white/20 text-white hover:bg-white/20"
+              >
+                <ChevronRight className="h-4 w-4" />
+              </Button>
+            </div>
+          </div>
+          
+          <div 
+            ref={scrollContainerRef}
+            className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 xl:grid-cols-4 gap-4 overflow-x-auto scrollbar-hide pb-4"
+            style={{ scrollbarWidth: 'none', msOverflowStyle: 'none' }}
+          >
+            {products.map(product => (
+              <div key={product.id} className="w-full">
+                <ProductCard product={product} />
+              </div>
+            ))}
+          </div>
+        </div>
+      </section>
+    )
+  }
+
   return (
     <div className="min-h-screen bg-black">
-      {/* Hero Carousel (shadcn/ui + embla) */}
+      {/* Category Cards Section */}
+      <section className="pt-4 pb-12 px-4">
+        <div className="max-w-9xl mx-auto">
+          <div className="grid grid-cols-4 gap-4">
+            {/* Best Sellers Card */}
+            <div className="group relative aspect-[0.77] overflow-hidden rounded-[20px] cursor-pointer">
+              <div className="absolute inset-0">
+                <img 
+                  src="https://images.unsplash.com/photo-1549298916-b41d501d3772?w=800&h=1000&fit=crop" 
+                  alt="Best Sellers" 
+                  className="w-full h-full object-cover transition-transform duration-500 group-hover:scale-105"
+                />
+                <div className="absolute inset-0 bg-black/20 group-hover:bg-black/10 transition-colors duration-300"></div>
+              </div>
+              
+              <div className="absolute inset-0 z-20 flex flex-col items-center justify-center gap-4">
+                <h2 className="text-white text-2xl md:text-3xl font-semibold px-6 py-3 border border-white/30 rounded-full bg-white/10 backdrop-blur-sm">
+                  Best Sellers
+                </h2>
+                <div className="flex flex-col items-center gap-3 opacity-0 group-hover:opacity-100 transition-opacity duration-300">
+                  <button className="px-8 py-3 bg-white/20 backdrop-blur-sm border border-white/30 rounded-full text-white text-base font-medium hover:bg-white/30 transition-colors">
+                    Shop Now
+                  </button>
+                </div>
+              </div>
+            </div>
+
+            {/* Men Card */}
+            <div className="group relative aspect-[0.77] overflow-hidden rounded-[20px] cursor-pointer">
+              <div className="absolute inset-0">
+                <img 
+                  src="https://images.unsplash.com/photo-1595950653106-6c9ebd614d3a?w=800&h=1000&fit=crop" 
+                  alt="Men" 
+                  className="w-full h-full object-cover transition-transform duration-500 group-hover:scale-105"
+                />
+                <div className="absolute inset-0 bg-black/20 group-hover:bg-black/10 transition-colors duration-300"></div>
+              </div>
+              
+              <div className="absolute inset-0 z-20 flex flex-col items-center justify-center gap-4">
+                <h2 className="text-white text-2xl md:text-3xl font-semibold px-6 py-3 border border-white/30 rounded-full bg-white/10 backdrop-blur-sm">
+                  Men
+                </h2>
+                <div className="flex flex-col items-center gap-3 opacity-0 group-hover:opacity-100 transition-opacity duration-300">
+                  <button className="px-8 py-3 bg-white/20 backdrop-blur-sm border border-white/30 rounded-full text-white text-base font-medium hover:bg-white/30 transition-colors">
+                    Shop Men
+                  </button>
+                </div>
+              </div>
+            </div>
+
+            {/* Women Card */}
+            <div className="group relative aspect-[0.77] overflow-hidden rounded-[20px] cursor-pointer">
+              <div className="absolute inset-0">
+                <img 
+                  src="https://images.unsplash.com/photo-1606107557195-0e29a4b5b4aa?w=800&h=1000&fit=crop" 
+                  alt="Women" 
+                  className="w-full h-full object-cover transition-transform duration-500 group-hover:scale-105"
+                />
+                <div className="absolute inset-0 bg-black/20 group-hover:bg-black/10 transition-colors duration-300"></div>
+              </div>
+              
+              <div className="absolute inset-0 z-20 flex flex-col items-center justify-center gap-4">
+                <h2 className="text-white text-2xl md:text-3xl font-semibold px-6 py-3 border border-white/30 rounded-full bg-white/10 backdrop-blur-sm">
+                  Women
+                </h2>
+                <div className="flex flex-col items-center gap-3 opacity-0 group-hover:opacity-100 transition-opacity duration-300">
+                  <button className="px-8 py-3 bg-white/20 backdrop-blur-sm border border-white/30 rounded-full text-white text-base font-medium hover:bg-white/30 transition-colors">
+                    Shop Women
+                  </button>
+                </div>
+              </div>
+            </div>
+
+            {/* Kids Card */}
+            <div className="group relative aspect-[0.77] overflow-hidden rounded-[20px] cursor-pointer">
+              <div className="absolute inset-0">
+                <img 
+                  src="https://images.unsplash.com/photo-1542291026-7eec264c27ff?w=800&h=1000&fit=crop" 
+                  alt="Kids" 
+                  className="w-full h-full object-cover transition-transform duration-500 group-hover:scale-105"
+                />
+                <div className="absolute inset-0 bg-black/20 group-hover:bg-black/10 transition-colors duration-300"></div>
+              </div>
+              
+              <div className="absolute inset-0 z-20 flex flex-col items-center justify-center gap-4">
+                <h2 className="text-white text-2xl md:text-3xl font-semibold px-6 py-3 border border-white/30 rounded-full bg-white/10 backdrop-blur-sm">
+                  Kids
+                </h2>
+                <div className="flex flex-col items-center gap-3 opacity-0 group-hover:opacity-100 transition-opacity duration-300">
+                  <button className="px-8 py-3 bg-white/20 backdrop-blur-sm border border-white/30 rounded-full text-white text-base font-medium hover:bg-white/30 transition-colors">
+                    Shop Kids
+                  </button>
+                </div>
+              </div>
+            </div>
+          </div>
+        </div>
+      </section>
+
+      {/* Product Sliders */}
+      <ProductSlider title="Best Sellers" products={bestSellers} category="bestsellers" />
+      <ProductSlider title="Men's Collection" products={menProducts} category="men" />
+      <ProductSlider title="Women's Collection" products={womenProducts} category="women" />
+      <ProductSlider title="Kids Collection" products={kidsProducts} category="kids" />
+
+        {/* Hero Carousel (shadcn/ui + embla) */}
       <section className="flex justify-center">
         <CarouselPlugin />
       </section>

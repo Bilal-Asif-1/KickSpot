@@ -61,48 +61,39 @@ export default function ProductCard({ product }: { product: Product }) {
   }
 
   return (
-    <Card className="h-full flex flex-col">
-      <CardHeader>
-        <CardTitle className="text-base font-semibold">{product.name}</CardTitle>
-      </CardHeader>
-      <CardContent className="flex-1">
-        <div className="aspect-video w-full bg-muted rounded overflow-hidden">
-          {product.image_url ? (
-            <img 
-              src={product.image_url.startsWith('http') ? product.image_url : `${import.meta.env.VITE_API_URL || 'http://localhost:5000'}${product.image_url}`}
-              alt={product.name}
-              className="w-full h-full object-cover"
-            />
-          ) : (
-            <div className="w-full h-full flex items-center justify-center text-muted-foreground">
-              No Image
-            </div>
-          )}
-        </div>
-        <p className="mt-2 text-sm text-muted-foreground">{product.category}</p>
-        <p className="mt-1 font-semibold">${product.price.toFixed(2)}</p>
-        {product.description && (
-          <p className="mt-1 text-xs text-muted-foreground line-clamp-2">
-            {product.description}
-          </p>
-        )}
-      </CardContent>
-      <CardFooter className="gap-2">
-        {user?.role === 'admin' ? (
-          <div className="w-full text-center text-sm text-muted-foreground">
-            Admin View Only
-          </div>
+    <Card className="relative w-full aspect-[4/5] overflow-hidden bg-white rounded-lg shadow-lg">
+      {/* Full Screen Image */}
+      <div className="absolute inset-0">
+        {product.image_url ? (
+          <img 
+            src={product.image_url.startsWith('http') ? product.image_url : `${import.meta.env.VITE_API_URL || 'http://localhost:5000'}${product.image_url}`}
+            alt={product.name}
+            className="w-full h-full object-cover"
+          />
         ) : (
-          <>
-            <Button variant="outline" className="flex-1" onClick={handleAddToCart}>
-              {user ? 'Add to Cart' : 'Login to Buy'}
-            </Button>
-            <Button className="flex-1" onClick={handleBuyNow}>
-              {user ? 'Buy Now' : 'Login to Buy'}
-            </Button>
-          </>
+          <div className="w-full h-full flex items-center justify-center bg-gray-200 text-gray-500">
+            No Image
+          </div>
         )}
-      </CardFooter>
+      </div>
+      
+      {/* Bottom Overlay with Buy Now and Price */}
+      <div className="absolute bottom-0 left-0 right-0 bg-gradient-to-t from-black/80 to-transparent p-3 md:p-4">
+        <div className="flex items-center justify-between">
+          {/* Buy Now Button - Bottom Left */}
+          <Button 
+            onClick={handleBuyNow}
+            className="bg-white text-black hover:bg-gray-100 font-semibold px-3 py-1.5 md:px-4 md:py-2 rounded-md text-sm md:text-base"
+          >
+            {user ? 'Buy Now' : 'Login to Buy'}
+          </Button>
+          
+          {/* Price - Bottom Right */}
+          <div className="text-white font-bold text-base md:text-lg">
+            ${product.price.toFixed(2)}
+          </div>
+        </div>
+      </div>
     </Card>
   )
 }

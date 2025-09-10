@@ -1,36 +1,76 @@
 import { Button } from '@/components/ui/button'
 import { Badge } from '@/components/ui/badge'
-import { ShoppingCart, LogOut, User } from 'lucide-react'
+import { ShoppingCart, LogOut, User, Bell, Settings, History, Heart, MapPin, CreditCard, HelpCircle, ChevronDown } from 'lucide-react'
 import { useAppSelector, useAppDispatch } from '@/store'
 import { logout } from '@/store/authSlice'
 import { useNavigate } from 'react-router-dom'
 import { toast } from 'sonner'
 import { SparklesCore } from '@/components/ui/sparkles'
-import { useState, useEffect } from 'react'
+import { useState, useEffect, useRef } from 'react'
 
 type CustomNavbarProps = {
   onCartOpen: () => void
+  onNotificationOpen?: () => void
 }
 
-export default function CustomNavbar({ onCartOpen }: CustomNavbarProps) {
+export default function CustomNavbar({ onCartOpen, onNotificationOpen }: CustomNavbarProps) {
   const dispatch = useAppDispatch()
   const navigate = useNavigate()
   const { user } = useAppSelector(state => state.auth)
   const { items } = useAppSelector(state => state.cart)
   const [showLogo, setShowLogo] = useState(false)
+  const [showNavbar, setShowNavbar] = useState(true)
+  const [lastScrollY, setLastScrollY] = useState(0)
+  const [showProfileDropdown, setShowProfileDropdown] = useState(false)
+  const profileDropdownRef = useRef<HTMLDivElement>(null)
 
   const cartItemCount = items.reduce((sum, item) => sum + item.quantity, 0)
 
   useEffect(() => {
     const handleScroll = () => {
-      const scrollTop = window.scrollY
-      // Show logo when scrolled down more than 100px
-      setShowLogo(scrollTop > 100)
+      const scrollTop = window.pageYOffset || document.documentElement.scrollTop
+      
+      // Show logo when scrolled down more than 50px
+      setShowLogo(scrollTop > 50)
+      
+      // Navbar hide/show logic
+      if (scrollTop < 10) {
+        // Always show navbar at the very top
+        setShowNavbar(true)
+      } else if (scrollTop > lastScrollY && scrollTop > 100) {
+        // Scrolling down and past 100px - hide navbar
+        setShowNavbar(false)
+      } else if (scrollTop < lastScrollY) {
+        // Scrolling up - show navbar
+        setShowNavbar(true)
+      }
+      
+      setLastScrollY(scrollTop)
     }
 
-    window.addEventListener('scroll', handleScroll)
+    // Initial check
+    handleScroll()
+
+    window.addEventListener('scroll', handleScroll, { passive: true })
     return () => window.removeEventListener('scroll', handleScroll)
-  }, [])
+  }, [lastScrollY])
+
+  // Handle click outside to close dropdown
+  useEffect(() => {
+    const handleClickOutside = (event: MouseEvent) => {
+      if (profileDropdownRef.current && !profileDropdownRef.current.contains(event.target as Node)) {
+        setShowProfileDropdown(false)
+      }
+    }
+
+    if (showProfileDropdown) {
+      document.addEventListener('mousedown', handleClickOutside)
+    }
+
+    return () => {
+      document.removeEventListener('mousedown', handleClickOutside)
+    }
+  }, [showProfileDropdown])
 
   const handleLogout = () => {
     dispatch(logout())
@@ -44,6 +84,48 @@ export default function CustomNavbar({ onCartOpen }: CustomNavbarProps) {
 
   const handleCartClick = () => {
     onCartOpen()
+  }
+
+  const handleNotificationClick = () => {
+    if (onNotificationOpen) {
+      onNotificationOpen()
+    } else {
+      // Fallback: navigate to notifications page
+      navigate('/notifications')
+    }
+  }
+
+  const handleProfileClick = () => {
+    setShowProfileDropdown(!showProfileDropdown)
+  }
+
+  const handleProfileMenuItem = (action: string) => {
+    setShowProfileDropdown(false)
+    switch (action) {
+      case 'profile':
+        navigate('/profile')
+        break
+      case 'orders':
+        navigate('/orders')
+        break
+      case 'wishlist':
+        navigate('/wishlist')
+        break
+      case 'addresses':
+        navigate('/addresses')
+        break
+      case 'payments':
+        navigate('/payments')
+        break
+      case 'help':
+        navigate('/help')
+        break
+      case 'logout':
+        handleLogout()
+        break
+      default:
+        break
+    }
   }
 
   return (
@@ -61,34 +143,112 @@ export default function CustomNavbar({ onCartOpen }: CustomNavbarProps) {
           speed={2}
         />
         <div className="absolute inset-0 flex items-center justify-center z-10">
-          <h1 className="text-4xl font-bold text-white text-center">
-            KickSpot
+          <h1 className="text-6xl md:text-8xl font-bold text-white text-center">
+            KICKSPOT
           </h1>
         </div>
       </div>
 
       {/* Top-left KickSpot brand logo */}
-      {showLogo && (
-        <div className="absolute top-4 left-4 z-30 transition-opacity duration-300">
-          <div className="text-2xl font-bold text-transparent bg-clip-text bg-gradient-to-r from-blue-600 via-purple-600 to-pink-600">
-            KickSpot
-          </div>
+      <div className={`fixed top-4 left-4 z-30 transition-all duration-500 ease-in-out ${
+        showLogo ? 'opacity-100 translate-y-0' : 'opacity-0 -translate-y-2'
+      }`}>
+        <div className="text-2xl font-bold text-white">
+          KickSpot
         </div>
-      )}
+      </div>
 
       {/* Top-right user section */}
       <div className="absolute top-4 right-4 flex items-center space-x-3 z-30">
         {user ? (
           <div className="flex items-center space-x-3">
-            <User className="h-5 w-5 text-gray-700" />
-            <Button
-              variant="outline"
-              size="sm"
-              onClick={handleLogout}
-              className="px-3 py-1"
-            >
-              LOGOUT
-            </Button>
+            <Bell 
+              className="h-5 w-5 text-white cursor-pointer hover:text-gray-300 transition-colors" 
+              onClick={handleNotificationClick}
+            />
+            
+            {/* Profile Dropdown */}
+            <div className="relative" ref={profileDropdownRef}>
+              <button
+                onClick={handleProfileClick}
+                className="flex items-center space-x-2 text-white hover:text-gray-300 transition-colors"
+              >
+                <User className="h-5 w-5" />
+                <ChevronDown className={`h-4 w-4 transition-transform duration-200 ${
+                  showProfileDropdown ? 'rotate-180' : ''
+                }`} />
+              </button>
+
+              {/* Dropdown Menu */}
+              {showProfileDropdown && (
+                <div className="absolute right-0 top-full mt-2 w-64 bg-white rounded-lg shadow-lg border border-gray-200 py-2 z-40 animate-in slide-in-from-top-2 duration-200">
+                  <div className="px-4 py-2 border-b border-gray-100">
+                    <p className="text-sm font-medium text-gray-900">{user.name}</p>
+                    <p className="text-xs text-gray-500">{user.email}</p>
+                  </div>
+                  
+                  <div className="py-1">
+                    <button
+                      onClick={() => handleProfileMenuItem('profile')}
+                      className="w-full flex items-center space-x-3 px-4 py-2 text-sm text-gray-700 hover:bg-gray-50 transition-colors"
+                    >
+                      <Settings className="h-4 w-4" />
+                      <span>Profile Settings</span>
+                    </button>
+                    
+                    <button
+                      onClick={() => handleProfileMenuItem('orders')}
+                      className="w-full flex items-center space-x-3 px-4 py-2 text-sm text-gray-700 hover:bg-gray-50 transition-colors"
+                    >
+                      <History className="h-4 w-4" />
+                      <span>Order History</span>
+                    </button>
+                    
+                    <button
+                      onClick={() => handleProfileMenuItem('wishlist')}
+                      className="w-full flex items-center space-x-3 px-4 py-2 text-sm text-gray-700 hover:bg-gray-50 transition-colors"
+                    >
+                      <Heart className="h-4 w-4" />
+                      <span>Wishlist / Saved Items</span>
+                    </button>
+                    
+                    <button
+                      onClick={() => handleProfileMenuItem('addresses')}
+                      className="w-full flex items-center space-x-3 px-4 py-2 text-sm text-gray-700 hover:bg-gray-50 transition-colors"
+                    >
+                      <MapPin className="h-4 w-4" />
+                      <span>Address Book</span>
+                    </button>
+                    
+                    <button
+                      onClick={() => handleProfileMenuItem('payments')}
+                      className="w-full flex items-center space-x-3 px-4 py-2 text-sm text-gray-700 hover:bg-gray-50 transition-colors"
+                    >
+                      <CreditCard className="h-4 w-4" />
+                      <span>Payment Methods</span>
+                    </button>
+                    
+                    <button
+                      onClick={() => handleProfileMenuItem('help')}
+                      className="w-full flex items-center space-x-3 px-4 py-2 text-sm text-gray-700 hover:bg-gray-50 transition-colors"
+                    >
+                      <HelpCircle className="h-4 w-4" />
+                      <span>Help & Support</span>
+                    </button>
+                  </div>
+                  
+                  <div className="border-t border-gray-100 pt-1">
+                    <button
+                      onClick={() => handleProfileMenuItem('logout')}
+                      className="w-full flex items-center space-x-3 px-4 py-2 text-sm text-red-600 hover:bg-red-50 transition-colors"
+                    >
+                      <LogOut className="h-4 w-4" />
+                      <span>Logout</span>
+                    </button>
+                  </div>
+                </div>
+              )}
+            </div>
           </div>
         ) : (
           <Button
@@ -102,7 +262,9 @@ export default function CustomNavbar({ onCartOpen }: CustomNavbarProps) {
       </div>
 
       {/* Fixed top navbar */}
-      <div className="fixed top-0 left-0 right-0 flex items-center justify-center px-8 py-2 z-20">
+      <div className={`fixed top-0 left-0 right-0 flex items-center justify-center px-8 py-2 z-20 transition-all duration-300 ease-in-out ${
+        showNavbar ? 'opacity-100 translate-y-0' : 'opacity-0 -translate-y-full'
+      }`}>
         {/* Horizontal capsule navbar */}
         <div className="w-1/2 bg-white rounded-full shadow-lg border border-gray-200 px-8 py-2 flex items-center justify-between">
           {/* Left side - Menu items */}
