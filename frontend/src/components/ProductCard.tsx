@@ -61,7 +61,14 @@ export default function ProductCard({ product }: { product: Product }) {
   }
 
   return (
-    <Card className="relative w-full aspect-[0.77] overflow-hidden bg-white rounded-lg shadow-lg">
+    <Card className="relative w-full aspect-[0.77] overflow-hidden bg-white rounded-2xl shadow-lg border-15 border-black">
+      {/* Sale Badge */}
+      {product.isOnSale && (
+        <div className="absolute top-2 left-2 z-10 bg-red-500 text-white px-2 py-1 rounded-md text-xs font-bold">
+          {product.discount}% OFF
+        </div>
+      )}
+      
       {/* Full Screen Image */}
       <div className="absolute inset-0">
         {product.image_url ? (
@@ -91,8 +98,21 @@ export default function ProductCard({ product }: { product: Product }) {
           </Button>
           
           {/* Price - Bottom Right */}
-          <div className="text-white font-bold text-base md:text-lg">
-            ${product.price.toFixed(2)}
+          <div className="text-right">
+            {product.isOnSale && product.originalPrice ? (
+              <div>
+                <div className="text-white font-bold text-base md:text-lg">
+                  ${product.price.toFixed(2)}
+                </div>
+                <div className="text-gray-300 line-through text-sm">
+                  ${product.originalPrice.toFixed(2)}
+                </div>
+              </div>
+            ) : (
+              <div className="text-white font-bold text-base md:text-lg">
+                ${product.price.toFixed(2)}
+              </div>
+            )}
           </div>
         </div>
       </div>

@@ -10,6 +10,7 @@ export class Product extends Model {
   declare description: string | null
   declare image_url: string | null
   declare seller_id: number | null
+  declare buyCount: number
 }
 
 Product.init(
@@ -22,6 +23,7 @@ Product.init(
     description: { type: DataTypes.TEXT, allowNull: true },
     image_url: { type: DataTypes.STRING, allowNull: true },
     seller_id: { type: DataTypes.INTEGER.UNSIGNED, allowNull: true },
+    buyCount: { type: DataTypes.INTEGER.UNSIGNED, allowNull: false, defaultValue: 0 },
   },
   { sequelize, tableName: 'products', timestamps: true, createdAt: 'created_at', updatedAt: false }
 )

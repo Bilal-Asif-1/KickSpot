@@ -4,6 +4,7 @@ import { Order, OrderItem, Product, Notification, User } from '../models/index.j
 import { body, param, validationResult } from 'express-validator'
 import { io } from '../index.js'
 import { NotificationService } from '../services/notificationService.js'
+import { updateProductBuyCount } from './product.controller.js'
 
 export const placeOrderValidators = [
   body('items').isArray({ min: 1 }),
@@ -39,6 +40,9 @@ export async function placeOrder(req: AuthRequest, res: Response) {
     const p = byId.get(it.product_id)!
     await OrderItem.create({ order_id: order.id, product_id: p.id, quantity: it.quantity, price: p.price })
     await p.update({ stock: p.stock - it.quantity })
+    
+    // Update product buyCount
+    await updateProductBuyCount(p.id, it.quantity)
     
     // Track admin for this product
     if (p.seller_id) {

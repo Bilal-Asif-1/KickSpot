@@ -215,5 +215,90 @@ export async function getProduct(req: Request, res: Response) {
   res.json(product)
 }
 
+// Get Sale Products (products with discounted prices)
+export async function getSaleProducts(req: Request, res: Response) {
+  try {
+    const limit = parseInt(req.query.limit as string) || 8
+    
+    // Get products and add sale prices (20% off)
+    const products = await Product.findAll({
+      where: { stock: { [Op.gt]: 0 } },
+      order: [['created_at', 'DESC']],
+      limit,
+      include: [{ model: User, as: 'seller', attributes: ['id', 'name', 'email'] }]
+    })
+    
+    // Add sale prices to products
+    const saleProducts = products.map(product => ({
+      ...product.toJSON(),
+      originalPrice: product.price,
+      price: Math.round(product.price * 0.8), // 20% discount
+      salePrice: Math.round(product.price * 0.8),
+      discount: 20,
+      isOnSale: true
+    }))
+    
+    res.json(saleProducts)
+  } catch (error: any) {
+    console.error('Error fetching sale products:', error)
+    res.status(500).json({ message: 'Internal server error', error: error.message })
+  }
+}
+
+// Get Best Sellers (products sorted by buyCount)
+export async function getBestSellers(req: Request, res: Response) {
+  try {
+    const limit = parseInt(req.query.limit as string) || 8
+    const products = await Product.findAll({
+      where: { stock: { [Op.gt]: 0 } },
+      order: [['buyCount', 'DESC']],
+      limit,
+      include: [{ model: User, as: 'seller', attributes: ['id', 'name', 'email'] }]
+    })
+    res.json(products)
+  } catch (error: any) {
+    console.error('Error fetching best sellers:', error)
+    res.status(500).json({ message: 'Internal server error', error: error.message })
+  }
+}
+
+// Get products by category
+export async function getProductsByCategory(req: Request, res: Response) {
+  try {
+    const { category } = req.params
+    const limit = parseInt(req.query.limit as string) || 8
+    
+    if (!['Men', 'Women', 'Kids'].includes(category)) {
+      return res.status(400).json({ message: 'Invalid category. Must be Men, Women, or Kids' })
+    }
+    
+    const products = await Product.findAll({
+      where: { 
+        category,
+        stock: { [Op.gt]: 0 }
+      },
+      order: [['created_at', 'DESC']],
+      limit,
+      include: [{ model: User, as: 'seller', attributes: ['id', 'name', 'email'] }]
+    })
+    res.json(products)
+  } catch (error: any) {
+    console.error('Error fetching products by category:', error)
+    res.status(500).json({ message: 'Internal server error', error: error.message })
+  }
+}
+
+// Update product buyCount (called when order is placed)
+export async function updateProductBuyCount(productId: number, quantity: number) {
+  try {
+    const product = await Product.findByPk(productId)
+    if (product) {
+      await product.increment('buyCount', { by: quantity })
+    }
+  } catch (error) {
+    console.error('Error updating product buyCount:', error)
+  }
+}
+
 
 

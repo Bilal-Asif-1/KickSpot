@@ -79,7 +79,12 @@ export default function CustomNavbar({ onCartOpen, onNotificationOpen }: CustomN
   }
 
   const handleCategoryClick = (category: string) => {
-    navigate(`/products?category=${category}`)
+    const categoryMap: { [key: string]: string } = {
+      'Men': '/men',
+      'Women': '/women',
+      'Kids': '/kids'
+    }
+    navigate(categoryMap[category] || `/products?category=${category}`)
   }
 
   const handleCartClick = () => {
@@ -142,15 +147,15 @@ export default function CustomNavbar({ onCartOpen, onNotificationOpen }: CustomN
           particleColor="#ffffff"
           speed={2}
         />
-        <div className="absolute inset-0 flex items-center justify-center z-10">
-          <h1 className="text-6xl md:text-8xl font-bold text-white text-center">
-            KICKSPOT
-          </h1>
-        </div>
+        <div className="absolute inset-0 flex items-end justify-center z-10 pb-10">
+  <h1 className="text-6xl md:text-8xl font-bold text-white text-center">
+    KICKSPOT
+  </h1>
+</div>
       </div>
 
       {/* Top-left KickSpot brand logo */}
-      <div className={`fixed top-4 left-4 z-30 transition-all duration-500 ease-in-out ${
+      <div className={`fixed top-5 left-4 z-30 transition-all duration-500 ease-in-out ${
         showLogo ? 'opacity-100 translate-y-0' : 'opacity-0 -translate-y-2'
       }`}>
         <div className="text-2xl font-bold text-white">
@@ -159,7 +164,7 @@ export default function CustomNavbar({ onCartOpen, onNotificationOpen }: CustomN
       </div>
 
       {/* Top-right user section */}
-      <div className="absolute top-4 right-4 flex items-center space-x-3 z-30">
+      <div className="absolute top-6 right-4 flex items-center space-x-3 z-30">
         {user ? (
           <div className="flex items-center space-x-3">
             <Bell 
@@ -262,33 +267,33 @@ export default function CustomNavbar({ onCartOpen, onNotificationOpen }: CustomN
       </div>
 
       {/* Fixed top navbar */}
-      <div className={`fixed top-0 left-0 right-0 flex items-center justify-center px-8 py-2 z-20 transition-all duration-300 ease-in-out ${
+      <div className={`fixed top-2 left-0 right-0 flex items-center justify-center px-8 py-2 z-20 transition-all duration-300 ease-in-out ${
         showNavbar ? 'opacity-100 translate-y-0' : 'opacity-0 -translate-y-full'
       }`}>
         {/* Horizontal capsule navbar */}
-        <div className="w-1/2 bg-white rounded-full shadow-lg border border-gray-200 px-8 py-2 flex items-center justify-between">
+        <div className="w-1/2 bg-white rounded-full shadow-lg border border-gray-200 px-8 py-4 flex items-center justify-between">
           {/* Left side - Menu items */}
-          <div className="flex items-center space-x-8">
+          <div className="flex items-center space-x-12">
             <Button
               variant="ghost"
               onClick={() => handleCategoryClick('Men')}
-              className="text-gray-700 hover:text-blue-600 hover:bg-blue-50 px-4 py-2 rounded-full font-medium"
+              className="text-black hover:text-blue-200 hover:bg-blue-50 px-4 py-2 rounded-full font-medium"
             >
-              Men
+              MEN
             </Button>
             <Button
               variant="ghost"
               onClick={() => handleCategoryClick('Women')}
-              className="text-gray-700 hover:text-blue-600 hover:bg-blue-50 px-4 py-2 rounded-full font-medium"
+              className="text-black hover:text-blue-200 hover:bg-blue-50 px-4 py-2 rounded-full font-medium"
             >
-              Women
+              WOMEN
             </Button>
             <Button
               variant="ghost"
               onClick={() => handleCategoryClick('Kids')}
-              className="text-gray-700 hover:text-blue-600 hover:bg-blue-50 px-4 py-2 rounded-full font-medium"
+              className="text-black hover:text-blue-200 hover:bg-blue-50 px-4 py-2 rounded-full font-medium"
             >
-              Kids
+              KIDS
             </Button>
           </div>
 

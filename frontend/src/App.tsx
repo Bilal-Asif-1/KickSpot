@@ -7,6 +7,9 @@ import ProtectedRoute from '@/components/ProtectedRoute'
 import { ErrorBoundary } from '@/components/ErrorBoundary'
 import { Toaster } from '@/components/ui/sonner'
 import { HomePage, ProductsPage, CartPage, CheckoutPage, OrdersPage, AdminDashboardPage } from '@/pages'
+import MensPage from '@/pages/user/MensPage'
+import WomensPage from '@/pages/user/WomensPage'
+import KidsPage from '@/pages/user/KidsPage'
 import AdminOrders from '@/pages/admin/AdminOrdersPage'
 import AdminCustomers from '@/pages/admin/AdminCustomersPage'
 import AdminNotifications from '@/pages/admin/AdminNotificationsPage'
@@ -110,6 +113,27 @@ function AppContent() {
           isAdmin ? <Navigate to="/admin" replace /> : (
             <CustomNavbarWrapper>
               <ProductsPage />
+            </CustomNavbarWrapper>
+          )
+        } />
+        <Route path="/men" element={
+          isAdmin ? <Navigate to="/admin" replace /> : (
+            <CustomNavbarWrapper>
+              <MensPage />
+            </CustomNavbarWrapper>
+          )
+        } />
+        <Route path="/women" element={
+          isAdmin ? <Navigate to="/admin" replace /> : (
+            <CustomNavbarWrapper>
+              <WomensPage />
+            </CustomNavbarWrapper>
+          )
+        } />
+        <Route path="/kids" element={
+          isAdmin ? <Navigate to="/admin" replace /> : (
+            <CustomNavbarWrapper>
+              <KidsPage />
             </CustomNavbarWrapper>
           )
         } />

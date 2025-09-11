@@ -1,41 +1,26 @@
 import { useEffect, useState, useRef } from 'react'
 import { useAppDispatch, useAppSelector } from '@/store'
-import { fetchProducts } from '@/store/productsSlice'
+import { fetchProducts, fetchSaleProducts, fetchBestSellers } from '@/store/productsSlice'
 import ProductCard from '@/components/ProductCard'
 import { Button } from '@/components/ui/button'
 import { Card, CardContent } from '@/components/ui/card'
 import { CarouselPlugin } from '@/components/CarouselPlugin'
+import { SaleBestSellersSection } from '@/components/SaleBestSellersSection'
+import { ImageCollage } from '@/components/ImageCollage'
 import { ChevronLeft, ChevronRight } from 'lucide-react'
 
 export default function HomePage() {
   const dispatch = useAppDispatch()
-  const { items, loading, error } = useAppSelector(s => s.products)
+  const { items, saleProducts, bestSellers, loading, error } = useAppSelector(s => s.products)
   const [selectedCategory, setSelectedCategory] = useState('All')
   const [currentBanner, setCurrentBanner] = useState(0)
-  const [bestSellers, setBestSellers] = useState([])
-  const [menProducts, setMenProducts] = useState([])
-  const [womenProducts, setWomenProducts] = useState([])
-  const [kidsProducts, setKidsProducts] = useState([])
 
   useEffect(() => {
+    // Fetch all product data
     dispatch(fetchProducts())
+    dispatch(fetchSaleProducts())
+    dispatch(fetchBestSellers())
   }, [dispatch])
-
-  // Filter products by category and sort best sellers
-  useEffect(() => {
-    if (items.length > 0) {
-      // Best Sellers: Sort by buyCount (highest first)
-      const sortedByBuyCount = [...items]
-        .sort((a, b) => (b.buyCount || 0) - (a.buyCount || 0))
-        .slice(0, 8) // Top 8 best sellers
-      setBestSellers(sortedByBuyCount)
-
-      // Category products
-      setMenProducts(items.filter(p => p.category === 'Men').slice(0, 8))
-      setWomenProducts(items.filter(p => p.category === 'Women').slice(0, 8))
-      setKidsProducts(items.filter(p => p.category === 'Kids').slice(0, 8))
-    }
-  }, [items])
 
   const categories = ['All', 'Men', 'Women', 'Kids']
   const filteredProducts = selectedCategory === 'All' 
@@ -217,7 +202,105 @@ export default function HomePage() {
       }
     }, [])
 
-    if (products.length === 0) return null
+    // Temporary: Show sample data if no products loaded
+    if (products.length === 0) {
+      let sampleProducts = []
+      
+      if (category === 'sale') {
+        sampleProducts = [
+          { id: 1, name: 'Nike Air Max 270', price: 120, originalPrice: 150, image_url: 'https://images.unsplash.com/photo-1549298916-b41d501d3772?w=800&h=1000&fit=crop', buyCount: 25, discount: 20, isOnSale: true },
+          { id: 2, name: 'Adidas Ultraboost 22', price: 144, originalPrice: 180, image_url: 'https://images.unsplash.com/photo-1542291026-7eec264c27ff?w=800&h=1000&fit=crop', buyCount: 18, discount: 20, isOnSale: true },
+          { id: 3, name: 'Nike Air Force 1', price: 72, originalPrice: 90, image_url: 'https://images.unsplash.com/photo-1595950653106-6c9ebd614d3a?w=800&h=1000&fit=crop', buyCount: 32, discount: 20, isOnSale: true },
+          { id: 4, name: 'Converse Chuck Taylor', price: 52, originalPrice: 65, image_url: 'https://images.unsplash.com/photo-1543163521-1bf539c55dd2?w=800&h=1000&fit=crop', buyCount: 15, discount: 20, isOnSale: true },
+          { id: 5, name: 'Nike Air Jordan 1', price: 96, originalPrice: 120, image_url: 'https://images.unsplash.com/photo-1551107696-a4b0c5a0d9a2?w=800&h=1000&fit=crop', buyCount: 8, discount: 20, isOnSale: true },
+          { id: 6, name: 'Adidas Stan Smith', price: 64, originalPrice: 80, image_url: 'https://images.unsplash.com/photo-1571019613454-1cb2f99b2d8b?w=800&h=1000&fit=crop', buyCount: 12, discount: 20, isOnSale: true },
+          { id: 7, name: 'Nike React Element 55', price: 104, originalPrice: 130, image_url: 'https://images.unsplash.com/photo-1549298916-b41d501d3772?w=800&h=1000&fit=crop', buyCount: 20, discount: 20, isOnSale: true },
+          { id: 8, name: 'Puma Suede Classic', price: 60, originalPrice: 75, image_url: 'https://images.unsplash.com/photo-1595950653106-6c9ebd614d3a?w=800&h=1000&fit=crop', buyCount: 28, discount: 20, isOnSale: true }
+        ]
+      } else if (category === 'bestsellers') {
+        sampleProducts = [
+          { id: 9, name: 'Nike Air Max 270', price: 150, image_url: 'https://images.unsplash.com/photo-1549298916-b41d501d3772?w=800&h=1000&fit=crop', buyCount: 25 },
+          { id: 10, name: 'Adidas Ultraboost 22', price: 180, image_url: 'https://images.unsplash.com/photo-1542291026-7eec264c27ff?w=800&h=1000&fit=crop', buyCount: 18 },
+          { id: 11, name: 'Nike Air Force 1', price: 90, image_url: 'https://images.unsplash.com/photo-1595950653106-6c9ebd614d3a?w=800&h=1000&fit=crop', buyCount: 32 },
+          { id: 12, name: 'Converse Chuck Taylor', price: 65, image_url: 'https://images.unsplash.com/photo-1543163521-1bf539c55dd2?w=800&h=1000&fit=crop', buyCount: 15 },
+          { id: 13, name: 'Nike Air Jordan 1', price: 120, image_url: 'https://images.unsplash.com/photo-1551107696-a4b0c5a0d9a2?w=800&h=1000&fit=crop', buyCount: 8 },
+          { id: 14, name: 'Adidas Stan Smith', price: 80, image_url: 'https://images.unsplash.com/photo-1571019613454-1cb2f99b2d8b?w=800&h=1000&fit=crop', buyCount: 12 },
+          { id: 15, name: 'Nike React Element 55', price: 130, image_url: 'https://images.unsplash.com/photo-1549298916-b41d501d3772?w=800&h=1000&fit=crop', buyCount: 20 },
+          { id: 16, name: 'Puma Suede Classic', price: 75, image_url: 'https://images.unsplash.com/photo-1595950653106-6c9ebd614d3a?w=800&h=1000&fit=crop', buyCount: 28 }
+        ]
+      } else {
+        // Default sample data for other categories
+        sampleProducts = [
+          { id: 1, name: 'Nike Air Max 270', price: 150, image_url: 'https://images.unsplash.com/photo-1549298916-b41d501d3772?w=800&h=1000&fit=crop', buyCount: 25 },
+          { id: 2, name: 'Adidas Ultraboost 22', price: 180, image_url: 'https://images.unsplash.com/photo-1542291026-7eec264c27ff?w=800&h=1000&fit=crop', buyCount: 18 },
+          { id: 3, name: 'Nike Air Force 1', price: 90, image_url: 'https://images.unsplash.com/photo-1595950653106-6c9ebd614d3a?w=800&h=1000&fit=crop', buyCount: 32 },
+          { id: 4, name: 'Converse Chuck Taylor', price: 65, image_url: 'https://images.unsplash.com/photo-1543163521-1bf539c55dd2?w=800&h=1000&fit=crop', buyCount: 15 },
+          { id: 5, name: 'Nike Air Jordan 1', price: 120, image_url: 'https://images.unsplash.com/photo-1551107696-a4b0c5a0d9a2?w=800&h=1000&fit=crop', buyCount: 8 },
+          { id: 6, name: 'Adidas Stan Smith', price: 80, image_url: 'https://images.unsplash.com/photo-1571019613454-1cb2f99b2d8b?w=800&h=1000&fit=crop', buyCount: 12 },
+          { id: 7, name: 'Nike React Element 55', price: 130, image_url: 'https://images.unsplash.com/photo-1549298916-b41d501d3772?w=800&h=1000&fit=crop', buyCount: 20 },
+          { id: 8, name: 'Puma Suede Classic', price: 75, image_url: 'https://images.unsplash.com/photo-1595950653106-6c9ebd614d3a?w=800&h=1000&fit=crop', buyCount: 28 }
+        ]
+      }
+  return (
+        <section className="py-12 px-4">
+          <div className="max-w-9xl mx-auto">
+            <div className="flex items-center justify-between mb-6">
+              <h2 className="text-3xl font-bold text-white">{title}</h2>
+              <div className="flex space-x-2">
+                <Button
+                  variant="outline"
+                  size="sm"
+                  onClick={scrollLeftAction}
+                  className="bg-white/10 border-white/20 text-white hover:bg-white/20"
+                >
+                  <ChevronLeft className="h-4 w-4" />
+                </Button>
+                <Button
+                  variant="outline"
+                  size="sm"
+                  onClick={scrollRightAction}
+                  className="bg-white/10 border-white/20 text-white hover:bg-white/20"
+                >
+                  <ChevronRight className="h-4 w-4" />
+                </Button>
+              </div>
+            </div>
+            
+            <div 
+              ref={scrollContainerRef}
+              className="flex gap-4 overflow-x-auto scrollbar-hide cursor-grab active:cursor-grabbing select-none"
+              style={{ 
+                scrollbarWidth: 'none', 
+                msOverflowStyle: 'none',
+                scrollBehavior: 'smooth',
+                scrollSnapType: 'x mandatory',
+                scrollPaddingLeft: '0px'
+              }}
+              onMouseDown={handleMouseDown}
+              onMouseMove={isDragging ? handleMouseMove : undefined}
+              onMouseUp={handleMouseUp}
+              onMouseLeave={handleEnd}
+              onTouchStart={handleTouchStart}
+              onTouchMove={handleTouchMove}
+              onTouchEnd={handleTouchEnd}
+            >
+              {sampleProducts.map(product => (
+                <div 
+                  key={product.id} 
+                  className="flex-shrink-0" 
+                  style={{ 
+                    width: 'calc(25% - 12px)',
+                    scrollSnapAlign: 'start'
+                  }}
+                >
+                  <ProductCard product={product} />
+                </div>
+              ))}
+            </div>
+          </div>
+        </section>
+      )
+    }
 
     return (
       <section className="py-12 px-4">
@@ -318,8 +401,8 @@ export default function HomePage() {
                   className="w-full h-full object-cover transition-transform duration-500 group-hover:scale-105"
                 />
                 <div className="absolute inset-0 bg-black/20 group-hover:bg-black/10 transition-colors duration-300"></div>
-              </div>
-              
+        </div>
+        
               <div className="absolute inset-0 z-20 flex flex-col items-center justify-center gap-4">
                 <h2 className="text-white text-2xl md:text-3xl font-semibold px-6 py-3 border border-white/30 rounded-full bg-white/10 backdrop-blur-sm">
                   Men
@@ -327,7 +410,7 @@ export default function HomePage() {
                 <div className="flex flex-col items-center gap-3 opacity-0 group-hover:opacity-100 transition-opacity duration-300">
                   <button className="px-8 py-3 bg-white/20 backdrop-blur-sm border border-white/30 rounded-full text-white text-base font-medium hover:bg-white/30 transition-colors">
                     Shop Men
-                  </button>
+        </button>
                 </div>
               </div>
             </div>
@@ -350,7 +433,7 @@ export default function HomePage() {
                 <div className="flex flex-col items-center gap-3 opacity-0 group-hover:opacity-100 transition-opacity duration-300">
                   <button className="px-8 py-3 bg-white/20 backdrop-blur-sm border border-white/30 rounded-full text-white text-base font-medium hover:bg-white/30 transition-colors">
                     Shop Women
-                  </button>
+        </button>
                 </div>
               </div>
             </div>
@@ -381,107 +464,16 @@ export default function HomePage() {
         </div>
       </section>
 
-      {/* Product Sliders */}
-      <ProductSlider title="Best Sellers" products={bestSellers} category="bestsellers" />
-      <ProductSlider title="Men's Collection" products={menProducts} category="men" />
-      <ProductSlider title="Women's Collection" products={womenProducts} category="women" />
-      <ProductSlider title="Kids Collection" products={kidsProducts} category="kids" />
-
-        {/* Hero Carousel (shadcn/ui + embla) */}
+      {/* Sale & Best Sellers Section */}
+      <SaleBestSellersSection />
+      
+      {/* Hero Carousel (shadcn/ui + embla) */}
       <section className="flex justify-center">
         <CarouselPlugin />
       </section>
-
-      <main className="mx-auto max-w-7xl p-4">
-        {/* Categories Section */}
-        <section className="my-12">
-          <h2 className="mb-6 text-3xl font-bold text-center text-white">Shop by Category</h2>
-          <div className="grid grid-cols-2 md:grid-cols-4 gap-4">
-            {categories.slice(1).map(category => (
-              <Card 
-                key={category} 
-                className="cursor-pointer transition-transform hover:scale-105 hover:shadow-lg"
-                onClick={() => setSelectedCategory(category)}
-              >
-                <CardContent className="p-6 text-center">
-                  <div className="mb-4 h-16 w-16 mx-auto bg-gradient-to-br from-blue-500 to-purple-600 rounded-full flex items-center justify-center text-white font-bold text-xl">
-                    {category.charAt(0)}
-                  </div>
-                  <h3 className="font-semibold">{category}</h3>
-                  <p className="text-sm text-muted-foreground">
-                    {items.filter(p => p.category === category).length} products
-                  </p>
-                </CardContent>
-              </Card>
-            ))}
-          </div>
-        </section>
-
-        {/* Featured Products Section */}
-        <section className="my-12">
-          <div className="flex items-center justify-between mb-6">
-            <h2 className="text-3xl font-bold text-white">
-              {selectedCategory === 'All' ? 'All Products' : `${selectedCategory} Shoes`}
-            </h2>
-            
-            {/* Category Filter */}
-            <div className="flex gap-2">
-              {categories.map(category => (
-                <Button
-                  key={category}
-                  variant={selectedCategory === category ? 'default' : 'outline'}
-                  onClick={() => setSelectedCategory(category)}
-                  size="sm"
-                >
-                  {category}
-                </Button>
-              ))}
-            </div>
-          </div>
-
-          {loading && (
-            <div className="text-center py-12">
-              <div className="inline-block animate-spin rounded-full h-8 w-8 border-b-2 border-white"></div>
-              <p className="mt-2 text-gray-300">Loading products...</p>
-            </div>
-          )}
-          
-          {error && (
-            <div className="text-center py-12">
-              <p className="text-red-400">{error}</p>
-            </div>
-          )}
-
-          <div className="grid grid-cols-1 sm:grid-cols-2 md:grid-cols-3 lg:grid-cols-4 gap-6">
-            {filteredProducts.map(product => (
-              <ProductCard key={product.id} product={product} />
-            ))}
-          </div>
-          
-          {filteredProducts.length === 0 && !loading && (
-            <div className="text-center py-12">
-              <p className="text-gray-300 text-lg">
-                No products found in this category.
-              </p>
-            </div>
-          )}
-        </section>
-
-        {/* Call to Action */}
-        <section className="my-12 text-center">
-          <Card className="bg-gradient-to-r from-blue-600 to-purple-600 text-white">
-            <CardContent className="p-12">
-              <h2 className="mb-4 text-3xl font-bold">Ready to Find Your Perfect Pair?</h2>
-              <p className="mb-6 text-lg opacity-90">
-                Join thousands of satisfied customers who found their ideal shoes at KickSpot
-              </p>
-              <Button size="lg" variant="secondary" className="bg-white text-blue-600 hover:bg-gray-100">
-                Start Shopping
-              </Button>
-            </CardContent>
-          </Card>
-        </section>
-      </main>
+      
+      {/* Image Collage Section */}
+      <ImageCollage />
     </div>
   )
 }
