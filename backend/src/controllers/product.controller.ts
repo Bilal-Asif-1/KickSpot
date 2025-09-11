@@ -266,22 +266,30 @@ export async function getBestSellers(req: Request, res: Response) {
 export async function getProductsByCategory(req: Request, res: Response) {
   try {
     const { category } = req.params
-    const limit = parseInt(req.query.limit as string) || 8
+    const limit = Math.min(parseInt(req.query.limit as string) || 8, 100)
+    const page = Math.max(parseInt(req.query.page as string) || 1, 1)
+    const offset = (page - 1) * limit
     
     if (!['Men', 'Women', 'Kids'].includes(category)) {
       return res.status(400).json({ message: 'Invalid category. Must be Men, Women, or Kids' })
     }
     
-    const products = await Product.findAll({
-      where: { 
-        category,
-        stock: { [Op.gt]: 0 }
-      },
+    const where = { 
+      category,
+      stock: { [Op.gt]: 0 }
+    }
+
+    // Provide paginated response with totals for UI
+    const { rows, count } = await Product.findAndCountAll({
+      where,
       order: [['created_at', 'DESC']],
+      offset,
       limit,
       include: [{ model: User, as: 'seller', attributes: ['id', 'name', 'email'] }]
     })
-    res.json(products)
+
+    const totalPages = Math.max(1, Math.ceil(count / limit))
+    return res.json({ items: rows, total: count, totalPages, page, limit })
   } catch (error: any) {
     console.error('Error fetching products by category:', error)
     res.status(500).json({ message: 'Internal server error', error: error.message })

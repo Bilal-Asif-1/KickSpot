@@ -1,17 +1,16 @@
 import { useEffect, useState, useRef } from 'react'
 import { useAppDispatch, useAppSelector } from '@/store'
-import { fetchKidsProducts, fetchBestSellers } from '@/store/productsSlice'
+import { fetchKidsProducts } from '@/store/productsSlice'
 import ProductCard from '@/components/ProductCard'
 import { Button } from '@/components/ui/button'
 import { ChevronLeft, ChevronRight } from 'lucide-react'
 
 export default function KidsPage() {
   const dispatch = useAppDispatch()
-  const { kidsProducts, bestSellers, loading, error } = useAppSelector(s => s.products)
+  const { kidsProducts } = useAppSelector(s => s.products)
 
   useEffect(() => {
     dispatch(fetchKidsProducts())
-    dispatch(fetchBestSellers())
   }, [dispatch])
 
   const ProductSlider = ({ title, products, category }: { title: string, products: any[], category: string }) => {
@@ -22,7 +21,8 @@ export default function KidsPage() {
     const [velocity, setVelocity] = useState(0)
     const [lastTime, setLastTime] = useState(0)
     const [lastScrollLeft, setLastScrollLeft] = useState(0)
-    const animationRef = useRef<number>()
+    // Placeholder for potential momentum animation (currently unused)
+    // const animationRef = useRef<number | null>(null)
 
     const scrollLeftAction = () => {
       if (scrollContainerRef.current) {
@@ -111,7 +111,7 @@ export default function KidsPage() {
 
     // Temporary: Show sample data if no products loaded
     if (products.length === 0) {
-      let sampleProducts = []
+      let sampleProducts: any[] = []
       
       if (category === 'kids') {
         sampleProducts = [
@@ -225,11 +225,15 @@ export default function KidsPage() {
 
   return (
     <div className="min-h-screen bg-black">
+      {/* Best Sellers (Kids) */}
+      <ProductSlider 
+        title="Best Sellers" 
+        products={[...kidsProducts].sort((a: any, b: any) => (b.buyCount || 0) - (a.buyCount || 0)).slice(0, 10)} 
+        category="bestsellers" 
+      />
+
       {/* Kids Collection */}
       <ProductSlider title="Kids Collection" products={kidsProducts} category="kids" />
-      
-      {/* Best Sellers */}
-      <ProductSlider title="Best Sellers" products={bestSellers} category="bestsellers" />
     </div>
   )
 }

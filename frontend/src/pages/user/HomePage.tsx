@@ -4,10 +4,16 @@ import { fetchProducts, fetchSaleProducts, fetchBestSellers } from '@/store/prod
 import ProductCard from '@/components/ProductCard'
 import { Button } from '@/components/ui/button'
 import { Card, CardContent } from '@/components/ui/card'
-import { CarouselPlugin } from '@/components/CarouselPlugin'
-import { SaleBestSellersSection } from '@/components/SaleBestSellersSection'
-import { ImageCollage } from '@/components/ImageCollage'
 import { ChevronLeft, ChevronRight } from 'lucide-react'
+
+// Individual Section Components
+import { CategoryCards } from '@/components/CategoryCards'
+import { SaleBestSellersSection } from '@/components/SaleBestSellersSection'
+import { HeroCarousel } from '@/components/HeroCarousel'
+import { FeaturedCollection } from '@/components/FeaturedCollection'
+import { ImageCollage } from '@/components/ImageCollage'
+import { WhyChooseKickSpot } from '@/components/WhyChooseKickSpot'
+import { Footer } from '@/components/Footer'
 
 export default function HomePage() {
   const dispatch = useAppDispatch()
@@ -366,114 +372,25 @@ export default function HomePage() {
   return (
     <div className="min-h-screen bg-black">
       {/* Category Cards Section */}
-      <section className="pt-4 pb-12 px-4">
-        <div className="max-w-9xl mx-auto">
-          <div className="grid grid-cols-4 gap-4">
-            {/* Best Sellers Card */}
-            <div className="group relative aspect-[0.77] overflow-hidden rounded-[20px] cursor-pointer">
-              <div className="absolute inset-0">
-                <img 
-                  src="https://images.unsplash.com/photo-1549298916-b41d501d3772?w=800&h=1000&fit=crop" 
-                  alt="Best Sellers" 
-                  className="w-full h-full object-cover transition-transform duration-500 group-hover:scale-105"
-                />
-                <div className="absolute inset-0 bg-black/20 group-hover:bg-black/10 transition-colors duration-300"></div>
-              </div>
-              
-              <div className="absolute inset-0 z-20 flex flex-col items-center justify-center gap-4">
-                <h2 className="text-white text-2xl md:text-3xl font-semibold px-6 py-3 border border-white/30 rounded-full bg-white/10 backdrop-blur-sm">
-                  Best Sellers
-                </h2>
-                <div className="flex flex-col items-center gap-3 opacity-0 group-hover:opacity-100 transition-opacity duration-300">
-                  <button className="px-8 py-3 bg-white/20 backdrop-blur-sm border border-white/30 rounded-full text-white text-base font-medium hover:bg-white/30 transition-colors">
-                    Shop Now
-                  </button>
-                </div>
-              </div>
-            </div>
-
-            {/* Men Card */}
-            <div className="group relative aspect-[0.77] overflow-hidden rounded-[20px] cursor-pointer">
-              <div className="absolute inset-0">
-                <img 
-                  src="https://images.unsplash.com/photo-1595950653106-6c9ebd614d3a?w=800&h=1000&fit=crop" 
-                  alt="Men" 
-                  className="w-full h-full object-cover transition-transform duration-500 group-hover:scale-105"
-                />
-                <div className="absolute inset-0 bg-black/20 group-hover:bg-black/10 transition-colors duration-300"></div>
-        </div>
-        
-              <div className="absolute inset-0 z-20 flex flex-col items-center justify-center gap-4">
-                <h2 className="text-white text-2xl md:text-3xl font-semibold px-6 py-3 border border-white/30 rounded-full bg-white/10 backdrop-blur-sm">
-                  Men
-                </h2>
-                <div className="flex flex-col items-center gap-3 opacity-0 group-hover:opacity-100 transition-opacity duration-300">
-                  <button className="px-8 py-3 bg-white/20 backdrop-blur-sm border border-white/30 rounded-full text-white text-base font-medium hover:bg-white/30 transition-colors">
-                    Shop Men
-        </button>
-                </div>
-              </div>
-            </div>
-
-            {/* Women Card */}
-            <div className="group relative aspect-[0.77] overflow-hidden rounded-[20px] cursor-pointer">
-              <div className="absolute inset-0">
-                <img 
-                  src="https://images.unsplash.com/photo-1606107557195-0e29a4b5b4aa?w=800&h=1000&fit=crop" 
-                  alt="Women" 
-                  className="w-full h-full object-cover transition-transform duration-500 group-hover:scale-105"
-                />
-                <div className="absolute inset-0 bg-black/20 group-hover:bg-black/10 transition-colors duration-300"></div>
-              </div>
-              
-              <div className="absolute inset-0 z-20 flex flex-col items-center justify-center gap-4">
-                <h2 className="text-white text-2xl md:text-3xl font-semibold px-6 py-3 border border-white/30 rounded-full bg-white/10 backdrop-blur-sm">
-                  Women
-                </h2>
-                <div className="flex flex-col items-center gap-3 opacity-0 group-hover:opacity-100 transition-opacity duration-300">
-                  <button className="px-8 py-3 bg-white/20 backdrop-blur-sm border border-white/30 rounded-full text-white text-base font-medium hover:bg-white/30 transition-colors">
-                    Shop Women
-        </button>
-                </div>
-              </div>
-            </div>
-
-            {/* Kids Card */}
-            <div className="group relative aspect-[0.77] overflow-hidden rounded-[20px] cursor-pointer">
-              <div className="absolute inset-0">
-                <img 
-                  src="https://images.unsplash.com/photo-1542291026-7eec264c27ff?w=800&h=1000&fit=crop" 
-                  alt="Kids" 
-                  className="w-full h-full object-cover transition-transform duration-500 group-hover:scale-105"
-                />
-                <div className="absolute inset-0 bg-black/20 group-hover:bg-black/10 transition-colors duration-300"></div>
-              </div>
-              
-              <div className="absolute inset-0 z-20 flex flex-col items-center justify-center gap-4">
-                <h2 className="text-white text-2xl md:text-3xl font-semibold px-6 py-3 border border-white/30 rounded-full bg-white/10 backdrop-blur-sm">
-                  Kids
-                </h2>
-                <div className="flex flex-col items-center gap-3 opacity-0 group-hover:opacity-100 transition-opacity duration-300">
-                  <button className="px-8 py-3 bg-white/20 backdrop-blur-sm border border-white/30 rounded-full text-white text-base font-medium hover:bg-white/30 transition-colors">
-                    Shop Kids
-                  </button>
-                </div>
-              </div>
-            </div>
-          </div>
-        </div>
-      </section>
+      <CategoryCards />
 
       {/* Sale & Best Sellers Section */}
       <SaleBestSellersSection />
       
-      {/* Hero Carousel (shadcn/ui + embla) */}
-      <section className="flex justify-center">
-        <CarouselPlugin />
-      </section>
+      {/* Hero Carousel Section */}
+      <HeroCarousel />
+      
+      {/* Featured Collection Section */}
+      <FeaturedCollection />
       
       {/* Image Collage Section */}
       <ImageCollage />
+      
+      {/* Why Choose KickSpot Section */}
+      <WhyChooseKickSpot />
+      
+      {/* Footer */}
+      <Footer />
     </div>
   )
 }

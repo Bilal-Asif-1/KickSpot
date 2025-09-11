@@ -1,17 +1,16 @@
 import { useEffect, useState, useRef } from 'react'
 import { useAppDispatch, useAppSelector } from '@/store'
-import { fetchWomenProducts, fetchBestSellers } from '@/store/productsSlice'
+import { fetchWomenProducts } from '@/store/productsSlice'
 import ProductCard from '@/components/ProductCard'
 import { Button } from '@/components/ui/button'
 import { ChevronLeft, ChevronRight } from 'lucide-react'
 
 export default function WomensPage() {
   const dispatch = useAppDispatch()
-  const { womenProducts, bestSellers, loading, error } = useAppSelector(s => s.products)
+  const { womenProducts, loading, error } = useAppSelector(s => s.products)
 
   useEffect(() => {
     dispatch(fetchWomenProducts())
-    dispatch(fetchBestSellers())
   }, [dispatch])
 
   const ProductSlider = ({ title, products, category }: { title: string, products: any[], category: string }) => {
@@ -225,11 +224,15 @@ export default function WomensPage() {
 
   return (
     <div className="min-h-screen bg-black">
+      {/* Best Sellers (Women) */}
+      <ProductSlider 
+        title="Best Sellers" 
+        products={[...womenProducts].sort((a: any, b: any) => (b.buyCount || 0) - (a.buyCount || 0)).slice(0, 10)} 
+        category="bestsellers" 
+      />
+
       {/* Women's Collection */}
       <ProductSlider title="Women's Collection" products={womenProducts} category="women" />
-      
-      {/* Best Sellers */}
-      <ProductSlider title="Best Sellers" products={bestSellers} category="bestsellers" />
     </div>
   )
 }

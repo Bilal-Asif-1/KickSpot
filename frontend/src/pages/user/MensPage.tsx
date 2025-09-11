@@ -1,113 +1,26 @@
 import { useEffect, useState, useRef } from 'react'
 import { useAppDispatch, useAppSelector } from '@/store'
-import { fetchMenProducts, fetchBestSellers } from '@/store/productsSlice'
+import { fetchMenProducts } from '@/store/productsSlice'
 import ProductCard from '@/components/ProductCard'
 import { Button } from '@/components/ui/button'
 import { ChevronLeft, ChevronRight } from 'lucide-react'
+import Autoplay from 'embla-carousel-autoplay'
+import { Carousel, CarouselContent, CarouselItem } from '@/components/ui/carousel'
 
 export default function MensPage() {
   const dispatch = useAppDispatch()
-  const { menProducts, bestSellers, loading, error } = useAppSelector(s => s.products)
+  const { menProducts, menPages } = useAppSelector(s => s.products as any)
+  const [page, setPage] = useState(1)
+  const ITEMS_PER_PAGE = 12
+
+  // Note: Do not reset page on menProducts changes; it would prevent pagination from advancing
 
   useEffect(() => {
-    dispatch(fetchMenProducts())
-    dispatch(fetchBestSellers())
-  }, [dispatch])
+    dispatch(fetchMenProducts({ page, limit: ITEMS_PER_PAGE }))
+  }, [dispatch, page])
 
-  const ProductSlider = ({ title, products, category }: { title: string, products: any[], category: string }) => {
-    const scrollContainerRef = useRef<HTMLDivElement>(null)
-    const [isDragging, setIsDragging] = useState(false)
-    const [startX, setStartX] = useState(0)
-    const [scrollLeft, setScrollLeft] = useState(0)
-    const [velocity, setVelocity] = useState(0)
-    const [lastTime, setLastTime] = useState(0)
-    const [lastScrollLeft, setLastScrollLeft] = useState(0)
-    const animationRef = useRef<number>()
-
-    const scrollLeftAction = () => {
-      if (scrollContainerRef.current) {
-        const container = scrollContainerRef.current
-        container.scrollBy({ left: -container.clientWidth / 4, behavior: 'smooth' })
-      }
-    }
-
-    const scrollRightAction = () => {
-      if (scrollContainerRef.current) {
-        const container = scrollContainerRef.current
-        container.scrollBy({ left: container.clientWidth / 4, behavior: 'smooth' })
-      }
-    }
-
-    const handleStart = (clientX: number) => {
-      setIsDragging(true)
-      setStartX(clientX)
-      setScrollLeft(scrollContainerRef.current?.scrollLeft || 0)
-      setVelocity(0)
-      setLastTime(Date.now())
-      setLastScrollLeft(scrollContainerRef.current?.scrollLeft || 0)
-    }
-
-    const handleMove = (clientX: number) => {
-      if (!isDragging || !scrollContainerRef.current) return
-      
-      const x = clientX
-      const walk = (x - startX) * 2
-      scrollContainerRef.current.scrollLeft = scrollLeft - walk
-      
-      const now = Date.now()
-      const timeDiff = now - lastTime
-      if (timeDiff > 0) {
-        const scrollDiff = scrollContainerRef.current.scrollLeft - lastScrollLeft
-        setVelocity(scrollDiff / timeDiff)
-        setLastTime(now)
-        setLastScrollLeft(scrollContainerRef.current.scrollLeft)
-      }
-    }
-
-    const handleEnd = () => {
-      setIsDragging(false)
-      if (Math.abs(velocity) < 0.1) {
-        // Snap to center when velocity is low
-        if (scrollContainerRef.current) {
-          const container = scrollContainerRef.current
-          const cardWidth = container.clientWidth / 4
-          const currentScroll = container.scrollLeft
-          const targetScroll = Math.round(currentScroll / cardWidth) * cardWidth
-          container.scrollTo({ left: targetScroll, behavior: 'smooth' })
-        }
-      }
-    }
-
-    const handleMouseDown = (e: React.MouseEvent) => {
-      e.preventDefault()
-      handleStart(e.clientX)
-    }
-
-    const handleMouseMove = (e: React.MouseEvent) => {
-      e.preventDefault()
-      handleMove(e.clientX)
-    }
-
-    const handleMouseUp = (e: React.MouseEvent) => {
-      e.preventDefault()
-      handleEnd()
-    }
-
-    const handleMouseLeave = () => {
-      handleEnd()
-    }
-
-    const handleTouchStart = (e: React.TouchEvent) => {
-      handleStart(e.touches[0].clientX)
-    }
-
-    const handleTouchMove = (e: React.TouchEvent) => {
-      handleMove(e.touches[0].clientX)
-    }
-
-    const handleTouchEnd = () => {
-      handleEnd()
-    }
+  const ProductSlider = ({ title, products }: { title: string, products: any[] }) => {
+    const plugin = useRef(Autoplay({ delay: 2500, stopOnInteraction: true }))
 
     // Temporary: Show sample data if no products loaded
     if (products.length === 0) {
@@ -185,39 +98,16 @@ export default function MensPage() {
         <div className="max-w-9xl mx-auto">
           <div className="flex items-center justify-between mb-6">
             <h2 className="text-3xl font-bold text-white">{title}</h2>
-            <div className="flex space-x-2">
-              <Button variant="outline" size="sm" onClick={scrollLeftAction} className="bg-white/10 border-white/20 text-white hover:bg-white/20">
-                <ChevronLeft className="h-4 w-4" />
-              </Button>
-              <Button variant="outline" size="sm" onClick={scrollRightAction} className="bg-white/10 border-white/20 text-white hover:bg-white/20">
-                <ChevronRight className="h-4 w-4" />
-              </Button>
-            </div>
           </div>
-          <div 
-            ref={scrollContainerRef}
-            className="flex gap-4 overflow-x-auto scrollbar-hide cursor-grab active:cursor-grabbing select-none"
-            style={{ 
-              scrollbarWidth: 'none', 
-              msOverflowStyle: 'none',
-              scrollBehavior: 'smooth',
-              scrollSnapType: 'x mandatory',
-              scrollPaddingLeft: '0px'
-            }}
-            onMouseDown={handleMouseDown}
-            onMouseMove={isDragging ? handleMouseMove : undefined}
-            onMouseUp={handleMouseUp}
-            onMouseLeave={handleMouseLeave}
-            onTouchStart={handleTouchStart}
-            onTouchMove={handleTouchMove}
-            onTouchEnd={handleTouchEnd}
-          >
+          <Carousel plugins={[plugin.current]} opts={{ align: 'start', loop: true, containScroll: 'trimSnaps' }} onMouseEnter={plugin.current.stop} onMouseLeave={plugin.current.reset}>
+            <CarouselContent className="-ml-2">
             {products.map(product => (
-              <div key={product.id} className="flex-shrink-0" style={{ width: 'calc(25% - 12px)', scrollSnapAlign: 'start' }}>
+                <CarouselItem key={product.id} className="basis-1/2 md:basis-1/3 lg:basis-1/4 pl-2">
                 <ProductCard product={product} />
-              </div>
+                </CarouselItem>
             ))}
-          </div>
+            </CarouselContent>
+          </Carousel>
         </div>
       </section>
     )
@@ -225,11 +115,81 @@ export default function MensPage() {
 
   return (
     <div className="min-h-screen bg-black">
-      {/* Men's Collection */}
-      <ProductSlider title="Men's Collection" products={menProducts} category="men" />
-      
-      {/* Best Sellers */}
-      <ProductSlider title="Best Sellers" products={bestSellers} category="bestsellers" />
+      {/* Best Sellers (Men) */}
+      <ProductSlider 
+        title="Best Sellers" 
+        products={[...menProducts].sort((a: any, b: any) => (b.buyCount || 0) - (a.buyCount || 0)).slice(0, 10)} 
+        category="bestsellers" 
+      />
+
+      {/* Men's Collection - Grid with pagination */}
+      <section className="pt-0 pb-12 px-4">
+        <div className="max-w-9xl mx-auto">
+          <div className="flex items-center justify-between mb-6">
+            <h2 className="text-3xl font-bold text-white">Men's Collection</h2>
+          </div>
+
+          {(() => {
+            const computedTotalPages = (menPages as number) || Math.max(1, Math.ceil((menProducts?.length || 0) / ITEMS_PER_PAGE))
+            const currentPage = Math.min(page, computedTotalPages)
+            const pageItems = menProducts || []
+
+            return (
+              <>
+                <div className="mb-2 text-sm text-white/60">Page {currentPage} of {computedTotalPages}</div>
+                <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-4 gap-4">
+                  {pageItems.map((product: any) => (
+                    <div key={product.id} className="flex-shrink-0">
+                      <ProductCard product={product} />
+                    </div>
+                  ))}
+                </div>
+
+                {/* Pagination */}
+                <nav className="mt-8 flex justify-center" aria-label="pagination">
+                  <ul className="flex items-center gap-2">
+                    <li>
+                      <button
+                        type="button"
+                        onClick={() => setPage(p => Math.max(1, p - 1))}
+                        disabled={currentPage === 1}
+                        className="h-9 px-3 rounded-md border border-white/20 text-white/80 hover:bg-white/10 disabled:opacity-40"
+                      >
+                        Prev
+                      </button>
+                    </li>
+                    {Array.from({ length: computedTotalPages }).map((_, idx) => {
+                      const pageNum = idx + 1
+                      const isActive = pageNum === currentPage
+                      return (
+                        <li key={pageNum}>
+                          <button
+                            type="button"
+                            onClick={() => setPage(pageNum)}
+                            className={`${isActive ? 'bg-white text-black' : 'border border-white/20 text-white/80 hover:bg-white/10'} h-9 w-9 rounded-md`}
+                          >
+                            {pageNum}
+                          </button>
+                        </li>
+                      )
+                    })}
+                    <li>
+                      <button
+                        type="button"
+                        onClick={() => setPage(p => Math.min(computedTotalPages, p + 1))}
+                        disabled={currentPage === computedTotalPages}
+                        className="h-9 px-3 rounded-md border border-white/20 text-white/80 hover:bg-white/10 disabled:opacity-40"
+                      >
+                        Next
+                      </button>
+                    </li>
+                  </ul>
+                </nav>
+              </>
+            )
+          })()}
+        </div>
+      </section>
     </div>
   )
 }

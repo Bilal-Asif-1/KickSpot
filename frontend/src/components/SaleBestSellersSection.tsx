@@ -1,8 +1,7 @@
-import { useRef, useState, useEffect } from 'react'
+import { useRef, useState } from 'react'
 import { useAppSelector } from '@/store'
 import ProductCard from '@/components/ProductCard'
-import { Button } from '@/components/ui/button'
-import { ChevronLeft, ChevronRight } from 'lucide-react'
+ 
 
 export function SaleBestSellersSection() {
   const { saleProducts, bestSellers } = useAppSelector(s => s.products)
@@ -40,7 +39,7 @@ export function SaleBestSellersSection() {
   const bestSellersToShow = bestSellers.length > 0 ? bestSellers : sampleBestSellers
 
   // Scroll functionality for both sections
-  const SaleScrollSection = ({ title, products, category }: { title: string, products: any[], category: string }) => {
+  const SaleScrollSection = ({ title, products, showTagline = false, seeMoreHref }: { title: string, products: any[], showTagline?: boolean, seeMoreHref?: string }) => {
     const scrollContainerRef = useRef<HTMLDivElement>(null)
     const [isDragging, setIsDragging] = useState(false)
     const [startX, setStartX] = useState(0)
@@ -49,19 +48,12 @@ export function SaleBestSellersSection() {
     const [lastTime, setLastTime] = useState(0)
     const [lastScrollLeft, setLastScrollLeft] = useState(0)
 
-    const scrollLeftAction = () => {
-      if (scrollContainerRef.current) {
-        const container = scrollContainerRef.current
-        container.scrollBy({ left: -container.clientWidth / 2, behavior: 'smooth' })
-      }
+    const scrollByAmount = (amount: number) => {
+      if (!scrollContainerRef.current) return
+      scrollContainerRef.current.scrollBy({ left: amount, behavior: 'smooth' })
     }
 
-    const scrollRightAction = () => {
-      if (scrollContainerRef.current) {
-        const container = scrollContainerRef.current
-        container.scrollBy({ left: container.clientWidth / 2, behavior: 'smooth' })
-      }
-    }
+    
 
     const handleStart = (clientX: number) => {
       setIsDragging(true)
@@ -135,63 +127,107 @@ export function SaleBestSellersSection() {
 
     return (
       <div className="flex-1">
-        <div className="flex items-center justify-between mb-4">
+        <div className="flex items-center justify-between mb-3">
           <h3 className="text-2xl font-bold text-white">{title}</h3>
         </div>
-        
-        <div 
-          ref={scrollContainerRef}
-          className="flex gap-4 overflow-x-auto scrollbar-hide cursor-grab active:cursor-grabbing select-none"
-          style={{ 
-            scrollbarWidth: 'none', 
-            msOverflowStyle: 'none',
-            scrollBehavior: 'smooth',
-            scrollSnapType: 'x mandatory',
-            scrollPaddingLeft: '0px'
-          }}
-          onMouseDown={handleMouseDown}
-          onMouseMove={isDragging ? handleMouseMove : undefined}
-          onMouseUp={handleMouseUp}
-          onMouseLeave={handleMouseLeave}
-          onTouchStart={handleTouchStart}
-          onTouchMove={handleTouchMove}
-          onTouchEnd={handleTouchEnd}
-        >
-          {products.map(product => (
-            <div 
-              key={product.id} 
-              className="flex-shrink-0" 
-              style={{ 
-                width: 'calc(50% - 8px)',
-                scrollSnapAlign: 'start'
-              }}
-            >
-              <ProductCard product={product} />
-            </div>
-          ))}
+
+        <div className="relative">
+          <div 
+            ref={scrollContainerRef}
+            className="flex gap-4 overflow-x-auto scrollbar-hide cursor-grab active:cursor-grabbing select-none"
+            style={{ 
+              scrollbarWidth: 'none', 
+              msOverflowStyle: 'none',
+              scrollBehavior: 'smooth',
+              scrollSnapType: 'x mandatory',
+              scrollPaddingLeft: '0px'
+            }}
+            onMouseDown={handleMouseDown}
+            onMouseMove={isDragging ? handleMouseMove : undefined}
+            onMouseUp={handleMouseUp}
+            onMouseLeave={handleMouseLeave}
+            onTouchStart={handleTouchStart}
+            onTouchMove={handleTouchMove}
+            onTouchEnd={handleTouchEnd}
+          >
+            {products.map(product => (
+              <div 
+                key={product.id} 
+                className="flex-shrink-0" 
+                style={{ 
+                  width: 'calc(50% - 8px)',
+                  scrollSnapAlign: 'start'
+                }}
+              >
+                <ProductCard product={product} />
+              </div>
+            ))}
+          </div>
+
+          {/* Faint overlay arrows */}
+          <button
+            type="button"
+            aria-label="Scroll left"
+            onClick={() => scrollByAmount(-(scrollContainerRef.current?.clientWidth || 0) / 2)}
+            className="absolute left-1 top-1/2 -translate-y-1/2 h-10 w-10 rounded-full bg-white/5 hover:bg-white/10 border border-white/20 flex items-center justify-center text-white/50 hover:text-white/80 backdrop-blur-sm"
+          >
+            <svg width="18" height="18" viewBox="0 0 24 24" fill="none" xmlns="http://www.w3.org/2000/svg">
+              <path d="M15 18L9 12L15 6" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round"/>
+            </svg>
+          </button>
+          <button
+            type="button"
+            aria-label="Scroll right"
+            onClick={() => scrollByAmount((scrollContainerRef.current?.clientWidth || 0) / 2)}
+            className="absolute right-1 top-1/2 -translate-y-1/2 h-10 w-10 rounded-full bg-white/5 hover:bg-white/10 border border-white/20 flex items-center justify-center text-white/50 hover:text-white/80 backdrop-blur-sm"
+          >
+            <svg width="18" height="18" viewBox="0 0 24 24" fill="none" xmlns="http://www.w3.org/2000/svg">
+              <path d="M9 18L15 12L9 6" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round"/>
+            </svg>
+          </button>
         </div>
-        
+
+        {/* Footer row: tagline left (SALE only), see more right */}
+        <div className="mt-3 flex items-center justify-between">
+          {showTagline ? (
+            <div className="relative overflow-hidden h-5 flex-1 mr-3">
+              <div className="absolute whitespace-nowrap text-[11px] tracking-wide text-white/70" style={{ animation: 'ks-marquee 12s linear infinite' }}>
+                Sale ends in 3 days · New markdowns added · Limited stock · Don’t miss out · 
+              </div>
+            </div>
+          ) : (<div className="flex-1" />)}
+
+          {seeMoreHref && (
+            <a href={seeMoreHref} className="text-xs text-white/70 hover:text-white">See more</a>
+          )}
+        </div>
+        <style>{`@keyframes ks-marquee { 0% { transform: translateX(0%);} 100% { transform: translateX(-50%);} }`}</style>
       </div>
     )
   }
 
   return (
-    <section className="py-12 px-4">
+    <section className="pt-12 pb-0 px-4">
       <div className="max-w-9xl mx-auto">
         <div className="grid grid-cols-1 lg:grid-cols-2 gap-8">
           {/* SALE Section */}
-          <SaleScrollSection 
-            title="SALE" 
-            products={saleProductsToShow} 
-            category="sale" 
-          />
+          <div className="border border-white/30 rounded-2xl p-5 shadow-md shadow-white/10">
+            <SaleScrollSection 
+              title="SALE" 
+              products={saleProductsToShow}
+              showTagline={true}
+              seeMoreHref="/products?sale=1"
+            />
+          </div>
           
           {/* Best Sellers Section */}
-          <SaleScrollSection 
-            title="Best Sellers" 
-            products={bestSellersToShow} 
-            category="bestsellers" 
-          />
+          <div className="border border-white/30 rounded-2xl p-5 shadow-md shadow-white/10">
+            <SaleScrollSection 
+              title="Best Sellers" 
+              products={bestSellersToShow}
+              seeMoreHref="/products?sort=best"
+            />
+          </div>
         </div>
       </div>
     </section>

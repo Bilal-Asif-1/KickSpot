@@ -18,35 +18,19 @@ export function ImageCollage() {
       id: 3,
       src: 'https://images.unsplash.com/photo-1595950653106-6c9ebd614d3a?w=800&h=1000&fit=crop',
       alt: 'Nike Air Force 1',
-      span: 'row-span-2'
+      span: ''
     },
     {
       id: 4,
       src: 'https://images.unsplash.com/photo-1543163521-1bf539c55dd2?w=800&h=1000&fit=crop',
       alt: 'Converse Chuck Taylor',
       span: ''
-    },
-    {
-      id: 5,
-      src: 'https://images.unsplash.com/photo-1606107557195-0e29a4b5b4aa?w=800&h=1000&fit=crop',
-      alt: 'Jordan Retro',
-      span: 'col-span-2'
-    },
-    {
-      id: 6,
-      src: 'https://images.unsplash.com/photo-1608231387042-66d1773070a5?w=800&h=1000&fit=crop',
-      alt: 'Vans Classic',
-      span: ''
     }
   ]
 
   return (
-    <section className="py-8 px-2">
+    <section className="px-2 pb-0 mb-0 relative z-10">
       <div className="w-full">
-        <div className="text-center mb-8">
-          <h2 className="text-3xl font-bold text-white mb-4">Featured Collection</h2>
-          <p className="text-gray-300 text-lg">Discover our curated selection of premium footwear</p>
-        </div>
         
         {/* Allbirds-style Color Grid Layout */}
         <div className="grid grid-cols-2 md:grid-cols-4 gap-2.5 auto-rows-fr">
@@ -85,8 +69,8 @@ export function ImageCollage() {
             </div>
           </div>
 
-          {/* Tall Card - Middle Right */}
-          <div className="relative overflow-hidden rounded-2xl bg-transparent row-span-2 aspect-[1/2]">
+          {/* Small Square Card */}
+          <div className="relative overflow-hidden rounded-2xl bg-white aspect-square">
             <img
               src={images[2].src}
               alt={images[2].alt}
@@ -104,28 +88,9 @@ export function ImageCollage() {
               loading="lazy"
             />
           </div>
-
-          {/* Wide Bottom Card */}
-          <div className="relative overflow-hidden rounded-2xl bg-white col-span-2 aspect-[2/1]">
-            <img
-              src={images[4].src}
-              alt={images[4].alt}
-              className="object-cover size-full"
-              loading="lazy"
-            />
-          </div>
-
-          {/* Small Square Card */}
-          <div className="relative overflow-hidden rounded-2xl bg-white aspect-square">
-            <img
-              src={images[5].src}
-              alt={images[5].alt}
-              className="object-cover size-full"
-              loading="lazy"
-            />
-          </div>
         </div>
+
       </div>
     </section>
   )
-}
+} 

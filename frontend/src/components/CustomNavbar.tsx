@@ -3,7 +3,7 @@ import { Badge } from '@/components/ui/badge'
 import { ShoppingCart, LogOut, User, Bell, Settings, History, Heart, MapPin, CreditCard, HelpCircle, ChevronDown } from 'lucide-react'
 import { useAppSelector, useAppDispatch } from '@/store'
 import { logout } from '@/store/authSlice'
-import { useNavigate } from 'react-router-dom'
+import { useNavigate, useLocation } from 'react-router-dom'
 import { toast } from 'sonner'
 import { SparklesCore } from '@/components/ui/sparkles'
 import { useState, useEffect, useRef } from 'react'
@@ -16,6 +16,7 @@ type CustomNavbarProps = {
 export default function CustomNavbar({ onCartOpen, onNotificationOpen }: CustomNavbarProps) {
   const dispatch = useAppDispatch()
   const navigate = useNavigate()
+  const location = useLocation()
   const { user } = useAppSelector(state => state.auth)
   const { items } = useAppSelector(state => state.cart)
   const [showLogo, setShowLogo] = useState(false)
@@ -25,6 +26,8 @@ export default function CustomNavbar({ onCartOpen, onNotificationOpen }: CustomN
   const profileDropdownRef = useRef<HTMLDivElement>(null)
 
   const cartItemCount = items.reduce((sum, item) => sum + item.quantity, 0)
+
+  const isCategoryPage = ['/men', '/women', '/kids'].includes(location.pathname.toLowerCase())
 
   useEffect(() => {
     const handleScroll = () => {
@@ -136,7 +139,7 @@ export default function CustomNavbar({ onCartOpen, onNotificationOpen }: CustomN
   return (
     <div className="relative min-h-0 bg-gray-50">
       {/* Sparkles Section with KickSpot */}
-      <div className="relative h-64 bg-black overflow-hidden">
+      <div className={`relative ${isCategoryPage ? 'h-24' : 'h-64'} bg-black overflow-hidden pointer-events-none`}>
         <SparklesCore
           id="navbar-sparkles"
           background="transparent"
@@ -147,11 +150,11 @@ export default function CustomNavbar({ onCartOpen, onNotificationOpen }: CustomN
           particleColor="#ffffff"
           speed={2}
         />
-        <div className="absolute inset-0 flex items-end justify-center z-10 pb-10">
-  <h1 className="text-6xl md:text-8xl font-bold text-white text-center">
-    KICKSPOT
-  </h1>
-</div>
+        <div className={`absolute inset-0 flex items-end justify-center z-10 ${isCategoryPage ? 'pb-4' : 'pb-10'}`}>
+          <h1 className={`${isCategoryPage ? 'text-3xl md:text-5xl' : 'text-6xl md:text-8xl'} font-bold text-white text-center`}>
+            KICKSPOT
+          </h1>
+        </div>
       </div>
 
       {/* Top-left KickSpot brand logo */}
@@ -164,7 +167,7 @@ export default function CustomNavbar({ onCartOpen, onNotificationOpen }: CustomN
       </div>
 
       {/* Top-right user section */}
-      <div className="absolute top-6 right-4 flex items-center space-x-3 z-30">
+      <div className="fixed top-6 right-4 flex items-center space-x-3 z-[100] pointer-events-auto">
         {user ? (
           <div className="flex items-center space-x-3">
             <Bell 
@@ -186,7 +189,7 @@ export default function CustomNavbar({ onCartOpen, onNotificationOpen }: CustomN
 
               {/* Dropdown Menu */}
               {showProfileDropdown && (
-                <div className="absolute right-0 top-full mt-2 w-64 bg-white rounded-lg shadow-lg border border-gray-200 py-2 z-40 animate-in slide-in-from-top-2 duration-200">
+                <div className="absolute right-0 top-full mt-2 w-64 bg-white rounded-lg shadow-lg border border-gray-200 py-2 z-[110] animate-in slide-in-from-top-2 duration-200">
                   <div className="px-4 py-2 border-b border-gray-100">
                     <p className="text-sm font-medium text-gray-900">{user.name}</p>
                     <p className="text-xs text-gray-500">{user.email}</p>
@@ -266,12 +269,12 @@ export default function CustomNavbar({ onCartOpen, onNotificationOpen }: CustomN
         )}
       </div>
 
-      {/* Fixed top navbar */}
-      <div className={`fixed top-2 left-0 right-0 flex items-center justify-center px-8 py-2 z-20 transition-all duration-300 ease-in-out ${
+      {/* Fixed top navbar - disable pointer events on full-width wrapper to avoid blocking clicks under it */}
+      <div className={`fixed top-2 left-0 right-0 flex items-center justify-center px-8 py-2 z-50 pointer-events-none transition-all duration-300 ease-in-out ${
         showNavbar ? 'opacity-100 translate-y-0' : 'opacity-0 -translate-y-full'
       }`}>
         {/* Horizontal capsule navbar */}
-        <div className="w-1/2 bg-white rounded-full shadow-lg border border-gray-200 px-8 py-4 flex items-center justify-between">
+        <div className="w-1/2 bg-white rounded-full shadow-lg border border-gray-200 px-8 py-4 flex items-center justify-between pointer-events-auto">
           {/* Left side - Menu items */}
           <div className="flex items-center space-x-12">
             <Button

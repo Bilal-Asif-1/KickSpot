@@ -21,8 +21,14 @@ interface ProductsState {
   saleProducts: Product[]
   bestSellers: Product[]
   menProducts: Product[]
+  menTotal?: number
+  menPages?: number
   womenProducts: Product[]
+  womenTotal?: number
+  womenPages?: number
   kidsProducts: Product[]
+  kidsTotal?: number
+  kidsPages?: number
   loading: boolean
   error?: string
 }
@@ -62,33 +68,36 @@ export const fetchBestSellers = createAsyncThunk('products/fetchBestSellers', as
   }
 })
 
-export const fetchMenProducts = createAsyncThunk('products/fetchMenProducts', async () => {
+export const fetchMenProducts = createAsyncThunk('products/fetchMenProducts', async (args: { page?: number, limit?: number } = {}) => {
   try {
-    const res = await axios.get<Product[]>(`${import.meta.env.VITE_API_URL || 'http://localhost:5000'}/api/v1/products/category/Men`)
-    return res.data
+    const { page = 1, limit = 12 } = args
+    const res = await axios.get(`${import.meta.env.VITE_API_URL || 'http://localhost:5000'}/api/v1/products/category/Men`, { params: { page, limit } })
+    return res.data as { items: Product[]; total: number; totalPages: number; page: number; limit: number }
   } catch (error) {
     console.log('Men Products API not available, using sample data')
-    return []
+    return { items: [], total: 0, totalPages: 1, page: 1, limit: 12 }
   }
 })
 
-export const fetchWomenProducts = createAsyncThunk('products/fetchWomenProducts', async () => {
+export const fetchWomenProducts = createAsyncThunk('products/fetchWomenProducts', async (args: { page?: number, limit?: number } = {}) => {
   try {
-    const res = await axios.get<Product[]>(`${import.meta.env.VITE_API_URL || 'http://localhost:5000'}/api/v1/products/category/Women`)
-    return res.data
+    const { page = 1, limit = 16 } = args
+    const res = await axios.get(`${import.meta.env.VITE_API_URL || 'http://localhost:5000'}/api/v1/products/category/Women`, { params: { page, limit } })
+    return res.data as { items: Product[]; total: number; totalPages: number; page: number; limit: number }
   } catch (error) {
     console.log('Women Products API not available, using sample data')
-    return []
+    return { items: [], total: 0, totalPages: 1, page: 1, limit: 16 }
   }
 })
 
-export const fetchKidsProducts = createAsyncThunk('products/fetchKidsProducts', async () => {
+export const fetchKidsProducts = createAsyncThunk('products/fetchKidsProducts', async (args: { page?: number, limit?: number } = {}) => {
   try {
-    const res = await axios.get<Product[]>(`${import.meta.env.VITE_API_URL || 'http://localhost:5000'}/api/v1/products/category/Kids`)
-    return res.data
+    const { page = 1, limit = 16 } = args
+    const res = await axios.get(`${import.meta.env.VITE_API_URL || 'http://localhost:5000'}/api/v1/products/category/Kids`, { params: { page, limit } })
+    return res.data as { items: Product[]; total: number; totalPages: number; page: number; limit: number }
   } catch (error) {
     console.log('Kids Products API not available, using sample data')
-    return []
+    return { items: [], total: 0, totalPages: 1, page: 1, limit: 16 }
   }
 })
 
@@ -116,14 +125,20 @@ const productsSlice = createSlice({
       .addCase(fetchBestSellers.fulfilled, (state, action: PayloadAction<Product[]>) => {
         state.bestSellers = action.payload
       })
-      .addCase(fetchMenProducts.fulfilled, (state, action: PayloadAction<Product[]>) => {
-        state.menProducts = action.payload
+      .addCase(fetchMenProducts.fulfilled, (state, action: PayloadAction<any>) => {
+        state.menProducts = action.payload.items
+        state.menTotal = action.payload.total
+        state.menPages = action.payload.totalPages
       })
-      .addCase(fetchWomenProducts.fulfilled, (state, action: PayloadAction<Product[]>) => {
-        state.womenProducts = action.payload
+      .addCase(fetchWomenProducts.fulfilled, (state, action: PayloadAction<any>) => {
+        state.womenProducts = action.payload.items
+        state.womenTotal = action.payload.total
+        state.womenPages = action.payload.totalPages
       })
-      .addCase(fetchKidsProducts.fulfilled, (state, action: PayloadAction<Product[]>) => {
-        state.kidsProducts = action.payload
+      .addCase(fetchKidsProducts.fulfilled, (state, action: PayloadAction<any>) => {
+        state.kidsProducts = action.payload.items
+        state.kidsTotal = action.payload.total
+        state.kidsPages = action.payload.totalPages
       })
   },
 })
