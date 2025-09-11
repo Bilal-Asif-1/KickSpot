@@ -82,10 +82,36 @@ export default function NotificationDrawer({ isOpen, onClose }: NotificationDraw
       setNotifications(prev => 
         prev.map(notif => ({ ...notif, is_read: true }))
       )
-      toast.success('All notifications marked as read')
+      toast.success('All notifications marked as read', {
+        style: {
+          background: '#dc2626',
+          color: '#ffffff',
+          fontWeight: 'bold',
+          borderRadius: '9999px',
+          padding: '10px 16px',
+          fontSize: '14px',
+          border: 'none',
+          boxShadow: '0 4px 12px rgba(0, 0, 0, 0.15)',
+          width: 'fit-content',
+          minWidth: 'auto'
+        }
+      })
     } catch (error) {
       console.error('Failed to mark all notifications as read:', error)
-      toast.error('Failed to mark all notifications as read')
+      toast.error('Failed to mark all notifications as read', {
+        style: {
+          background: '#dc2626',
+          color: '#ffffff',
+          fontWeight: 'bold',
+          borderRadius: '9999px',
+          padding: '10px 16px',
+          fontSize: '14px',
+          border: 'none',
+          boxShadow: '0 4px 12px rgba(0, 0, 0, 0.15)',
+          width: 'fit-content',
+          minWidth: 'auto'
+        }
+      })
     }
   }
 
@@ -93,10 +119,36 @@ export default function NotificationDrawer({ isOpen, onClose }: NotificationDraw
     try {
       await api.delete(`/api/v1/notifications/${id}`)
       setNotifications(prev => prev.filter(notif => notif.id !== id))
-      toast.success('Notification deleted')
+      toast.success('Notification deleted', {
+        style: {
+          background: '#dc2626',
+          color: '#ffffff',
+          fontWeight: 'bold',
+          borderRadius: '9999px',
+          padding: '10px 16px',
+          fontSize: '14px',
+          border: 'none',
+          boxShadow: '0 4px 12px rgba(0, 0, 0, 0.15)',
+          width: 'fit-content',
+          minWidth: 'auto'
+        }
+      })
     } catch (error) {
       console.error('Failed to delete notification:', error)
-      toast.error('Failed to delete notification')
+      toast.error('Failed to delete notification', {
+        style: {
+          background: '#dc2626',
+          color: '#ffffff',
+          fontWeight: 'bold',
+          borderRadius: '9999px',
+          padding: '10px 16px',
+          fontSize: '14px',
+          border: 'none',
+          boxShadow: '0 4px 12px rgba(0, 0, 0, 0.15)',
+          width: 'fit-content',
+          minWidth: 'auto'
+        }
+      })
     }
   }
 
@@ -159,12 +211,12 @@ export default function NotificationDrawer({ isOpen, onClose }: NotificationDraw
     <>
       {/* Backdrop */}
       <div 
-        className="fixed inset-0 bg-black bg-opacity-50 z-40 transition-opacity duration-300"
+        className="fixed inset-0 bg-black bg-opacity-50 z-30 transition-opacity duration-300"
         onClick={onClose}
       />
       
       {/* Drawer */}
-      <div className="fixed right-0 top-0 h-full w-96 bg-white shadow-xl z-50 transform transition-transform duration-300 ease-in-out">
+      <div className="fixed right-0 top-0 h-full w-96 bg-white shadow-xl z-40 transform transition-transform duration-300 ease-in-out">
         <div className="flex flex-col h-full">
           {/* Header */}
           <div className="flex items-center justify-between p-4 border-b">

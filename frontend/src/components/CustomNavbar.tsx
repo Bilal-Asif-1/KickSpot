@@ -11,9 +11,11 @@ import { useState, useEffect, useRef } from 'react'
 type CustomNavbarProps = {
   onCartOpen: () => void
   onNotificationOpen?: () => void
+  isCartOpen?: boolean
+  isNotificationOpen?: boolean
 }
 
-export default function CustomNavbar({ onCartOpen, onNotificationOpen }: CustomNavbarProps) {
+export default function CustomNavbar({ onCartOpen, onNotificationOpen, isCartOpen, isNotificationOpen }: CustomNavbarProps) {
   const dispatch = useAppDispatch()
   const navigate = useNavigate()
   const location = useLocation()
@@ -27,7 +29,8 @@ export default function CustomNavbar({ onCartOpen, onNotificationOpen }: CustomN
 
   const cartItemCount = items.reduce((sum, item) => sum + item.quantity, 0)
 
-  const isCategoryPage = ['/men', '/women', '/kids'].includes(location.pathname.toLowerCase())
+  const path = location.pathname.toLowerCase()
+  const isCategoryPage = ['/men', '/women', '/kids'].includes(path) || path.startsWith('/products/')
 
   useEffect(() => {
     const handleScroll = () => {
@@ -77,7 +80,20 @@ export default function CustomNavbar({ onCartOpen, onNotificationOpen }: CustomN
 
   const handleLogout = () => {
     dispatch(logout())
-    toast.success('Logged out successfully!')
+    toast.success('Logged out successfully!', {
+      style: {
+        background: '#dc2626',
+        color: '#ffffff',
+        fontWeight: 'bold',
+        borderRadius: '9999px',
+        padding: '10px 16px',
+        fontSize: '14px',
+        border: 'none',
+        boxShadow: '0 4px 12px rgba(0, 0, 0, 0.15)',
+        width: 'fit-content',
+        minWidth: 'auto'
+      }
+    })
     navigate('/')
   }
 
@@ -167,19 +183,21 @@ export default function CustomNavbar({ onCartOpen, onNotificationOpen }: CustomN
       </div>
 
       {/* Top-right user section */}
-      <div className="fixed top-6 right-4 flex items-center space-x-3 z-[100] pointer-events-auto">
-        {user ? (
-          <div className="flex items-center space-x-3">
+      {!isCartOpen && !isNotificationOpen && (
+        <div className="fixed top-0 right-0 p-4 z-[100] pointer-events-auto isolate" style={{ zIndex: 100 }}>
+          <div className="flex items-center space-x-3 bg-black/20 backdrop-blur-sm rounded-lg px-3 py-2">
+          {user ? (
+            <div className="flex items-center space-x-3">
             <Bell 
-              className="h-5 w-5 text-white cursor-pointer hover:text-gray-300 transition-colors" 
+              className="h-5 w-5 text-white cursor-pointer hover:text-gray-300 transition-colors relative z-10" 
               onClick={handleNotificationClick}
             />
             
             {/* Profile Dropdown */}
-            <div className="relative" ref={profileDropdownRef}>
+            <div className="relative isolate" ref={profileDropdownRef}>
               <button
                 onClick={handleProfileClick}
-                className="flex items-center space-x-2 text-white hover:text-gray-300 transition-colors"
+                className="flex items-center space-x-2 text-white hover:text-gray-300 transition-colors relative z-10"
               >
                 <User className="h-5 w-5" />
                 <ChevronDown className={`h-4 w-4 transition-transform duration-200 ${
@@ -189,7 +207,7 @@ export default function CustomNavbar({ onCartOpen, onNotificationOpen }: CustomN
 
               {/* Dropdown Menu */}
               {showProfileDropdown && (
-                <div className="absolute right-0 top-full mt-2 w-64 bg-white rounded-lg shadow-lg border border-gray-200 py-2 z-[110] animate-in slide-in-from-top-2 duration-200">
+                <div className="absolute right-0 top-full mt-2 w-64 bg-white rounded-lg shadow-lg border border-gray-200 py-2 z-[110] animate-in slide-in-from-top-2 duration-200 max-h-96 overflow-y-auto">
                   <div className="px-4 py-2 border-b border-gray-100">
                     <p className="text-sm font-medium text-gray-900">{user.name}</p>
                     <p className="text-xs text-gray-500">{user.email}</p>
@@ -267,12 +285,15 @@ export default function CustomNavbar({ onCartOpen, onNotificationOpen }: CustomN
             Login
           </Button>
         )}
-      </div>
+        </div>
+        </div>
+      )}
 
       {/* Fixed top navbar - disable pointer events on full-width wrapper to avoid blocking clicks under it */}
-      <div className={`fixed top-2 left-0 right-0 flex items-center justify-center px-8 py-2 z-50 pointer-events-none transition-all duration-300 ease-in-out ${
-        showNavbar ? 'opacity-100 translate-y-0' : 'opacity-0 -translate-y-full'
-      }`}>
+      {!isCartOpen && !isNotificationOpen && (
+        <div className={`fixed top-2 left-0 right-0 flex items-center justify-center px-8 py-2 z-50 pointer-events-none transition-all duration-300 ease-in-out ${
+          showNavbar ? 'opacity-100 translate-y-0' : 'opacity-0 -translate-y-full'
+        }`}>
         {/* Horizontal capsule navbar */}
         <div className="w-1/2 bg-white rounded-full shadow-lg border border-gray-200 px-8 py-4 flex items-center justify-between pointer-events-auto">
           {/* Left side - Menu items */}
@@ -321,6 +342,7 @@ export default function CustomNavbar({ onCartOpen, onNotificationOpen }: CustomN
           </div>
         </div>
       </div>
+      )}
     </div>
   )
 }

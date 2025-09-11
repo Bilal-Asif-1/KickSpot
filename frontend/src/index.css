@@ -94,3 +94,14 @@
   animation: spotlight 1s ease-in-out 0.75s forwards;
   animation-fill-mode: both;
 }
+
+/* Fix for product detail page - no scroll */
+.product-detail-page {
+  height: 100vh;
+  overflow: hidden;
+  position: fixed;
+  top: 0;
+  left: 0;
+  right: 0;
+  bottom: 0;
+}

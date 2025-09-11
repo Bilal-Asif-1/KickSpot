@@ -12,7 +12,20 @@ export default function CartPage() {
 
   const handleClearCart = () => {
     dispatch(clearCart())
-    toast.success('Cart cleared successfully!')
+    toast.success('Cart cleared successfully!', {
+      style: {
+        background: '#dc2626',
+        color: '#ffffff',
+        fontWeight: 'bold',
+        borderRadius: '9999px',
+        padding: '10px 16px',
+        fontSize: '14px',
+        border: 'none',
+        boxShadow: '0 4px 12px rgba(0, 0, 0, 0.15)',
+        width: 'fit-content',
+        minWidth: 'auto'
+      }
+    })
   }
 
   return (
@@ -63,12 +76,38 @@ export default function CartPage() {
                       onChange={(e) => {
                         const newQuantity = Number(e.target.value) || 1
                         dispatch(updateQuantity({ id: item.id, quantity: newQuantity }))
-                        toast.success('Quantity updated')
+                        toast.success('Quantity updated', {
+                          style: {
+                            background: '#dc2626',
+                            color: '#ffffff',
+                            fontWeight: 'bold',
+                            borderRadius: '9999px',
+                            padding: '10px 16px',
+                            fontSize: '14px',
+                            border: 'none',
+                            boxShadow: '0 4px 12px rgba(0, 0, 0, 0.15)',
+                            width: 'fit-content',
+                            minWidth: 'auto'
+                          }
+                        })
                       }}
                     />
                     <Button variant="outline" onClick={() => {
                       dispatch(removeFromCart(item.id))
-                      toast.success('Item removed from cart')
+                      toast.success('Item removed from cart', {
+                        style: {
+                          background: '#dc2626',
+                          color: '#ffffff',
+                          fontWeight: 'bold',
+                          borderRadius: '9999px',
+                          padding: '10px 16px',
+                          fontSize: '14px',
+                          border: 'none',
+                          boxShadow: '0 4px 12px rgba(0, 0, 0, 0.15)',
+                          width: 'fit-content',
+                          minWidth: 'auto'
+                        }
+                      })
                     }}>Remove</Button>
                   </div>
                 </div>
@@ -82,7 +121,20 @@ export default function CartPage() {
               <Button className="w-full" onClick={() => navigate('/checkout')}>Proceed to Checkout</Button>
               <Button variant="outline" className="w-full" onClick={() => {
                 dispatch(clearCart())
-                toast.success('Cart cleared')
+                toast.success('Cart cleared', {
+                  style: {
+                    background: '#dc2626',
+                    color: '#ffffff',
+                    fontWeight: 'bold',
+                    borderRadius: '9999px',
+                    padding: '10px 16px',
+                    fontSize: '14px',
+                    border: 'none',
+                    boxShadow: '0 4px 12px rgba(0, 0, 0, 0.15)',
+                    width: 'fit-content',
+                    minWidth: 'auto'
+                  }
+                })
               }}>Clear Cart</Button>
             </aside>
           </div>

@@ -62,25 +62,90 @@ export default function AdminDashboardPage() {
     try {
       const response = await api.delete(`/api/v1/products/${id}`)
       if (response.data?.archived) {
-        toast.info('Product has existing orders and has been archived (stock set to 0)')
+        toast.info('Product has existing orders and has been archived (stock set to 0)', {
+          style: {
+            background: '#dc2626',
+            color: '#ffffff',
+            fontWeight: 'bold',
+            borderRadius: '9999px',
+            padding: '10px 16px',
+            fontSize: '14px',
+            border: 'none',
+            boxShadow: '0 4px 12px rgba(0, 0, 0, 0.15)',
+            width: 'fit-content',
+            minWidth: 'auto'
+          }
+        })
       } else {
-        toast.success('Product deleted successfully!')
+        toast.success('Product deleted successfully!', {
+          style: {
+            background: '#dc2626',
+            color: '#ffffff',
+            fontWeight: 'bold',
+            borderRadius: '9999px',
+            padding: '10px 16px',
+            fontSize: '14px',
+            border: 'none',
+            boxShadow: '0 4px 12px rgba(0, 0, 0, 0.15)',
+            width: 'fit-content',
+            minWidth: 'auto'
+          }
+        })
       }
       await loadAll()
     } catch (error: any) {
       console.error('Failed to delete product:', error)
-      toast.error(error?.response?.data?.message || 'Failed to delete product')
+      toast.error(error?.response?.data?.message || 'Failed to delete product', {
+        style: {
+          background: '#dc2626',
+          color: '#ffffff',
+          fontWeight: 'bold',
+          borderRadius: '9999px',
+          padding: '10px 16px',
+          fontSize: '14px',
+          border: 'none',
+          boxShadow: '0 4px 12px rgba(0, 0, 0, 0.15)',
+          width: 'fit-content',
+          minWidth: 'auto'
+        }
+      })
     }
   }
 
   async function updateOrderStatus(id: number, status: Order['status']) {
     try {
       await api.put(`/api/v1/orders/${id}/status`, { status })
-      toast.success(`Order status updated to ${status}`)
+      toast.success(`Order status updated to ${status}`, {
+        style: {
+          background: '#dc2626',
+          color: '#ffffff',
+          fontWeight: 'bold',
+          borderRadius: '9999px',
+          padding: '10px 16px',
+          fontSize: '14px',
+          border: 'none',
+          boxShadow: '0 4px 12px rgba(0, 0, 0, 0.15)',
+          width: 'fit-content',
+          minWidth: 'auto'
+        }
+      })
       await loadAll()
     } catch (error: any) {
       console.error('Failed to update order status:', error)
-      toast.error(error?.response?.data?.message || 'Failed to update order status')
+      toast.error(error?.response?.data?.message || 'Failed to update order status', {
+        style: {
+          background: '#dc2626',
+          color: '#ffffff',
+          fontWeight: 'bold',
+          borderRadius: '9999px',
+          padding: '10px 16px',
+          fontSize: '14px',
+          border: 'none',
+          boxShadow: '0 4px 12px rgba(0, 0, 0, 0.15)',
+          width: 'fit-content',
+          minWidth: 'auto'
+        }
+      })
     }
   }
 

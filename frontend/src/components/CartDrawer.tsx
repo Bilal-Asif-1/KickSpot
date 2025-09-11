@@ -88,7 +88,20 @@ export default function CartDrawer({ isOpen, onClose }: CartDrawerProps) {
   const handleQuantityChange = (itemId: number, newQuantity: number) => {
     if (newQuantity <= 0) {
       dispatch(removeFromCart(itemId))
-      toast.success('Item removed from cart')
+      toast.success('Item removed from cart', {
+        style: {
+          background: '#dc2626',
+          color: '#ffffff',
+          fontWeight: 'bold',
+          borderRadius: '9999px',
+          padding: '10px 16px',
+          fontSize: '14px',
+          border: 'none',
+          boxShadow: '0 4px 12px rgba(0, 0, 0, 0.15)',
+          width: 'fit-content',
+          minWidth: 'auto'
+        }
+      })
     } else {
       dispatch(updateQuantity({ id: itemId, quantity: newQuantity }))
     }
@@ -96,7 +109,20 @@ export default function CartDrawer({ isOpen, onClose }: CartDrawerProps) {
 
   const handleRemoveItem = (itemId: number) => {
     dispatch(removeFromCart(itemId))
-    toast.success('Item removed from cart')
+    toast.success('Item removed from cart', {
+      style: {
+        background: '#dc2626',
+        color: '#ffffff',
+        fontWeight: 'bold',
+        borderRadius: '9999px',
+        padding: '10px 16px',
+        fontSize: '14px',
+        border: 'none',
+        boxShadow: '0 4px 12px rgba(0, 0, 0, 0.15)',
+        width: 'fit-content',
+        minWidth: 'auto'
+      }
+    })
   }
 
   const handleAddRecommended = (product: RecommendedProduct) => {
@@ -111,12 +137,38 @@ export default function CartDrawer({ isOpen, onClose }: CartDrawerProps) {
     }
     
     // This would typically dispatch an action to add to cart
-    toast.success(`${product.name} added to cart`)
+    toast.success(`${product.name} added to cart`, {
+      style: {
+        background: '#dc2626',
+        color: '#ffffff',
+        fontWeight: 'bold',
+        borderRadius: '9999px',
+        padding: '10px 16px',
+        fontSize: '14px',
+        border: 'none',
+        boxShadow: '0 4px 12px rgba(0, 0, 0, 0.15)',
+        width: 'fit-content',
+        minWidth: 'auto'
+      }
+    })
   }
 
   const handleCheckout = () => {
     if (items.length === 0) {
-      toast.error('Your cart is empty')
+      toast.error('Your cart is empty', {
+        style: {
+          background: '#dc2626',
+          color: '#ffffff',
+          fontWeight: 'bold',
+          borderRadius: '9999px',
+          padding: '10px 16px',
+          fontSize: '14px',
+          border: 'none',
+          boxShadow: '0 4px 12px rgba(0, 0, 0, 0.15)',
+          width: 'fit-content',
+          minWidth: 'auto'
+        }
+      })
       return
     }
     
@@ -133,24 +185,31 @@ export default function CartDrawer({ isOpen, onClose }: CartDrawerProps) {
     <>
       {/* Backdrop */}
       <div 
-        className="fixed inset-0 bg-black bg-opacity-50 z-40 transition-opacity duration-300"
+        className="fixed inset-0 bg-black bg-opacity-50 z-30 transition-opacity duration-300"
         onClick={onClose}
       />
       
       {/* Cart Drawer */}
-      <div className="fixed right-0 top-0 h-full w-[480px] bg-white shadow-xl z-50 transform transition-transform duration-300 ease-in-out overflow-hidden flex flex-col">
+      <div className="fixed right-0 top-0 h-full w-[480px] bg-white shadow-xl z-[200] transform transition-transform duration-300 ease-in-out overflow-hidden flex flex-col isolate" style={{ zIndex: 200 }}>
         
         {/* Header */}
-        <div className="flex items-center justify-between p-4 border-b bg-white">
+        <div className="flex items-center justify-between p-4 border-b bg-white relative z-10 isolate">
           <div className="flex items-center space-x-2">
             <ShoppingBag className="h-5 w-5 text-gray-600" />
             <h2 className="text-lg font-semibold text-gray-900">
               CART ({itemCount})
             </h2>
           </div>
-          <Button variant="ghost" size="sm" onClick={onClose}>
-            <X className="h-5 w-5" />
-          </Button>
+          <div className="relative z-50 isolate">
+            <Button 
+              variant="ghost" 
+              size="sm" 
+              onClick={onClose}
+              className="relative z-50 isolate pointer-events-auto"
+            >
+              <X className="h-5 w-5" />
+            </Button>
+          </div>
         </div>
 
         {/* Free Shipping Banner */}
@@ -186,9 +245,9 @@ export default function CartDrawer({ isOpen, onClose }: CartDrawerProps) {
               </div>
             ) : (
               items.map((item) => (
-                <div key={item.id} className="flex items-start space-x-4 p-4 border border-gray-200 rounded-lg bg-gray-50">
+                <div key={item.id} className="flex items-start space-x-3 p-3 border border-gray-200 rounded-lg bg-gray-50">
                   {/* Product Image */}
-                  <div className="w-20 h-20 bg-white rounded-lg flex-shrink-0 flex items-center justify-center shadow-sm">
+                  <div className="w-16 h-16 bg-white rounded-lg flex-shrink-0 flex items-center justify-center shadow-sm">
                     {item.image_url ? (
                       <img 
                         src={item.image_url} 
@@ -216,26 +275,29 @@ export default function CartDrawer({ isOpen, onClose }: CartDrawerProps) {
                           Size: {item.size}
                         </p>
                       )}
+                      <p className="text-xs text-green-600 font-medium">
+                        ✓ Added to cart
+                      </p>
                     </div>
                     
                     {/* Quantity Controls */}
-                    <div className="flex items-center space-x-2 mt-3">
+                    <div className="flex items-center space-x-1 mt-2">
                       <Button
                         variant="outline"
                         size="sm"
                         onClick={() => handleQuantityChange(item.id, item.quantity - 1)}
-                        className="h-7 w-7 p-0 border-gray-300"
+                        className="h-6 w-6 p-0 border-gray-300 text-xs"
                       >
                         <Minus className="h-3 w-3" />
                       </Button>
-                      <span className="text-sm font-medium w-8 text-center bg-white px-2 py-1 rounded border">
+                      <span className="text-xs font-medium w-6 text-center bg-gray-50 px-1 py-0.5 rounded border text-gray-700">
                         {item.quantity}
                       </span>
                       <Button
                         variant="outline"
                         size="sm"
                         onClick={() => handleQuantityChange(item.id, item.quantity + 1)}
-                        className="h-7 w-7 p-0 border-gray-300"
+                        className="h-6 w-6 p-0 border-gray-300 text-xs"
                       >
                         <Plus className="h-3 w-3" />
                       </Button>
@@ -243,10 +305,10 @@ export default function CartDrawer({ isOpen, onClose }: CartDrawerProps) {
                   </div>
                   
                   {/* Price and Remove */}
-                  <div className="flex flex-col items-end space-y-3">
+                  <div className="flex flex-col items-end space-y-2">
                     <div className="text-right">
-                      <span className="text-sm text-gray-500">${item.price.toFixed(2)} each</span>
-                      <div className="text-lg font-bold text-gray-900">
+                      <span className="text-xs text-gray-500">${item.price.toFixed(2)} each</span>
+                      <div className="text-sm font-bold text-gray-900">
                         ${(item.price * item.quantity).toFixed(2)}
                       </div>
                     </div>
@@ -254,9 +316,9 @@ export default function CartDrawer({ isOpen, onClose }: CartDrawerProps) {
                       variant="ghost"
                       size="sm"
                       onClick={() => handleRemoveItem(item.id)}
-                      className="h-8 w-8 p-0 text-gray-400 hover:text-red-500 hover:bg-red-50"
+                      className="h-6 w-6 p-0 text-gray-400 hover:text-red-500 hover:bg-red-50 text-xs"
                     >
-                      <X className="h-4 w-4" />
+                      <X className="h-3 w-3" />
                     </Button>
                   </div>
                 </div>
@@ -264,100 +326,6 @@ export default function CartDrawer({ isOpen, onClose }: CartDrawerProps) {
             )}
           </div>
 
-          {/* Recommended Products - Compact Version */}
-          {items.length > 0 && recommendedProducts.length > 0 && (
-            <div className="border-t border-gray-200">
-              <div className="p-3">
-                <Button
-                  variant="ghost"
-                  onClick={() => setShowRecommended(!showRecommended)}
-                  className="w-full justify-between p-0 h-auto text-gray-600 hover:text-gray-900"
-                >
-                  <span className="text-xs font-medium text-gray-700">
-                    RECOMMENDED FOR YOU
-                  </span>
-                  <ChevronDown className={`h-3 w-3 transition-transform text-gray-600 ${showRecommended ? 'rotate-180' : ''}`} />
-                </Button>
-                
-                {showRecommended && (
-                  <div className="mt-3">
-                    <div className="relative">
-                      <div 
-                        className="flex space-x-2 overflow-x-auto pb-1 scrollbar-hide"
-                        style={{ scrollbarWidth: 'none', msOverflowStyle: 'none' }}
-                      >
-                        {recommendedProducts.map((product) => (
-                          <div key={product.id} className="flex-shrink-0 w-32 border border-gray-200 rounded-lg p-2">
-                            <div className="w-full h-12 bg-gray-100 rounded mb-1 flex items-center justify-center">
-                              {product.image_url ? (
-                                <img 
-                                  src={product.image_url} 
-                                  alt={product.name}
-                                  className="w-full h-full object-cover rounded"
-                                />
-                              ) : (
-                                <ShoppingBag className="h-4 w-4 text-gray-400" />
-                              )}
-                            </div>
-                            
-                            <h5 className="text-xs font-medium text-gray-900 mb-1 truncate">
-                              {product.name}
-                            </h5>
-                            
-                            <div className="flex items-center space-x-1 mb-1">
-                              <span className="text-xs font-semibold text-red-600">
-                                ${product.price}
-                              </span>
-                              {product.originalPrice && (
-                                <span className="text-xs text-gray-500 line-through">
-                                  ${product.originalPrice}
-                                </span>
-                              )}
-                            </div>
-                            
-                            {/* Color Swatches - Compact */}
-                            {product.colors && (
-                              <div className="flex space-x-1 mb-1">
-                                {product.colors.slice(0, 4).map((color, index) => (
-                                  <div
-                                    key={index}
-                                    className={`w-2 h-2 rounded-full border ${
-                                      index === 0 ? 'border-gray-400' : 'border-gray-200'
-                                    }`}
-                                    style={{ backgroundColor: color === 'white' ? '#ffffff' : color === 'black' ? '#000000' : color === 'grey' ? '#6b7280' : color === 'beige' ? '#f5f5dc' : color === 'dark-grey' ? '#374151' : color === 'dark-blue' ? '#1e3a8a' : '#1e40af' }}
-                                  />
-                                ))}
-                              </div>
-                            )}
-                            
-                            {/* Size Selector - Compact */}
-                            {product.sizes && (
-                              <select className="w-full text-xs border border-gray-200 rounded px-1 py-0.5 mb-1">
-                                {product.sizes.map((size, index) => (
-                                  <option key={index} value={size}>
-                                    {size}
-                                  </option>
-                                ))}
-                              </select>
-                            )}
-                            
-                            <Button
-                              variant="outline"
-                              size="sm"
-                              onClick={() => handleAddRecommended(product)}
-                              className="w-full text-xs h-6"
-                            >
-                              Add+
-                            </Button>
-                          </div>
-                        ))}
-                      </div>
-                    </div>
-                  </div>
-                )}
-              </div>
-            </div>
-          )}
         </div>
 
         {/* Footer */}

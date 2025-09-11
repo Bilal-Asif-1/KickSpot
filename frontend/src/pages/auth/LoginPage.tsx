@@ -27,7 +27,20 @@ export default function LoginPage() {
       const user = (res as any).payload.user
       const from = (location.state as any)?.from?.pathname
       
-      toast.success(`Welcome back, ${user.name}!`)
+      toast.success(`Welcome back, ${user.name}!`, {
+        style: {
+          background: '#dc2626',
+          color: '#ffffff',
+          fontWeight: 'bold',
+          borderRadius: '9999px',
+          padding: '10px 16px',
+          fontSize: '14px',
+          border: 'none',
+          boxShadow: '0 4px 12px rgba(0, 0, 0, 0.15)',
+          width: 'fit-content',
+          minWidth: 'auto'
+        }
+      })
       
       // Role-based redirect
       if (user.role === 'admin') {
@@ -36,7 +49,20 @@ export default function LoginPage() {
         navigate(from || '/', { replace: true })
       }
     } else {
-      toast.error('Login failed. Please check your credentials.')
+      toast.error('Login failed. Please check your credentials.', {
+        style: {
+          background: '#dc2626',
+          color: '#ffffff',
+          fontWeight: 'bold',
+          borderRadius: '9999px',
+          padding: '10px 16px',
+          fontSize: '14px',
+          border: 'none',
+          boxShadow: '0 4px 12px rgba(0, 0, 0, 0.15)',
+          width: 'fit-content',
+          minWidth: 'auto'
+        }
+      })
     }
   }
 

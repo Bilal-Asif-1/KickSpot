@@ -19,74 +19,19 @@ export default function MensPage() {
     dispatch(fetchMenProducts({ page, limit: ITEMS_PER_PAGE }))
   }, [dispatch, page])
 
-  const ProductSlider = ({ title, products }: { title: string, products: any[] }) => {
+  const ProductSlider = ({ title, products, category }: { title: string, products: any[], category?: string }) => {
     const plugin = useRef(Autoplay({ delay: 2500, stopOnInteraction: true }))
 
-    // Temporary: Show sample data if no products loaded
+    // Show loading state if no products
     if (products.length === 0) {
-      let sampleProducts = []
-      
-      if (category === 'men') {
-        sampleProducts = [
-          { id: 1, name: 'Nike Air Max 270', price: 150, image_url: 'https://images.unsplash.com/photo-1549298916-b41d501d3772?w=800&h=1000&fit=crop', buyCount: 25 },
-          { id: 2, name: 'Adidas Ultraboost 22', price: 180, image_url: 'https://images.unsplash.com/photo-1542291026-7eec264c27ff?w=800&h=1000&fit=crop', buyCount: 18 },
-          { id: 3, name: 'Nike Air Force 1', price: 90, image_url: 'https://images.unsplash.com/photo-1595950653106-6c9ebd614d3a?w=800&h=1000&fit=crop', buyCount: 32 },
-          { id: 4, name: 'Converse Chuck Taylor', price: 65, image_url: 'https://images.unsplash.com/photo-1543163521-1bf539c55dd2?w=800&h=1000&fit=crop', buyCount: 15 },
-          { id: 5, name: 'Nike Air Jordan 1', price: 120, image_url: 'https://images.unsplash.com/photo-1551107696-a4b0c5a0d9a2?w=800&h=1000&fit=crop', buyCount: 8 },
-          { id: 6, name: 'Adidas Stan Smith', price: 80, image_url: 'https://images.unsplash.com/photo-1571019613454-1cb2f99b2d8b?w=800&h=1000&fit=crop', buyCount: 12 },
-          { id: 7, name: 'Nike React Element 55', price: 130, image_url: 'https://images.unsplash.com/photo-1549298916-b41d501d3772?w=800&h=1000&fit=crop', buyCount: 20 },
-          { id: 8, name: 'Puma Suede Classic', price: 75, image_url: 'https://images.unsplash.com/photo-1595950653106-6c9ebd614d3a?w=800&h=1000&fit=crop', buyCount: 28 }
-        ]
-      } else if (category === 'bestsellers') {
-        sampleProducts = [
-          { id: 9, name: 'Nike Air Max 270', price: 150, image_url: 'https://images.unsplash.com/photo-1549298916-b41d501d3772?w=800&h=1000&fit=crop', buyCount: 25 },
-          { id: 10, name: 'Adidas Ultraboost 22', price: 180, image_url: 'https://images.unsplash.com/photo-1542291026-7eec264c27ff?w=800&h=1000&fit=crop', buyCount: 18 },
-          { id: 11, name: 'Nike Air Force 1', price: 90, image_url: 'https://images.unsplash.com/photo-1595950653106-6c9ebd614d3a?w=800&h=1000&fit=crop', buyCount: 32 },
-          { id: 12, name: 'Converse Chuck Taylor', price: 65, image_url: 'https://images.unsplash.com/photo-1543163521-1bf539c55dd2?w=800&h=1000&fit=crop', buyCount: 15 },
-          { id: 13, name: 'Nike Air Jordan 1', price: 120, image_url: 'https://images.unsplash.com/photo-1551107696-a4b0c5a0d9a2?w=800&h=1000&fit=crop', buyCount: 8 },
-          { id: 14, name: 'Adidas Stan Smith', price: 80, image_url: 'https://images.unsplash.com/photo-1571019613454-1cb2f99b2d8b?w=800&h=1000&fit=crop', buyCount: 12 },
-          { id: 15, name: 'Nike React Element 55', price: 130, image_url: 'https://images.unsplash.com/photo-1549298916-b41d501d3772?w=800&h=1000&fit=crop', buyCount: 20 },
-          { id: 16, name: 'Puma Suede Classic', price: 75, image_url: 'https://images.unsplash.com/photo-1595950653106-6c9ebd614d3a?w=800&h=1000&fit=crop', buyCount: 28 }
-        ]
-      }
-
       return (
         <section className="pt-0 pb-12 px-4">
           <div className="max-w-9xl mx-auto">
             <div className="flex items-center justify-between mb-6">
               <h2 className="text-3xl font-bold text-white">{title}</h2>
-              <div className="flex space-x-2">
-                <Button variant="outline" size="sm" onClick={scrollLeftAction} className="bg-white/10 border-white/20 text-white hover:bg-white/20">
-                  <ChevronLeft className="h-4 w-4" />
-                </Button>
-                <Button variant="outline" size="sm" onClick={scrollRightAction} className="bg-white/10 border-white/20 text-white hover:bg-white/20">
-                  <ChevronRight className="h-4 w-4" />
-                </Button>
-              </div>
             </div>
-            <div 
-              ref={scrollContainerRef}
-              className="flex gap-4 overflow-x-auto scrollbar-hide cursor-grab active:cursor-grabbing select-none"
-              style={{ 
-                scrollbarWidth: 'none', 
-                msOverflowStyle: 'none',
-                scrollBehavior: 'smooth',
-                scrollSnapType: 'x mandatory',
-                scrollPaddingLeft: '0px'
-              }}
-              onMouseDown={handleMouseDown}
-              onMouseMove={isDragging ? handleMouseMove : undefined}
-              onMouseUp={handleMouseUp}
-              onMouseLeave={handleMouseLeave}
-              onTouchStart={handleTouchStart}
-              onTouchMove={handleTouchMove}
-              onTouchEnd={handleTouchEnd}
-            >
-              {sampleProducts.map(product => (
-                <div key={product.id} className="flex-shrink-0" style={{ width: 'calc(25% - 12px)', scrollSnapAlign: 'start' }}>
-                  <ProductCard product={product} />
-                </div>
-              ))}
+            <div className="text-center text-white/60 py-8">
+              Loading products...
             </div>
           </div>
         </section>

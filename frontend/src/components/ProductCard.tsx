@@ -1,39 +1,14 @@
-import { Card, CardContent, CardFooter, CardHeader, CardTitle } from '@/components/ui/card'
+import { Card } from '@/components/ui/card'
 import { Button } from '@/components/ui/button'
 import type { Product } from '@/store/productsSlice'
-import { useAppDispatch, useAppSelector } from '@/store'
-import { addToCart } from '@/store/cartSlice'
+import { useAppSelector } from '@/store'
 import { useNavigate } from 'react-router-dom'
-import { toast } from 'sonner'
 
 export default function ProductCard({ product }: { product: Product }) {
-  const dispatch = useAppDispatch()
   const navigate = useNavigate()
   const { user } = useAppSelector(state => state.auth)
 
-  const handleAddToCart = () => {
-    if (!user) {
-      // Redirect to login with return path
-      navigate('/login', { state: { from: { pathname: '/' } } })
-      return
-    }
-    if (user.role === 'admin') {
-      // Admins cannot buy products
-      return
-    }
-    
-    const cartItem = {
-      id: product.id,
-      name: product.name,
-      price: product.price,
-      quantity: 1,
-      image_url: product.image_url,
-      category: product.category
-    }
-    
-    dispatch(addToCart(cartItem))
-    toast.success(`${product.name} added to cart!`)
-  }
+  // Inline add-to-cart handled via Buy Now in this card layout
 
   const handleBuyNow = () => {
     if (!user) {
@@ -46,18 +21,8 @@ export default function ProductCard({ product }: { product: Product }) {
       return
     }
     
-    const cartItem = {
-      id: product.id,
-      name: product.name,
-      price: product.price,
-      quantity: 1,
-      image_url: product.image_url,
-      category: product.category
-    }
-    
-    dispatch(addToCart(cartItem))
-    toast.success(`${product.name} added to cart!`)
-    navigate('/checkout')
+    // Just navigate to product detail page without adding to cart
+    navigate(`/products/${product.id}`, { replace: false })
   }
 
   return (

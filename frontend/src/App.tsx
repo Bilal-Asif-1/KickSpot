@@ -1,12 +1,13 @@
 import { BrowserRouter, Routes, Route, Navigate } from 'react-router-dom'
 import './index.css'
-import BuyerNavbar from '@/components/BuyerNavbar'
+ 
 import AdminNavbar from '@/components/AdminNavbar'
 import CustomNavbarWrapper from '@/components/CustomNavbarWrapper'
 import ProtectedRoute from '@/components/ProtectedRoute'
 import { ErrorBoundary } from '@/components/ErrorBoundary'
 import { Toaster } from '@/components/ui/sonner'
 import { HomePage, ProductsPage, CartPage, CheckoutPage, OrdersPage, AdminDashboardPage } from '@/pages'
+import ProductDetailPage from '@/pages/user/ProductDetailPage'
 import MensPage from '@/pages/user/MensPage'
 import WomensPage from '@/pages/user/WomensPage'
 import KidsPage from '@/pages/user/KidsPage'
@@ -113,6 +114,13 @@ function AppContent() {
           isAdmin ? <Navigate to="/admin" replace /> : (
             <CustomNavbarWrapper>
               <ProductsPage />
+            </CustomNavbarWrapper>
+          )
+        } />
+        <Route path="/products/:id" element={
+          isAdmin ? <Navigate to="/admin" replace /> : (
+            <CustomNavbarWrapper>
+              <ProductDetailPage />
             </CustomNavbarWrapper>
           )
         } />

@@ -16,6 +16,8 @@ export default function CustomNavbarWrapper({ children }: CustomNavbarWrapperPro
       <CustomNavbar 
         onCartOpen={() => setIsCartOpen(true)} 
         onNotificationOpen={() => setIsNotificationOpen(true)}
+        isCartOpen={isCartOpen}
+        isNotificationOpen={isNotificationOpen}
       />
       
       {/* Main Content */}

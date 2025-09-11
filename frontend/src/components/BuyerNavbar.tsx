@@ -21,7 +21,20 @@ export default function BuyerNavbar() {
 
   const handleLogout = () => {
     dispatch(logout())
-    toast.success('Logged out successfully!')
+    toast.success('Logged out successfully!', {
+      style: {
+        background: '#dc2626',
+        color: '#ffffff',
+        fontWeight: 'bold',
+        borderRadius: '9999px',
+        padding: '10px 16px',
+        fontSize: '14px',
+        border: 'none',
+        boxShadow: '0 4px 12px rgba(0, 0, 0, 0.15)',
+        width: 'fit-content',
+        minWidth: 'auto'
+      }
+    })
   }
 
   // Fetch unread notification count

@@ -37,10 +37,36 @@ export default function AdminOrdersPage() {
       setDeletingId(orderId)
       await api.delete(`/api/v1/orders/${orderId}`)
       setOrders(prev => prev.filter(order => order.id !== orderId))
-      toast.success('Order deleted successfully!')
+      toast.success('Order deleted successfully!', {
+        style: {
+          background: '#dc2626',
+          color: '#ffffff',
+          fontWeight: 'bold',
+          borderRadius: '9999px',
+          padding: '10px 16px',
+          fontSize: '14px',
+          border: 'none',
+          boxShadow: '0 4px 12px rgba(0, 0, 0, 0.15)',
+          width: 'fit-content',
+          minWidth: 'auto'
+        }
+      })
     } catch (error: any) {
       console.error('Failed to delete order:', error)
-      toast.error(error?.response?.data?.message || 'Failed to delete order')
+      toast.error(error?.response?.data?.message || 'Failed to delete order', {
+        style: {
+          background: '#dc2626',
+          color: '#ffffff',
+          fontWeight: 'bold',
+          borderRadius: '9999px',
+          padding: '10px 16px',
+          fontSize: '14px',
+          border: 'none',
+          boxShadow: '0 4px 12px rgba(0, 0, 0, 0.15)',
+          width: 'fit-content',
+          minWidth: 'auto'
+        }
+      })
     } finally {
       setDeletingId(null)
     }
