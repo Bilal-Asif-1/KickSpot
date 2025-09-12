@@ -31,7 +31,7 @@ export function Footer() {
         </div>
 
         <p className="text-gray-400 text-xs">
-          © 2024 KickSpot.
+          @ 2025 KickSpot.
         </p>
       </div>
     </footer>

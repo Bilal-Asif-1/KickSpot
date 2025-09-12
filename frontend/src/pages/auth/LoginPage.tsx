@@ -8,6 +8,7 @@ import { useAppDispatch, useAppSelector } from '@/store'
 import { login } from '@/store/authSlice'
 import { Link, useNavigate, useLocation } from 'react-router-dom'
 import { toast } from 'sonner'
+import { SparklesCore } from '@/components/ui/sparkles'
 
 const schema = z.object({
   email: z.string().email(),
@@ -67,36 +68,106 @@ export default function LoginPage() {
   }
 
   return (
-    <div className="mx-auto max-w-md p-4">
-      <h1 className="mb-4 text-2xl font-semibold">Login</h1>
-      <Form {...form}>
-        <form onSubmit={form.handleSubmit(onSubmit)} className="space-y-4">
-          <FormField name="email" control={form.control} render={({ field }) => (
-            <FormItem>
-              <FormLabel>Email</FormLabel>
-              <FormControl>
-                <Input type="email" placeholder="you@example.com" {...field} />
-              </FormControl>
-              <FormMessage />
-            </FormItem>
-          )} />
+    <div className="relative min-h-screen bg-black overflow-hidden">
+      {/* Sparkling Background Effect */}
+      <div className="absolute inset-0">
+        <SparklesCore
+          id="login-sparkles"
+          background="transparent"
+          minSize={0.4}
+          maxSize={1}
+          particleDensity={100}
+          className="w-full h-full"
+          particleColor="#ffffff"
+          speed={2}
+        />
+      </div>
 
-          <FormField name="password" control={form.control} render={({ field }) => (
-            <FormItem>
-              <FormLabel>Password</FormLabel>
-              <FormControl>
-                <Input type="password" placeholder="••••••••" {...field} />
-              </FormControl>
-              <FormMessage />
-            </FormItem>
-          )} />
+      {/* Main Content */}
+      <div className="relative z-10 flex items-center justify-center min-h-screen p-4">
+        <div className="w-full max-w-3xl grid grid-cols-1 lg:grid-cols-2 gap-0 items-center">
+          {/* KICKSPOT Branding - Left Side */}
+          <div className="text-center lg:text-center flex flex-col items-center lg:items-center p-0 m-0">
+            <h1 className="text-6xl font-bold text-white mb-3">
+              KICKSPOT
+            </h1>
+            <p className="text-gray-300 text-lg mb-1">
+              Welcome Back to Your Sneaker World
+            </p>
+            <p className="text-gray-400">
+              Sign in to continue your journey
+            </p>
+          </div>
 
-          {error && <p className="text-red-600 text-sm">{error}</p>}
+          {/* Login Form - Right Side */}
+          <div className="bg-white/10 backdrop-blur-md rounded-2xl p-5 border border-white/20 shadow-2xl mx-auto max-w-sm transition-all duration-300 m-0">
+            <div className="text-center mb-4">
+              <h2 className="text-xl font-bold text-white mb-1">Welcome Back</h2>
+              <p className="text-gray-300 text-sm">Sign in to your account</p>
+            </div>
 
-          <Button type="submit" disabled={loading} className="w-full">{loading ? 'Signing in...' : 'Sign in'}</Button>
-        </form>
-      </Form>
-      <p className="mt-4 text-sm">No account? <Link to="/register" className="underline">Register</Link></p>
+            <Form {...form}>
+              <form onSubmit={form.handleSubmit(onSubmit)} className="space-y-3">
+                <FormField name="email" control={form.control} render={({ field }) => (
+                  <FormItem>
+                    <FormLabel className="text-white font-medium text-sm">Email Address</FormLabel>
+                    <FormControl>
+                      <Input 
+                        type="email" 
+                        placeholder="Enter your email" 
+                        className="bg-white/20 border-white/30 text-white placeholder:text-gray-300 focus:border-white/50 h-10"
+                        {...field} 
+                      />
+                    </FormControl>
+                    <FormMessage className="text-red-300 text-xs" />
+                  </FormItem>
+                )} />
+
+                <FormField name="password" control={form.control} render={({ field }) => (
+                  <FormItem>
+                    <FormLabel className="text-white font-medium text-sm">Password</FormLabel>
+                    <FormControl>
+                      <Input 
+                        type="password" 
+                        placeholder="Enter your password" 
+                        className="bg-white/20 border-white/30 text-white placeholder:text-gray-300 focus:border-white/50 h-10"
+                        {...field} 
+                      />
+                    </FormControl>
+                    <FormMessage className="text-red-300 text-xs" />
+                  </FormItem>
+                )} />
+
+                {error && (
+                  <div className="bg-red-500/20 border border-red-500/30 rounded-lg p-3">
+                    <p className="text-red-300 text-sm">{error}</p>
+                  </div>
+                )}
+
+                <Button 
+                  type="submit" 
+                  disabled={loading} 
+                  className="w-full bg-white text-black hover:bg-gray-100 font-semibold h-10 transition-all duration-200"
+                >
+                  {loading ? 'Signing in...' : 'Sign In'}
+                </Button>
+              </form>
+            </Form>
+
+            <div className="mt-4 text-center">
+              <p className="text-gray-300 text-sm">
+                Don't have an account?{' '}
+                <Link 
+                  to="/register" 
+                  className="text-white font-semibold hover:text-gray-200 underline transition-colors duration-200"
+                >
+                  Create Account
+                </Link>
+              </p>
+            </div>
+          </div>
+        </div>
+      </div>
     </div>
   )
 }

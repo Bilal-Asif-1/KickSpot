@@ -12,6 +12,7 @@ export default function ProductDetailPage() {
 	const dispatch = useAppDispatch()
 	const navigate = useNavigate()
 	const { items, loading } = useAppSelector(s => s.products)
+	const { items: cartItems } = useAppSelector(s => s.cart)
 	const [activeImage, setActiveImage] = useState<string | null>(null)
 	const [size, setSize] = useState<'S' | 'M' | 'L' | 'XL' | null>(null)
 	const [itemAdded, setItemAdded] = useState(false)
@@ -35,6 +36,16 @@ export default function ProductDetailPage() {
 	useEffect(() => {
 		if (product?.image_url) setActiveImage(product.image_url)
 	}, [product])
+
+	// Monitor cart changes - hide "Item added to cart" message if product is removed from cart
+	useEffect(() => {
+		if (product && itemAdded) {
+			const isInCart = cartItems.some(item => item.id === product.id)
+			if (!isInCart) {
+				setItemAdded(false)
+			}
+		}
+	}, [cartItems, product, itemAdded])
 
 	const toSrc = (url?: string | null) => {
 		if (!url) return ''
@@ -244,19 +255,8 @@ export default function ProductDetailPage() {
 												<span className="font-medium text-white capitalize">{product.category}</span>
 											</div>
 											<div className="flex justify-between">
-												<span className="text-gray-300">Sold:</span>
-												<span className="font-medium text-white">{product.buyCount || 0} units</span>
-											</div>
-											<div className="flex justify-between">
 												<span className="text-gray-300">Status:</span>
 												<span className="font-medium text-green-400">In Stock</span>
-											</div>
-											<div className="flex justify-between items-center">
-												<span className="text-gray-300">Rating:</span>
-												<div className="flex items-center gap-1">
-													<span className="text-yellow-400 text-lg">★★★★☆</span>
-													<span className="text-gray-300 text-sm ml-1">(4.2)</span>
-												</div>
 											</div>
 										</div>
 										

@@ -1,37 +1,67 @@
 import { useEffect, useState } from 'react'
 import { api } from '@/lib/api'
 import { Button } from '@/components/ui/button'
-import { useSocket } from '@/hooks/useSocket'
+import { Card, CardContent, CardDescription, CardHeader, CardTitle } from '@/components/ui/card'
+import { Badge } from '@/components/ui/badge'
 import ProductForm from '@/components/ProductForm'
 import { toast } from 'sonner'
+import { 
+  Package, 
+  Users, 
+  ShoppingCart, 
+  AlertTriangle, 
+  Plus,
+  Edit,
+  Trash2,
+  Eye,
+  DollarSign,
+  Activity,
+  Clock,
+  CheckCircle,
+  XCircle
+} from 'lucide-react'
 
-type Product = { id: number; name: string; category: string; price: number; stock: number; image_url?: string; description?: string }
-type Order = { id: number; user_id: number; total_price: number; status: 'pending' | 'processing' | 'delivered' }
-type Customer = { id: number; name: string; email: string; role: string }
+type Product = { 
+  id: number; 
+  name: string; 
+  category: string; 
+  price: number; 
+  stock: number; 
+  image_url?: string; 
+  description?: string;
+  originalPrice?: number;
+  discount?: number;
+  isOnSale?: boolean;
+  buyCount: number;
+}
+type Order = { 
+  id: number; 
+  user_id: number; 
+  total_price: number; 
+  status: 'pending' | 'processing' | 'delivered' | 'cancelled';
+  created_at?: string;
+  user?: { name: string; email: string };
+  items?: Array<{ product: Product; quantity: number; price: number }>;
+}
 
 export default function AdminDashboardPage() {
   const [products, setProducts] = useState<Product[]>([])
   const [orders, setOrders] = useState<Order[]>([])
-  const [customers, setCustomers] = useState<Customer[]>([])
   const [loading, setLoading] = useState(false)
   const [error, setError] = useState<string | undefined>()
   const [showProductForm, setShowProductForm] = useState(false)
   const [editingProduct, setEditingProduct] = useState<Product | undefined>()
-  const [notifications, setNotifications] = useState<any[]>([])
-  const socket = useSocket()
 
   async function loadAll() {
     try {
       setLoading(true)
       setError(undefined)
-      const [p, o, c] = await Promise.all([
+      const [p, o] = await Promise.all([
         api.get<Product[]>('/api/v1/admin/products'),
         api.get<Order[]>('/api/v1/admin/orders').catch(() => ({ data: [] as Order[] })),
-        api.get<Customer[]>('/api/v1/admin/buyers').catch(() => ({ data: [] as Customer[] })),
       ])
       setProducts(p.data)
       setOrders(o.data)
-      setCustomers(c.data)
     } catch (e: any) {
       setError(e?.message || 'Failed to load admin data')
     } finally {
@@ -43,16 +73,6 @@ export default function AdminDashboardPage() {
     loadAll()
   }, [])
 
-  useEffect(() => {
-    if (socket) {
-      socket.on('notification', (notification) => {
-        setNotifications(prev => [notification, ...prev])
-      })
-      return () => {
-        socket.off('notification')
-      }
-    }
-  }, [socket])
 
   async function deleteProduct(id: number) {
     if (!confirm('Are you sure you want to delete this product? If it has existing orders, it will be archived instead.')) {
@@ -149,169 +169,350 @@ export default function AdminDashboardPage() {
     }
   }
 
+  // Calculate statistics
+  const totalRevenue = orders.reduce((sum, order) => sum + order.total_price, 0)
+  const pendingOrders = orders.filter(o => o.status === 'pending').length
+  const lowStockProducts = products.filter(p => p.stock < 10).length
+  const recentOrders = orders.slice(0, 5)
+  const recentProducts = products.slice(0, 5)
+
+  const getStatusColor = (status: string) => {
+    switch (status) {
+      case 'pending': return 'bg-yellow-100 text-yellow-800'
+      case 'processing': return 'bg-blue-100 text-blue-800'
+      case 'delivered': return 'bg-green-100 text-green-800'
+      case 'cancelled': return 'bg-red-100 text-red-800'
+      default: return 'bg-gray-100 text-gray-800'
+    }
+  }
+
+  const getStatusIcon = (status: string) => {
+    switch (status) {
+      case 'pending': return <Clock className="h-4 w-4" />
+      case 'processing': return <Activity className="h-4 w-4" />
+      case 'delivered': return <CheckCircle className="h-4 w-4" />
+      case 'cancelled': return <XCircle className="h-4 w-4" />
+      default: return <Clock className="h-4 w-4" />
+    }
+  }
+
   return (
-    <div className="min-h-screen bg-slate-50">
-      <main className="mx-auto max-w-7xl p-4">
-        <div className="mb-6">
-          <h1 className="text-3xl font-bold text-slate-800">Admin Dashboard</h1>
-          <p className="text-slate-600">Manage your shoe store inventory and track customer orders</p>
+    <div className="min-h-screen bg-gradient-to-br from-slate-50 to-slate-100">
+      <main className="mx-auto max-w-7xl p-6">
+        {/* Header */}
+        <div className="mb-8">
+          <h1 className="text-4xl font-bold text-slate-900 mb-2">Admin Dashboard</h1>
+          <p className="text-slate-600 text-lg">Welcome back! Here's what's happening with your store today.</p>
         </div>
-        {error && <p className="text-red-600 mb-2">{error}</p>}
-        {loading && <p>Loading...</p>}
-        
-        {/* Statistics Cards */}
-        <div className="grid grid-cols-1 md:grid-cols-4 gap-4 mb-6">
-          <div className="bg-white p-4 rounded-lg shadow">
-            <h3 className="text-sm font-medium text-slate-600">My Products</h3>
-            <p className="text-2xl font-bold text-slate-800">{products.length}</p>
-          </div>
-          <div className="bg-white p-4 rounded-lg shadow">
-            <h3 className="text-sm font-medium text-slate-600">My Orders</h3>
-            <p className="text-2xl font-bold text-slate-800">{orders.length}</p>
-          </div>
-          <div className="bg-white p-4 rounded-lg shadow">
-            <h3 className="text-sm font-medium text-slate-600">My Buyers</h3>
-            <p className="text-2xl font-bold text-slate-800">{customers.length}</p>
-          </div>
-          <div className="bg-white p-4 rounded-lg shadow">
-            <h3 className="text-sm font-medium text-slate-600">Low Stock Items</h3>
-            <p className="text-2xl font-bold text-red-600">{products.filter(p => p.stock < 10).length}</p>
-          </div>
-        </div>
-        
-        {notifications.length > 0 && (
-          <div className="mb-4 p-3 bg-blue-50 border border-blue-200 rounded">
-            <h3 className="font-semibold mb-2">Recent Notifications</h3>
-            {notifications.slice(0, 3).map((n, i) => (
-              <p key={i} className="text-sm">{n.message}</p>
-            ))}
+
+        {error && (
+          <div className="mb-6 p-4 bg-red-50 border border-red-200 rounded-lg">
+            <p className="text-red-600">{error}</p>
           </div>
         )}
-        <div className="grid grid-cols-1 gap-6">
-          <section>
-            <div className="flex justify-between items-center mb-2">
-              <h2 className="text-xl font-semibold">My Products</h2>
-              <Button onClick={() => setShowProductForm(true)}>Add Product</Button>
+        
+        {loading && (
+          <div className="flex items-center justify-center py-12">
+            <div className="animate-spin rounded-full h-8 w-8 border-b-2 border-slate-900"></div>
+            <span className="ml-2 text-slate-600">Loading dashboard...</span>
+          </div>
+        )}
+        
+        {/* Statistics Cards */}
+        <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-4 gap-6 mb-8">
+          <Card className="hover:shadow-lg transition-shadow">
+            <CardHeader className="flex flex-row items-center justify-between space-y-0 pb-2">
+              <CardTitle className="text-sm font-medium text-slate-600">Total Products</CardTitle>
+              <Package className="h-4 w-4 text-slate-600" />
+            </CardHeader>
+            <CardContent>
+              <div className="text-2xl font-bold text-slate-900">{products.length}</div>
+              <p className="text-xs text-slate-500">Active inventory items</p>
+            </CardContent>
+          </Card>
+
+          <Card className="hover:shadow-lg transition-shadow">
+            <CardHeader className="flex flex-row items-center justify-between space-y-0 pb-2">
+              <CardTitle className="text-sm font-medium text-slate-600">Total Orders</CardTitle>
+              <ShoppingCart className="h-4 w-4 text-slate-600" />
+            </CardHeader>
+            <CardContent>
+              <div className="text-2xl font-bold text-slate-900">{orders.length}</div>
+              <p className="text-xs text-slate-500">{pendingOrders} pending</p>
+            </CardContent>
+          </Card>
+
+          <Card className="hover:shadow-lg transition-shadow">
+            <CardHeader className="flex flex-row items-center justify-between space-y-0 pb-2">
+              <CardTitle className="text-sm font-medium text-slate-600">Total Revenue</CardTitle>
+              <DollarSign className="h-4 w-4 text-slate-600" />
+            </CardHeader>
+            <CardContent>
+              <div className="text-2xl font-bold text-slate-900">${totalRevenue.toFixed(2)}</div>
+              <p className="text-xs text-slate-500">All time sales</p>
+            </CardContent>
+          </Card>
+
+          <Card className="hover:shadow-lg transition-shadow">
+            <CardHeader className="flex flex-row items-center justify-between space-y-0 pb-2">
+              <CardTitle className="text-sm font-medium text-slate-600">Low Stock Alert</CardTitle>
+              <AlertTriangle className="h-4 w-4 text-red-500" />
+            </CardHeader>
+            <CardContent>
+              <div className="text-2xl font-bold text-red-600">{lowStockProducts}</div>
+              <p className="text-xs text-slate-500">Items need restocking</p>
+            </CardContent>
+          </Card>
+        </div>
+        
+        {/* Recent Activity & Quick Actions */}
+        <div className="grid grid-cols-1 lg:grid-cols-3 gap-6 mb-8">
+          {/* Recent Orders */}
+          <Card className="lg:col-span-2">
+            <CardHeader>
+              <CardTitle className="flex items-center gap-2">
+                <ShoppingCart className="h-5 w-5" />
+                Recent Orders
+              </CardTitle>
+              <CardDescription>Latest customer orders and their status</CardDescription>
+            </CardHeader>
+            <CardContent>
+              <div className="space-y-4">
+                {recentOrders.length > 0 ? (
+                  recentOrders.map(order => (
+                    <div key={order.id} className="flex items-center justify-between p-3 border rounded-lg hover:bg-slate-50 transition-colors">
+                      <div className="flex items-center gap-3">
+                        <div className="flex items-center gap-2">
+                          {getStatusIcon(order.status)}
+                          <span className="font-medium">#{order.id}</span>
+                        </div>
+                        <div>
+                          <p className="text-sm font-medium">Customer #{order.user_id}</p>
+                          <p className="text-xs text-slate-500">${order.total_price.toFixed(2)}</p>
+                        </div>
+                      </div>
+                      <div className="flex items-center gap-2">
+                        <Badge className={getStatusColor(order.status)}>
+                          {order.status}
+                        </Badge>
+                        <div className="flex gap-1">
+                          <Button 
+                            variant="outline" 
+                            size="sm" 
+                            onClick={() => updateOrderStatus(order.id, 'processing')}
+                            disabled={order.status === 'processing' || order.status === 'delivered'}
+                          >
+                            Process
+                          </Button>
+                          <Button 
+                            variant="outline" 
+                            size="sm" 
+                            onClick={() => updateOrderStatus(order.id, 'delivered')}
+                            disabled={order.status === 'delivered'}
+                          >
+                            Deliver
+                          </Button>
+                        </div>
+                      </div>
+                    </div>
+                  ))
+                ) : (
+                  <div className="text-center py-8 text-slate-500">
+                    <ShoppingCart className="h-12 w-12 mx-auto mb-3 text-slate-300" />
+                    <p>No orders yet</p>
+                  </div>
+                )}
+              </div>
+            </CardContent>
+          </Card>
+
+          {/* Quick Actions */}
+          <Card>
+            <CardHeader>
+              <CardTitle className="flex items-center gap-2">
+                <Activity className="h-5 w-5" />
+                Quick Actions
+              </CardTitle>
+              <CardDescription>Common admin tasks</CardDescription>
+            </CardHeader>
+            <CardContent className="space-y-3">
+              <Button 
+                onClick={() => setShowProductForm(true)} 
+                className="w-full justify-start"
+                size="sm"
+              >
+                <Plus className="h-4 w-4 mr-2" />
+                Add New Product
+              </Button>
+              <Button 
+                variant="outline" 
+                className="w-full justify-start"
+                size="sm"
+                onClick={() => window.location.href = '/admin/orders'}
+              >
+                <Eye className="h-4 w-4 mr-2" />
+                View All Orders
+              </Button>
+              <Button 
+                variant="outline" 
+                className="w-full justify-start"
+                size="sm"
+                onClick={() => window.location.href = '/admin/customers'}
+              >
+                <Users className="h-4 w-4 mr-2" />
+                Manage Customers
+              </Button>
+              {lowStockProducts > 0 && (
+                <Button 
+                  variant="destructive" 
+                  className="w-full justify-start"
+                  size="sm"
+                  onClick={() => window.location.href = '/admin/products'}
+                >
+                  <AlertTriangle className="h-4 w-4 mr-2" />
+                  Restock Items ({lowStockProducts})
+                </Button>
+              )}
+            </CardContent>
+          </Card>
+        </div>
+
+        {/* Products Overview */}
+        <Card className="mb-8">
+          <CardHeader>
+            <div className="flex items-center justify-between">
+              <div>
+                <CardTitle className="flex items-center gap-2">
+                  <Package className="h-5 w-5" />
+                  Product Inventory
+                </CardTitle>
+                <CardDescription>Manage your product catalog and inventory</CardDescription>
+              </div>
+              <Button onClick={() => setShowProductForm(true)}>
+                <Plus className="h-4 w-4 mr-2" />
+                Add Product
+              </Button>
             </div>
+          </CardHeader>
+          <CardContent>
             <div className="overflow-x-auto">
-              <table className="w-full text-sm">
+              <table className="w-full">
                 <thead>
                   <tr className="text-left border-b">
-                    <th className="p-2">ID</th>
-                    <th className="p-2">Image</th>
-                    <th className="p-2">Name</th>
-                    <th className="p-2">Category</th>
-                    <th className="p-2">Price</th>
-                    <th className="p-2">Stock</th>
-                    <th className="p-2">Actions</th>
+                    <th className="p-3 font-medium text-slate-600">Product</th>
+                    <th className="p-3 font-medium text-slate-600">Category</th>
+                    <th className="p-3 font-medium text-slate-600">Price</th>
+                    <th className="p-3 font-medium text-slate-600">Stock</th>
+                    <th className="p-3 font-medium text-slate-600">Status</th>
+                    <th className="p-3 font-medium text-slate-600">Actions</th>
                   </tr>
                 </thead>
                 <tbody>
-                  {products.map(p => (
-                    <tr key={p.id} className="border-b">
-                      <td className="p-2">{p.id}</td>
-                      <td className="p-2">
-                        {p.image_url ? (
-                          <img 
-                            src={p.image_url.startsWith('http') ? p.image_url : `${import.meta.env.VITE_API_URL || 'http://localhost:5000'}${p.image_url}`} 
-                            alt={p.name} 
-                            className="w-12 h-12 object-cover rounded" 
-                          />
-                        ) : (
-                          <div className="w-12 h-12 bg-gray-200 rounded flex items-center justify-center text-xs text-gray-500">
-                            No Image
+                  {recentProducts.map(product => (
+                    <tr key={product.id} className="border-b hover:bg-slate-50 transition-colors">
+                      <td className="p-3">
+                        <div className="flex items-center gap-3">
+                          {product.image_url ? (
+                            <img 
+                              src={product.image_url.startsWith('http') ? product.image_url : `${import.meta.env.VITE_API_URL || 'http://localhost:5000'}${product.image_url}`} 
+                              alt={product.name} 
+                              className="w-12 h-12 object-cover rounded-lg" 
+                            />
+                          ) : (
+                            <div className="w-12 h-12 bg-slate-200 rounded-lg flex items-center justify-center">
+                              <Package className="h-6 w-6 text-slate-400" />
+                            </div>
+                          )}
+                          <div>
+                            <p className="font-medium text-slate-900">{product.name}</p>
+                            <p className="text-sm text-slate-500">ID: {product.id}</p>
+                          </div>
+                        </div>
+                      </td>
+                      <td className="p-3">
+                        <Badge variant="outline" className="capitalize">
+                          {product.category}
+                        </Badge>
+                      </td>
+                      <td className="p-3">
+                        <div className="font-medium">${product.price.toFixed(2)}</div>
+                        {product.isOnSale && product.originalPrice && (
+                          <div className="text-sm text-slate-500 line-through">
+                            ${product.originalPrice.toFixed(2)}
                           </div>
                         )}
                       </td>
-                      <td className="p-2">{p.name}</td>
-                      <td className="p-2">{p.category}</td>
-                      <td className="p-2">${p.price.toFixed(2)}</td>
-                      <td className="p-2">{p.stock}</td>
-                      <td className="p-2">
+                      <td className="p-3">
+                        <div className={`font-medium ${product.stock < 10 ? 'text-red-600' : 'text-slate-900'}`}>
+                          {product.stock}
+                        </div>
+                        {product.stock < 10 && (
+                          <div className="text-xs text-red-500">Low stock</div>
+                        )}
+                      </td>
+                      <td className="p-3">
+                        <Badge className={product.stock > 0 ? 'bg-green-100 text-green-800' : 'bg-red-100 text-red-800'}>
+                          {product.stock > 0 ? 'In Stock' : 'Out of Stock'}
+                        </Badge>
+                      </td>
+                      <td className="p-3">
                         <div className="flex gap-2">
-                          <Button variant="outline" size="sm" onClick={() => { setEditingProduct(p); setShowProductForm(true) }}>Edit</Button>
-                          <Button variant="outline" size="sm" onClick={() => deleteProduct(p.id)}>Delete</Button>
+                          <Button 
+                            variant="outline" 
+                            size="sm" 
+                            onClick={() => { setEditingProduct(product); setShowProductForm(true) }}
+                          >
+                            <Edit className="h-4 w-4" />
+                          </Button>
+                          <Button 
+                            variant="outline" 
+                            size="sm" 
+                            onClick={() => deleteProduct(product.id)}
+                            className="text-red-600 hover:text-red-700"
+                          >
+                            <Trash2 className="h-4 w-4" />
+                          </Button>
                         </div>
                       </td>
                     </tr>
                   ))}
                 </tbody>
               </table>
+              {products.length === 0 && !loading && (
+                <div className="text-center py-8 text-slate-500">
+                  <Package className="h-12 w-12 mx-auto mb-3 text-slate-300" />
+                  <p>No products yet. Add your first product to get started!</p>
+                </div>
+              )}
             </div>
-          </section>
-          <section>
-            <h2 className="text-xl font-semibold mb-2">My Orders</h2>
-            <div className="overflow-x-auto">
-              <table className="w-full text-sm">
-                <thead>
-                  <tr className="text-left border-b">
-                    <th className="p-2">ID</th>
-                    <th className="p-2">User</th>
-                    <th className="p-2">Total</th>
-                    <th className="p-2">Status</th>
-                    <th className="p-2">Actions</th>
-                  </tr>
-                </thead>
-                <tbody>
-                  {orders.map(o => (
-                    <tr key={o.id} className="border-b">
-                      <td className="p-2">{o.id}</td>
-                      <td className="p-2">{o.user_id}</td>
-                      <td className="p-2">${o.total_price.toFixed(2)}</td>
-                      <td className="p-2">{o.status}</td>
-                      <td className="p-2 flex gap-2">
-                        <Button variant="outline" size="sm" onClick={() => updateOrderStatus(o.id, 'processing')}>Processing</Button>
-                        <Button variant="outline" size="sm" onClick={() => updateOrderStatus(o.id, 'delivered')}>Delivered</Button>
-                      </td>
-                    </tr>
-                  ))}
-                </tbody>
-              </table>
-            </div>
-          </section>
-          <section>
-            <h2 className="text-xl font-semibold mb-2">My Buyers</h2>
-            <div className="overflow-x-auto">
-              <table className="w-full text-sm">
-                <thead>
-                  <tr className="text-left border-b">
-                    <th className="p-2">ID</th>
-                    <th className="p-2">Name</th>
-                    <th className="p-2">Email</th>
-                    <th className="p-2">Role</th>
-                  </tr>
-                </thead>
-                <tbody>
-                  {customers.map(u => (
-                    <tr key={u.id} className="border-b">
-                      <td className="p-2">{u.id}</td>
-                      <td className="p-2">{u.name}</td>
-                      <td className="p-2">{u.email}</td>
-                      <td className="p-2">{u.role}</td>
-                    </tr>
-                  ))}
-                </tbody>
-              </table>
-            </div>
-          </section>
-        </div>
+          </CardContent>
+        </Card>
         
         {showProductForm && (
-          <div className="fixed inset-0 bg-black bg-opacity-50 flex items-center justify-center p-4">
-            <div className="bg-white rounded-lg p-6 max-w-md w-full max-h-[90vh] overflow-y-auto">
-              <h3 className="text-lg font-semibold mb-4">{editingProduct ? 'Edit Product' : 'Add Product'}</h3>
-              <ProductForm
-                product={editingProduct}
-                onSuccess={() => {
-                  setShowProductForm(false)
-                  setEditingProduct(undefined)
-                  loadAll()
-                }}
-                onCancel={() => {
-                  setShowProductForm(false)
-                  setEditingProduct(undefined)
-                }}
-              />
+          <div className="fixed inset-0 bg-black/50 backdrop-blur-sm flex items-center justify-center p-4 z-50">
+            <div className="bg-white rounded-xl shadow-2xl max-w-2xl w-full max-h-[90vh] overflow-y-auto">
+              <div className="p-6 border-b">
+                <h3 className="text-xl font-semibold text-slate-900">
+                  {editingProduct ? 'Edit Product' : 'Add New Product'}
+                </h3>
+                <p className="text-sm text-slate-600 mt-1">
+                  {editingProduct ? 'Update product information' : 'Add a new product to your inventory'}
+                </p>
+              </div>
+              <div className="p-6">
+                <ProductForm
+                  product={editingProduct}
+                  onSuccess={() => {
+                    setShowProductForm(false)
+                    setEditingProduct(undefined)
+                    loadAll()
+                  }}
+                  onCancel={() => {
+                    setShowProductForm(false)
+                    setEditingProduct(undefined)
+                  }}
+                />
+              </div>
             </div>
           </div>
         )}

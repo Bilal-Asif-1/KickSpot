@@ -3,7 +3,18 @@ import type { PayloadAction } from '@reduxjs/toolkit'
 import axios from 'axios'
 import { api } from '@/lib/api'
 
-interface User { id: number; name: string; email: string; role: 'admin' | 'user' }
+interface User { 
+  id: number; 
+  name: string; 
+  email: string; 
+  role: 'admin' | 'user';
+  contactNumber?: string;
+  deliveryAddress?: string;
+  businessAddress?: string;
+  cnicNumber?: string;
+  bankAccountNumber?: string;
+  bankName?: string;
+}
 
 interface AuthState {
   user?: User
@@ -39,7 +50,18 @@ export const login = createAsyncThunk(
 
 export const registerUser = createAsyncThunk(
   'auth/register',
-  async (payload: { name: string; email: string; password: string; role: 'user' | 'admin' }, { rejectWithValue }) => {
+  async (payload: { 
+    name: string; 
+    email: string; 
+    password: string; 
+    role: 'user' | 'admin';
+    contactNumber: string;
+    deliveryAddress?: string;
+    businessAddress?: string;
+    cnicNumber?: string;
+    bankAccountNumber?: string;
+    bankName?: string;
+  }, { rejectWithValue }) => {
     try {
       const res = await axios.post(`${import.meta.env.VITE_API_URL || 'http://localhost:5000'}/api/v1/auth/register`, payload)
       return res.data as { id: number; name: string; email: string; role: 'user' | 'admin' }
@@ -101,9 +123,9 @@ const authSlice = createSlice({
       })
       .addCase(registerUser.fulfilled, (state, action: PayloadAction<{ id: number; name: string; email: string; role: 'user' | 'admin' }>) => {
         state.loading = false
-        state.user = action.payload
+        // Don't set user in state or localStorage after registration
+        // User should login first to get a token
         state.error = undefined
-        try { localStorage.setItem('user', JSON.stringify(action.payload)) } catch {}
       })
       .addCase(registerUser.rejected, (state, action) => {
         state.loading = false

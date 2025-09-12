@@ -7,7 +7,6 @@ import { useAppSelector, useAppDispatch } from '@/store'
 import { logout } from '@/store/authSlice'
 import { addNotification, fetchUnreadCount, setUnreadCount } from '@/store/notificationSlice'
 import type { Notification } from '@/store/notificationSlice'
-import ThemeToggle from '@/components/ThemeToggle'
 import { toast } from 'sonner'
 
 export default function AdminNavbar() {
@@ -58,9 +57,14 @@ export default function AdminNavbar() {
 
   return (
     <header className="border-b bg-slate-50">
-      <div className="mx-auto flex h-16 max-w-7xl items-center gap-4 px-4">
-        <Link to="/admin" className="font-semibold text-xl text-slate-800">KickSpot Admin</Link>
-        <nav className="ml-auto hidden gap-6 md:flex">
+      <div className="mx-auto flex h-16 max-w-7xl items-center justify-between px-4">
+        {/* Left: Logo/Branding */}
+        <Link to="/admin" className="font-bold text-2xl text-slate-800">
+          KICKSPOT
+        </Link>
+        
+        {/* Center: Navigation */}
+        <nav className="hidden gap-6 md:flex">
           <Link to="/admin" className="flex items-center gap-1 text-sm text-slate-600 hover:text-slate-900">
             <Package className="h-4 w-4" />
             Products
@@ -87,19 +91,18 @@ export default function AdminNavbar() {
             )}
           </Link>
         </nav>
-        <div className="ml-auto flex items-center gap-2 md:ml-4">
-          <ThemeToggle />
-          {user && (
-            <div className="flex items-center gap-2">
-              <span className="text-sm text-slate-600">
-                Admin: {user.name}
-              </span>
-              <Button variant="outline" size="sm" onClick={handleLogout}>
-                Logout
-              </Button>
-            </div>
-          )}
-        </div>
+        
+        {/* Right: Profile and Logout */}
+        {user && (
+          <div className="flex items-center gap-3">
+            <span className="text-sm text-slate-600">
+              {user.name}
+            </span>
+            <Button variant="outline" size="sm" onClick={handleLogout}>
+              Logout
+            </Button>
+          </div>
+        )}
       </div>
     </header>
   )

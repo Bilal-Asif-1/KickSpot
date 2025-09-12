@@ -8,6 +8,7 @@ import { ErrorBoundary } from '@/components/ErrorBoundary'
 import { Toaster } from '@/components/ui/sonner'
 import { HomePage, ProductsPage, CartPage, CheckoutPage, OrdersPage, AdminDashboardPage } from '@/pages'
 import ProductDetailPage from '@/pages/user/ProductDetailPage'
+import ThankYouPage from '@/pages/user/ThankYouPage'
 import MensPage from '@/pages/user/MensPage'
 import WomensPage from '@/pages/user/WomensPage'
 import KidsPage from '@/pages/user/KidsPage'
@@ -32,7 +33,7 @@ function AppContent() {
   const isAdminRoute = location.pathname.startsWith('/admin')
   const isOriginalLayout = location.pathname.startsWith('/original')
   const isCustomLayout = location.pathname === '/custom'
-  const isAdmin = user?.role === 'admin'
+  const isAdmin = user?.role === 'admin' && token
 
   // Initialize cart persistence
   useCartPersistence()
@@ -159,6 +160,15 @@ function AppContent() {
             <ProtectedRoute>
               <CustomNavbarWrapper>
                 <CheckoutPage />
+              </CustomNavbarWrapper>
+            </ProtectedRoute>
+          )
+        } />
+        <Route path="/thank-you" element={
+          isAdmin ? <Navigate to="/admin" replace /> : (
+            <ProtectedRoute>
+              <CustomNavbarWrapper>
+                <ThankYouPage />
               </CustomNavbarWrapper>
             </ProtectedRoute>
           )

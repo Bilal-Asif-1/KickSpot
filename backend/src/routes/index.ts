@@ -6,6 +6,7 @@ import customerRoutes from './v1/customer.routes.js'
 import notificationRoutes from './v1/notification.routes.js'
 import cartRoutes from './v1/cart.routes.js'
 import adminRoutes from './v1/admin.routes.js'
+import paymentRoutes from './payment.routes.js'
 
 const router = Router()
 router.use('/v1/auth', authRoutes)
@@ -15,6 +16,7 @@ router.use('/v1/customers', customerRoutes)
 router.use('/v1/notifications', notificationRoutes)
 router.use('/v1/cart', cartRoutes)
 router.use('/v1/admin', adminRoutes)
+router.use('/v1/payments', paymentRoutes)
 
 export default router
 
