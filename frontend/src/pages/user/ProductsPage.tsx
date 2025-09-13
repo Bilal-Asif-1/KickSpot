@@ -1,18 +1,19 @@
 import { useEffect, useState } from 'react'
 import { useAppDispatch, useAppSelector } from '@/store'
-import { fetchProducts } from '@/store/productsSlice'
+import { fetchProducts, fetchSaleProducts } from '@/store/productsSlice'
 import ProductCard from '@/components/ProductCard'
 import { useSearchParams } from 'react-router-dom'
 import { Button } from '@/components/ui/button'
 
 export default function ProductsPage() {
   const dispatch = useAppDispatch()
-  const { items, loading, error } = useAppSelector(s => s.products)
+  const { items, saleProducts, loading, error } = useAppSelector(s => s.products)
   const [searchParams, setSearchParams] = useSearchParams()
   const [selectedCategory, setSelectedCategory] = useState(searchParams.get('category') || 'All')
 
   useEffect(() => {
     dispatch(fetchProducts())
+    dispatch(fetchSaleProducts())
   }, [dispatch])
 
   // React to query param changes (e.g., clicking Men/Women/Kids in navbar)
@@ -21,9 +22,11 @@ export default function ProductsPage() {
     setSelectedCategory(q)
   }, [searchParams])
 
-  const categories = ['All', 'Men', 'Women', 'Kids']
+  const categories = ['All', 'Men', 'Women', 'Kids', 'Sales']
   const filteredProducts = selectedCategory === 'All' 
     ? items 
+    : selectedCategory === 'Sales'
+    ? saleProducts
     : items.filter(p => p.category === selectedCategory)
 
   const handleCategoryChange = (category: string) => {
@@ -39,7 +42,9 @@ export default function ProductsPage() {
     <div>
       <main className="mx-auto max-w-7xl p-4">
         <h1 className="text-2xl font-semibold mb-4">
-          {selectedCategory === 'All' ? 'All Products' : `${selectedCategory} Shoes`}
+          {selectedCategory === 'All' ? 'All Products' : 
+           selectedCategory === 'Sales' ? 'Sale Products' : 
+           `${selectedCategory} Shoes`}
         </h1>
         
         {/* Category Filter */}
