@@ -1,13 +1,19 @@
 import React, { useState, useEffect } from 'react';
-import { useNavigate, useLocation } from 'react-router-dom';
-import { useAppSelector, useAppDispatch } from '../../store/hooks';
+import { useNavigate } from 'react-router-dom';
+import { useAppSelector, useAppDispatch } from '../../store';
 import { clearCart } from '../../store/cartSlice';
 import { loadStripe } from '@stripe/stripe-js';
 import { Elements, CardElement, useStripe, useElements } from '@stripe/react-stripe-js';
-import { toSrc } from '../../utils/imageUtils';
 
 // Initialize Stripe with environment variable
 const stripePromise = loadStripe(process.env.REACT_APP_STRIPE_PUBLISHABLE_KEY || '');
+
+// Helper function to process image URLs
+const toSrc = (url?: string | null) => {
+  if (!url) return '';
+  const base = import.meta.env.VITE_API_URL || 'http://localhost:5000';
+  return url.startsWith('http') ? url : `${base}${url}`;
+};
 
 interface CustomerInfo {
   name: string;
@@ -25,9 +31,7 @@ interface PaymentMethod {
 const CheckoutForm: React.FC<{ onPaymentSuccess: (orderId: string) => void }> = ({ onPaymentSuccess }) => {
   const stripe = useStripe();
   const elements = useElements();
-  const dispatch = useAppDispatch();
-  const navigate = useNavigate();
-  const { cartItems } = useAppSelector((state) => state.cart);
+  const { items: cartItems } = useAppSelector((state) => state.cart);
   const { user } = useAppSelector((state) => state.auth);
 
   const [customerInfo, setCustomerInfo] = useState<CustomerInfo>({
@@ -53,8 +57,6 @@ const CheckoutForm: React.FC<{ onPaymentSuccess: (orderId: string) => void }> = 
       description: 'Pay when your order arrives',
     },
   ];
-
-  const totalAmount = cartItems.reduce((total, item) => total + (item.price * item.quantity), 0);
 
   const handleInputChange = (e: React.ChangeEvent<HTMLInputElement | HTMLTextAreaElement>) => {
     const { name, value } = e.target;
@@ -84,7 +86,7 @@ const CheckoutForm: React.FC<{ onPaymentSuccess: (orderId: string) => void }> = 
           'Authorization': `Bearer ${localStorage.getItem('token')}`,
         },
         body: JSON.stringify({
-          items: cartItems.map(item => ({
+          items: cartItems.map((item: any) => ({
             productId: item.id,
             quantity: item.quantity,
           })),
@@ -149,7 +151,7 @@ const CheckoutForm: React.FC<{ onPaymentSuccess: (orderId: string) => void }> = 
           'Authorization': `Bearer ${localStorage.getItem('token')}`,
         },
         body: JSON.stringify({
-          items: cartItems.map(item => ({
+          items: cartItems.map((item: any) => ({
             productId: item.id,
             quantity: item.quantity,
           })),
@@ -308,9 +310,8 @@ const CheckoutForm: React.FC<{ onPaymentSuccess: (orderId: string) => void }> = 
 
 const CheckoutPage: React.FC = () => {
   const navigate = useNavigate();
-  const location = useLocation();
   const dispatch = useAppDispatch();
-  const { cartItems } = useAppSelector((state) => state.cart);
+  const { items: cartItems } = useAppSelector((state) => state.cart);
 
   useEffect(() => {
     if (cartItems.length === 0) {
@@ -318,7 +319,7 @@ const CheckoutPage: React.FC = () => {
     }
   }, [cartItems, navigate]);
 
-  const totalAmount = cartItems.reduce((total, item) => total + (item.price * item.quantity), 0);
+  const totalAmount = cartItems.reduce((total: number, item: any) => total + (item.price * item.quantity), 0);
   const shipping = 0; // Free shipping
   const tax = totalAmount * 0.1; // 10% tax
   const finalTotal = totalAmount + shipping + tax;
@@ -371,7 +372,7 @@ const CheckoutPage: React.FC = () => {
               
               {/* Cart Items */}
               <div className="space-y-4 mb-6">
-                {cartItems.map((item) => (
+                {cartItems.map((item: any) => (
                   <div key={item.id} className="flex items-center space-x-3">
                     <img
                       src={toSrc(item.image_url)}
