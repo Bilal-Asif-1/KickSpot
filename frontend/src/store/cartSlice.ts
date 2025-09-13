@@ -61,10 +61,16 @@ const cartSlice = createSlice({
       state.items = []
       state.total = 0
       console.log('Cart cleared - items after:', state.items.length)
-      // Also clear localStorage
+      // Note: localStorage clearing is now handled by useCartPersistence hook
+    },
+    clearCartForUser(state, action: PayloadAction<number>) {
+      // Clear cart for specific user
+      const userId = action.payload
+      state.items = []
+      state.total = 0
       try {
-        localStorage.removeItem('kickspot_cart')
-        console.log('localStorage cleared')
+        localStorage.removeItem(`kickspot_cart_${userId}`)
+        console.log(`Cart cleared for user ${userId}`)
       } catch (error) {
         console.error('Failed to clear cart from localStorage:', error)
       }
@@ -76,7 +82,7 @@ const cartSlice = createSlice({
   },
 })
 
-export const { addToCart, removeFromCart, updateQuantity, clearCart, loadCartFromStorage } = cartSlice.actions
+export const { addToCart, removeFromCart, updateQuantity, clearCart, clearCartForUser, loadCartFromStorage } = cartSlice.actions
 export default cartSlice.reducer
 
 

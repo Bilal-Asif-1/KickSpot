@@ -20,6 +20,7 @@ interface AuthState {
   user?: User
   token?: string
   loading: boolean
+  logoutLoading: boolean
   error?: string
 }
 
@@ -32,6 +33,7 @@ function loadUser(): User | undefined {
 
 const initialState: AuthState = { 
   loading: false,
+  logoutLoading: false,
   token: localStorage.getItem('token') || undefined,
   user: loadUser()
 }
@@ -85,6 +87,13 @@ export const fetchCurrentUser = createAsyncThunk('auth/me', async (_, { rejectWi
   }
 })
 
+export const logoutUser = createAsyncThunk('auth/logout', async (_, { getState }) => {
+  // Add a 1-second delay to show loading screen
+  await new Promise(resolve => setTimeout(resolve, 1000))
+  // Don't clear cart on logout - preserve for same user
+  return true
+})
+
 const authSlice = createSlice({
   name: 'auth',
   initialState,
@@ -123,9 +132,9 @@ const authSlice = createSlice({
       })
       .addCase(registerUser.fulfilled, (state, action: PayloadAction<{ id: number; name: string; email: string; role: 'user' | 'admin' }>) => {
         state.loading = false
-        // Don't set user in state or localStorage after registration
-        // User should login first to get a token
+        state.user = action.payload
         state.error = undefined
+        try { localStorage.setItem('user', JSON.stringify(action.payload)) } catch {}
       })
       .addCase(registerUser.rejected, (state, action) => {
         state.loading = false
@@ -161,6 +170,25 @@ const authSlice = createSlice({
           localStorage.removeItem('token')
           delete api.defaults.headers.common.Authorization
         } catch {}
+      })
+      .addCase(logoutUser.pending, (state) => {
+        state.logoutLoading = true
+      })
+      .addCase(logoutUser.fulfilled, (state) => {
+        state.logoutLoading = false
+        state.user = undefined
+        state.token = undefined
+        localStorage.removeItem('token')
+        localStorage.removeItem('user')
+        try { delete (api as any).defaults.headers.common.Authorization } catch {}
+      })
+      .addCase(logoutUser.rejected, (state) => {
+        state.logoutLoading = false
+        state.user = undefined
+        state.token = undefined
+        localStorage.removeItem('token')
+        localStorage.removeItem('user')
+        try { delete (api as any).defaults.headers.common.Authorization } catch {}
       })
   },
 })

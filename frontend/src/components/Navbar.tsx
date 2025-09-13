@@ -3,7 +3,7 @@ import { ShoppingCart } from 'lucide-react'
 import { Avatar, AvatarFallback } from '@/components/ui/avatar'
 import { Button } from '@/components/ui/button'
 import { useAppSelector, useAppDispatch } from '@/store'
-import { logout } from '@/store/authSlice'
+import { logoutUser } from '@/store/authSlice'
 
 export default function Navbar() {
   const { user } = useAppSelector(s => s.auth)
@@ -34,7 +34,7 @@ export default function Navbar() {
               <span className="text-sm text-muted-foreground">
                 {user.name} ({user.role === 'user' ? 'Buyer' : 'Admin'})
               </span>
-              <Button variant="outline" size="sm" onClick={() => dispatch(logout())}>
+              <Button variant="outline" size="sm" onClick={() => dispatch(logoutUser())}>
                 Logout
               </Button>
             </div>

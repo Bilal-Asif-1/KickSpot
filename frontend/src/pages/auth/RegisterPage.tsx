@@ -19,7 +19,7 @@ const schema = z.object({
   role: z.enum(['user', 'admin']),
   // Common fields for both buyers and sellers
   contactNumber: z.string().min(10),
-  deliveryAddress: z.string().optional(),
+  deliveryAddress: z.string().min(10).optional(),
   // Seller-specific fields
   businessAddress: z.string().optional(),
   cnicNumber: z.string().optional(),
@@ -28,7 +28,7 @@ const schema = z.object({
 }).refine((data) => {
   // If role is user (customer), deliveryAddress is required
   if (data.role === 'user') {
-    return data.deliveryAddress && data.deliveryAddress.trim().length >= 10
+    return data.deliveryAddress && data.deliveryAddress.trim().length > 0
   }
   // For sellers (admin), delivery address is not required
   return true
@@ -71,59 +71,45 @@ export default function RegisterPage() {
   })
 
   async function onSubmit(values: z.infer<typeof schema>) {
-    // Clean up the data - remove empty deliveryAddress for sellers
-    const cleanValues = { ...values }
-    if (cleanValues.role === 'admin' && (!cleanValues.deliveryAddress || cleanValues.deliveryAddress.trim() === '')) {
-      delete cleanValues.deliveryAddress
-    }
+    console.log('🚀 FORM SUBMITTED!')
+    console.log('Form values:', values)
+    console.log('Selected role:', selectedRole)
     
-    try {
-      const res = await dispatch(registerUser(cleanValues))
-      
+    const res = await dispatch(registerUser(values))
+    console.log('Registration response:', res)
+    
     if ((res as any).meta.requestStatus === 'fulfilled') {
       const user = (res as any).payload
-        
-        toast.success(`Registration successful! Welcome to KickSpot, ${user.name}!`, {
-          style: {
-            background: '#dc2626',
-            color: '#ffffff',
-            fontWeight: 'bold',
-            borderRadius: '9999px',
-            padding: '10px 16px',
-            fontSize: '14px',
-            border: 'none',
-            boxShadow: '0 4px 12px rgba(0, 0, 0, 0.15)',
-            width: 'fit-content',
-            minWidth: 'auto'
-          }
-        })
-        
-        // Redirect to login page after successful registration
-        setTimeout(() => {
-          navigate('/login')
-        }, 2000)
+      console.log('Registration successful, user:', user)
+      
+      toast.success(`Registration successful! Welcome to KickSpot, ${user.name}!`, {
+        style: {
+          background: '#dc2626',
+          color: '#ffffff',
+          fontWeight: 'bold',
+          borderRadius: '9999px',
+          padding: '10px 16px',
+          fontSize: '14px',
+          border: 'none',
+          boxShadow: '0 4px 12px rgba(0, 0, 0, 0.15)',
+          width: 'fit-content',
+          minWidth: 'auto'
+        }
+      })
+      
+      // Role-based redirect after successful registration
+      if (user.role === 'admin') {
+        console.log('Redirecting to admin dashboard')
+        navigate('/admin')
       } else {
-        const error = (res as any).payload || (res as any).error?.message || 'Registration failed'
-        console.error('Registration failed:', error)
-        
-        toast.error(`Registration failed: ${error}`, {
-          style: {
-            background: '#dc2626',
-            color: '#ffffff',
-            fontWeight: 'bold',
-            borderRadius: '9999px',
-            padding: '10px 16px',
-            fontSize: '14px',
-            border: 'none',
-            boxShadow: '0 4px 12px rgba(0, 0, 0, 0.15)',
-            width: 'fit-content',
-            minWidth: 'auto'
-          }
-        })
+        console.log('Redirecting to home page')
+        navigate('/')
       }
-    } catch (error) {
-      console.error('Registration error:', error)
-      toast.error('Registration failed. Please try again.', {
+    } else {
+      const error = (res as any).payload || (res as any).error?.message || 'Registration failed'
+      console.error('Registration failed:', error)
+      
+      toast.error(`Registration failed: ${error}`, {
         style: {
           background: '#dc2626',
           color: '#ffffff',
@@ -423,11 +409,54 @@ export default function RegisterPage() {
                 <Button 
                   type="submit" 
                   disabled={loading} 
+                  onClick={(e) => {
+                    e.preventDefault()
+                    console.log('🔘 BUTTON CLICKED!')
+                    console.log('Form values:', form.getValues())
+                    console.log('Form errors:', form.formState.errors)
+                    console.log('Form is valid:', form.formState.isValid)
+                    
+                    // Test direct API call
+                    const values = form.getValues()
+                    
+                    // Clean up the data - remove empty deliveryAddress for sellers
+                    const cleanValues = { ...values }
+                    if (cleanValues.role === 'admin' && (!cleanValues.deliveryAddress || cleanValues.deliveryAddress.trim() === '')) {
+                      delete cleanValues.deliveryAddress
+                    }
+                    
+                    console.log('Testing direct API call with values:', cleanValues)
+                    console.log('JSON stringified:', JSON.stringify(cleanValues))
+                    
+                    fetch('http://localhost:5000/api/v1/auth/register', {
+                      method: 'POST',
+                      headers: {
+                        'Content-Type': 'application/json',
+                      },
+                      body: JSON.stringify(cleanValues)
+                    })
+                    .then(response => {
+                      console.log('Response status:', response.status)
+                      return response.json()
+                    })
+                    .then(data => {
+                      console.log('✅ API response:', data)
+                      if (data.id) {
+                        alert('Registration successful! User ID: ' + data.id)
+                      } else {
+                        alert('Registration failed: ' + (data.message || 'Unknown error'))
+                        console.log('Full response:', data)
+                      }
+                    })
+                    .catch(error => {
+                      console.error('❌ Direct API call failed:', error)
+                      alert('Registration failed: ' + error.message)
+                    })
+                  }}
                   className="w-full bg-white text-black hover:bg-gray-200 font-semibold py-2 text-base rounded-lg transition-all duration-200 mt-4"
                 >
                   {loading ? 'Creating Account...' : 'Create Account'}
                 </Button>
-                
         </form>
       </Form>
 

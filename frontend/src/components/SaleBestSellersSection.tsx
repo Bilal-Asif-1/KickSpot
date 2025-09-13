@@ -1,10 +1,12 @@
 import { useRef, useState } from 'react'
 import { useAppSelector } from '@/store'
+import { useNavigate } from 'react-router-dom'
 import ProductCard from '@/components/ProductCard'
  
 
 export function SaleBestSellersSection() {
   const { saleProducts, bestSellers } = useAppSelector(s => s.products)
+  const navigate = useNavigate()
   
   // Sample data for both categories
   const sampleSaleProducts = [
@@ -198,7 +200,12 @@ export function SaleBestSellersSection() {
           ) : (<div className="flex-1" />)}
 
           {seeMoreHref && (
-            <a href={seeMoreHref} className="text-xs text-white/70 hover:text-white">See more</a>
+            <button 
+              onClick={() => navigate(seeMoreHref)} 
+              className="text-xs text-white/70 hover:text-white cursor-pointer"
+            >
+              See more
+            </button>
           )}
         </div>
         <style>{`@keyframes ks-marquee { 0% { transform: translateX(0%);} 100% { transform: translateX(-50%);} }`}</style>

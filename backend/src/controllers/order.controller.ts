@@ -2,8 +2,8 @@ import { Response } from 'express'
 import { AuthRequest } from '../middleware/auth.js'
 import { Order, OrderItem, Product, Notification, User } from '../models/index.js'
 import { body, param, validationResult } from 'express-validator'
-import { io } from '../index.js'
 import { NotificationService } from '../services/notificationService.js'
+import { io } from '../index.js'
 import { updateProductBuyCount } from './product.controller.js'
 
 export const placeOrderValidators = [
@@ -180,14 +180,19 @@ export async function updateStatus(req: AuthRequest, res: Response) {
   const oldStatus = order.status
   await order.update({ status: req.body.status })
   
-  // Create user notification for status change
+  // Create order status change notification for buyer
   if (oldStatus !== req.body.status) {
-    await NotificationService.createOrderUpdateNotification(
-      order.user_id,
-      order.id,
-      req.body.status,
-      'high'
-    )
+    try {
+      await NotificationService.createOrderStatusChangeNotification(
+        order.user_id,
+        order.id,
+        oldStatus,
+        req.body.status
+      )
+    } catch (error) {
+      console.error('Failed to create order status notification:', error)
+      // Don't fail the status update if notification fails
+    }
   }
   
   res.json(order)

@@ -3,24 +3,27 @@ import { ShoppingCart, Bell } from 'lucide-react'
 import { Button } from '@/components/ui/button'
 import { Badge } from '@/components/ui/badge'
 import { useAppSelector, useAppDispatch } from '@/store'
-import { logout } from '@/store/authSlice'
+import { logoutUser } from '@/store/authSlice'
+import { addNotification, fetchUnreadCount, setUnreadCount } from '@/store/notificationSlice'
+import type { Notification } from '@/store/notificationSlice'
 import ThemeToggle from '@/components/ThemeToggle'
 import NotificationDrawer from '@/components/NotificationDrawer'
 import CartDrawer from '@/components/CartDrawer'
 import { toast } from 'sonner'
 import { useState, useEffect } from 'react'
-import { api } from '@/lib/api'
+import { useSocket } from '@/hooks/useSocket'
 
 export default function BuyerNavbar() {
   const { user } = useAppSelector(s => s.auth)
   const { items } = useAppSelector(s => s.cart)
+  const { unreadCount } = useAppSelector(s => s.notifications)
   const dispatch = useAppDispatch()
+  const socket = useSocket()
   const [isNotificationDrawerOpen, setIsNotificationDrawerOpen] = useState(false)
   const [isCartDrawerOpen, setIsCartDrawerOpen] = useState(false)
-  const [unreadCount, setUnreadCount] = useState(0)
 
   const handleLogout = () => {
-    dispatch(logout())
+    dispatch(logoutUser())
     toast.success('Logged out successfully!', {
       style: {
         background: '#dc2626',
@@ -37,24 +40,65 @@ export default function BuyerNavbar() {
     })
   }
 
-  // Fetch unread notification count
+  // Fetch initial unread count when component mounts
   useEffect(() => {
-    if (user && user.role === 'user') {
-      const fetchUnreadCount = async () => {
-        try {
-          const res = await api.get('/api/v1/notifications/unread-count')
-          setUnreadCount(res.data.count)
-        } catch (error: any) {
-          // Silently handle errors - don't show notifications if backend is not ready
-          console.log('Notifications not available:', error?.response?.status || 'Unknown error')
-          setUnreadCount(0)
-        }
-      }
-      fetchUnreadCount()
-    } else {
-      setUnreadCount(0)
+    if (user?.role === 'user') {
+      console.log('🔔 Fetching unread count for user:', user.id)
+      dispatch(fetchUnreadCount())
     }
-  }, [user])
+  }, [dispatch, user])
+
+  // Debug: Log unread count changes
+  useEffect(() => {
+    console.log('🔔 Unread count changed to:', unreadCount)
+  }, [unreadCount])
+
+
+  // Listen for real-time notifications
+  useEffect(() => {
+    if (!socket || user?.role !== 'user') return
+    
+    const onNotification = (notification: Notification) => {
+      // Only add notifications for this user
+      if (notification.user_id === user.id) {
+        dispatch(addNotification(notification))
+        // Increment unread count for badge
+        dispatch(setUnreadCount(unreadCount + 1))
+        
+        // Show toast notification
+        toast.success(notification.message, {
+          style: {
+            background: '#dc2626',
+            color: '#ffffff',
+            fontWeight: 'bold',
+            borderRadius: '9999px',
+            padding: '10px 16px',
+            fontSize: '14px',
+            border: 'none',
+            boxShadow: '0 4px 12px rgba(0, 0, 0, 0.15)',
+            width: 'fit-content',
+            minWidth: 'auto'
+          }
+        })
+      }
+    }
+    
+    socket.on('notification', onNotification)
+    return () => { socket.off('notification', onNotification) }
+  }, [socket, user, dispatch, unreadCount])
+
+  // Handle notification drawer toggle
+  const handleNotificationDrawerToggle = (isOpen: boolean) => {
+    setIsNotificationDrawerOpen(isOpen)
+    // No need to refresh count - Redux handles it automatically
+  }
+
+  // Callback function to update unread count from child components
+  const handleUnreadCountChange = (newCount: number) => {
+    dispatch(setUnreadCount(newCount))
+  }
+
+
 
   return (
     <header className="border-b">
@@ -71,25 +115,27 @@ export default function BuyerNavbar() {
           {user && (
             <Link to="/orders" className="text-sm">My Orders</Link>
           )}
+          {user && user.role === 'user' && (
+            <button 
+              onClick={() => handleNotificationDrawerToggle(true)}
+              className="relative flex items-center gap-1 text-sm text-slate-600 hover:text-slate-900"
+            >
+              <Bell className="h-4 w-4" />
+              Notifications
+              {unreadCount > 0 && (
+                <span className="absolute -top-2 -right-3 inline-flex items-center justify-center rounded-full bg-red-600 text-white text-[10px] h-4 min-w-4 px-1">
+                  {unreadCount > 99 ? '99+' : unreadCount}
+                </span>
+              )}
+              {/* Debug: Show current count */}
+              <span className="absolute -bottom-6 left-0 text-xs bg-white px-1 rounded border text-black">
+                Count: {unreadCount}
+              </span>
+            </button>
+          )}
         </nav>
         <div className="ml-auto flex items-center gap-2 md:ml-4">
           <ThemeToggle />
-          {user && (
-            <Button 
-              variant="ghost" 
-              size="icon" 
-              onClick={() => setIsNotificationDrawerOpen(true)}
-              className="relative"
-              aria-label="Notifications"
-            >
-              <Bell className="h-5 w-5" />
-              {unreadCount > 0 && (
-                <Badge className="absolute -top-1 -right-1 h-5 w-5 flex items-center justify-center p-0 text-xs bg-red-500 text-white">
-                  {unreadCount > 99 ? '99+' : unreadCount}
-                </Badge>
-              )}
-            </Button>
-          )}
           <Button 
             variant="ghost" 
             size="icon" 
@@ -124,7 +170,8 @@ export default function BuyerNavbar() {
       {/* Notification Drawer */}
       <NotificationDrawer 
         isOpen={isNotificationDrawerOpen}
-        onClose={() => setIsNotificationDrawerOpen(false)}
+        onClose={() => handleNotificationDrawerToggle(false)}
+        onUnreadCountChange={handleUnreadCountChange}
       />
       
       {/* Cart Drawer */}

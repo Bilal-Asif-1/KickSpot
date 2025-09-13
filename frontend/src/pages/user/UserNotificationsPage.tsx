@@ -25,10 +25,13 @@ export default function UserNotificationsPage() {
       try {
         setLoading(true)
         setError(undefined)
-        const res = await api.get<Notification[]>('/api/v1/notifications')
-        setNotifications(res.data)
+        const res = await api.get('/api/v1/notifications')
+        // Handle both array response and object with notifications property
+        const notificationsData = Array.isArray(res.data) ? res.data : res.data.notifications || []
+        setNotifications(notificationsData)
       } catch (e: any) {
         setError(e?.response?.data?.message || e?.message || 'Failed to load notifications')
+        setNotifications([]) // Ensure notifications is always an array
       } finally {
         setLoading(false)
       }
@@ -38,7 +41,7 @@ export default function UserNotificationsPage() {
 
   const markAsRead = async (id: number) => {
     try {
-      await api.put(`/api/v1/notifications/${id}/read`)
+      await api.patch(`/api/v1/notifications/${id}/read`)
       setNotifications(prev => 
         prev.map(notif => 
           notif.id === id ? { ...notif, is_read: true } : notif
@@ -51,7 +54,7 @@ export default function UserNotificationsPage() {
 
   const markAllAsRead = async () => {
     try {
-      await api.put('/api/v1/notifications/read-all')
+      await api.patch('/api/v1/notifications/mark-all-read')
       setNotifications(prev => 
         prev.map(notif => ({ ...notif, is_read: true }))
       )

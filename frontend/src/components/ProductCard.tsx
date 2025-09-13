@@ -1,12 +1,19 @@
 import { Card } from '@/components/ui/card'
 import { Button } from '@/components/ui/button'
 import type { Product } from '@/store/productsSlice'
-import { useAppSelector } from '@/store'
+import { useAppSelector, useAppDispatch } from '@/store'
 import { useNavigate } from 'react-router-dom'
+import { Heart } from 'lucide-react'
+import { toggleFavorite } from '@/store/favoritesSlice'
+import { toast } from 'sonner'
 
 export default function ProductCard({ product }: { product: Product }) {
   const navigate = useNavigate()
+  const dispatch = useAppDispatch()
   const { user } = useAppSelector(state => state.auth)
+  const { items: favoriteItems } = useAppSelector(state => state.favorites)
+  
+  const isFavorite = favoriteItems.some(item => item.id === product.id)
 
   // Inline add-to-cart handled via Buy Now in this card layout
 
@@ -25,6 +32,44 @@ export default function ProductCard({ product }: { product: Product }) {
     navigate(`/products/${product.id}`, { replace: false })
   }
 
+  const handleToggleFavorite = (e: React.MouseEvent) => {
+    e.stopPropagation() // Prevent card click
+    
+    if (!user) {
+      navigate('/login', { state: { from: { pathname: '/' } } })
+      return
+    }
+
+    const favoriteItem = {
+      id: product.id,
+      name: product.name,
+      price: product.price,
+      image_url: product.image_url,
+      category: product.category,
+      originalPrice: product.originalPrice,
+      discount: product.discount,
+      isOnSale: product.isOnSale
+    }
+
+    dispatch(toggleFavorite(favoriteItem))
+    
+    toast.success(
+      isFavorite ? 'Removed from favorites' : 'Added to favorites',
+      {
+        style: {
+          background: isFavorite ? '#dc2626' : '#16a34a',
+          color: '#ffffff',
+          fontWeight: 'bold',
+          borderRadius: '8px',
+          padding: '8px 16px',
+          fontSize: '12px',
+          border: 'none',
+          boxShadow: '0 2px 8px rgba(0, 0, 0, 0.15)',
+        }
+      }
+    )
+  }
+
   return (
     <Card className="relative w-full aspect-[0.77] overflow-hidden bg-white rounded-2xl shadow-lg border-15 border-black">
       {/* Sale Badge */}
@@ -33,6 +78,21 @@ export default function ProductCard({ product }: { product: Product }) {
           {product.discount}% OFF
         </div>
       )}
+      
+      {/* Favorite Heart Button */}
+      <button
+        onClick={handleToggleFavorite}
+        className={`absolute top-2 right-2 z-10 p-2 rounded-full transition-all duration-200 hover:scale-110 ${
+          isFavorite 
+            ? 'bg-red-500 text-white shadow-lg' 
+            : 'bg-white/80 text-gray-600 hover:bg-white hover:text-red-500'
+        }`}
+        title={isFavorite ? 'Remove from favorites' : 'Add to favorites'}
+      >
+        <Heart 
+          className={`w-4 h-4 ${isFavorite ? 'fill-current' : ''}`} 
+        />
+      </button>
       
       {/* Full Screen Image */}
       <div className="absolute inset-0">

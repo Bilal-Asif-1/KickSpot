@@ -3,7 +3,6 @@ import { useAppSelector, useAppDispatch } from '@/store'
 import { fetchNotifications, markAsRead, markAllAsRead, deleteNotification, resetNotifications } from '@/store/notificationSlice'
 import type { Notification } from '@/store/notificationSlice'
 import { Button } from '@/components/ui/button'
-import { Badge } from '@/components/ui/badge'
 import { Trash2, Check, CheckCheck, Bell, Package, Users, AlertTriangle } from 'lucide-react'
 import { formatDistanceToNow } from 'date-fns'
 
@@ -22,19 +21,6 @@ const NotificationIcon = ({ type }: { type: Notification['type'] }) => {
   }
 }
 
-const PriorityBadge = ({ priority }: { priority: Notification['priority'] }) => {
-  const colors = {
-    low: 'bg-gray-100 text-gray-800',
-    medium: 'bg-blue-100 text-blue-800',
-    high: 'bg-red-100 text-red-800'
-  }
-  
-  return (
-    <Badge className={`${colors[priority]} text-xs`}>
-      {priority}
-    </Badge>
-  )
-}
 
 export default function AdminNotificationsPage() {
   const dispatch = useAppDispatch()
@@ -123,7 +109,6 @@ export default function AdminNotificationsPage() {
               <div className="flex-1 min-w-0">
                 <div className="flex items-center gap-2 mb-1">
                   <span className="font-medium text-sm capitalize">{notification.type.replace('-', ' ')}</span>
-                  <PriorityBadge priority={notification.priority} />
                   <span className="text-xs text-muted-foreground">
                     {formatDistanceToNow(new Date(notification.created_at), { addSuffix: true })}
                   </span>

@@ -10,13 +10,7 @@ import {
   Shield, 
   Gift, 
   CheckCircle, 
-  Clock, 
-  Truck, 
-  Home,
-  RefreshCw,
-  AlertCircle,
-  TrendingDown,
-  Star
+  AlertCircle
 } from 'lucide-react'
 import { toast } from 'sonner'
 
@@ -36,9 +30,10 @@ type Notification = {
 type NotificationDrawerProps = {
   isOpen: boolean
   onClose: () => void
+  onUnreadCountChange?: (count: number) => void
 }
 
-export default function NotificationDrawer({ isOpen, onClose }: NotificationDrawerProps) {
+export default function NotificationDrawer({ isOpen, onClose, onUnreadCountChange }: NotificationDrawerProps) {
   const [notifications, setNotifications] = useState<Notification[]>([])
   const [loading, setLoading] = useState(false)
   const [error, setError] = useState<string | undefined>()
@@ -54,10 +49,17 @@ export default function NotificationDrawer({ isOpen, onClose }: NotificationDraw
     try {
       setLoading(true)
       setError(undefined)
-      const res = await api.get<Notification[]>('/api/v1/notifications')
-      setNotifications(res.data)
+      const res = await api.get('/api/v1/notifications')
+      // Handle both array response and object with notifications property
+      const notificationsData = Array.isArray(res.data) ? res.data : res.data.notifications || []
+      setNotifications(notificationsData)
+      
+      // Update unread count in parent
+      const unreadCount = notificationsData.filter((n: Notification) => !n.is_read).length
+      onUnreadCountChange?.(unreadCount)
     } catch (e: any) {
       setError(e?.response?.data?.message || e?.message || 'Failed to load notifications')
+      setNotifications([]) // Ensure notifications is always an array
     } finally {
       setLoading(false)
     }
@@ -65,12 +67,16 @@ export default function NotificationDrawer({ isOpen, onClose }: NotificationDraw
 
   const markAsRead = async (id: number) => {
     try {
-      await api.put(`/api/v1/notifications/${id}/read`)
-      setNotifications(prev => 
-        prev.map(notif => 
+      await api.patch(`/api/v1/notifications/${id}/read`)
+      setNotifications(prev => {
+        const updated = prev.map(notif => 
           notif.id === id ? { ...notif, is_read: true } : notif
         )
-      )
+        // Update unread count in parent
+        const newUnreadCount = updated.filter(n => !n.is_read).length
+        onUnreadCountChange?.(newUnreadCount)
+        return updated
+      })
     } catch (error) {
       console.error('Failed to mark notification as read:', error)
     }
@@ -78,10 +84,13 @@ export default function NotificationDrawer({ isOpen, onClose }: NotificationDraw
 
   const markAllAsRead = async () => {
     try {
-      await api.put('/api/v1/notifications/read-all')
-      setNotifications(prev => 
-        prev.map(notif => ({ ...notif, is_read: true }))
-      )
+      await api.patch('/api/v1/notifications/mark-all-read')
+      setNotifications(prev => {
+        const updated = prev.map(notif => ({ ...notif, is_read: true }))
+        // Update unread count in parent (should be 0)
+        onUnreadCountChange?.(0)
+        return updated
+      })
       toast.success('All notifications marked as read', {
         style: {
           background: '#dc2626',
@@ -169,18 +178,6 @@ export default function NotificationDrawer({ isOpen, onClose }: NotificationDraw
     }
   }
 
-  const getPriorityColor = (priority: string) => {
-    switch (priority) {
-      case 'high':
-        return 'bg-red-100 text-red-800 border-red-200'
-      case 'medium':
-        return 'bg-blue-100 text-blue-800 border-blue-200'
-      case 'low':
-        return 'bg-gray-100 text-gray-800 border-gray-200'
-      default:
-        return 'bg-gray-100 text-gray-800 border-gray-200'
-    }
-  }
 
   const getTypeColor = (type: string) => {
     switch (type) {
@@ -197,13 +194,13 @@ export default function NotificationDrawer({ isOpen, onClose }: NotificationDraw
     }
   }
 
-  const filteredNotifications = notifications.filter(notif => {
+  const filteredNotifications = Array.isArray(notifications) ? notifications.filter(notif => {
     if (filter === 'all') return true
     if (filter === 'unread') return !notif.is_read
     return notif.type === filter
-  })
+  }) : []
 
-  const unreadCount = notifications.filter(n => !n.is_read).length
+  const unreadCount = Array.isArray(notifications) ? notifications.filter(n => !n.is_read).length : 0
 
   if (!isOpen) return null
 
@@ -331,9 +328,6 @@ export default function NotificationDrawer({ isOpen, onClose }: NotificationDraw
                             <div className="flex items-center space-x-2">
                               <Badge className={`text-xs ${getTypeColor(notification.type)}`}>
                                 {notification.type.replace('_', ' ')}
-                              </Badge>
-                              <Badge className={`text-xs ${getPriorityColor(notification.priority)}`}>
-                                {notification.priority}
                               </Badge>
                               <span className="text-xs text-gray-500">
                                 {new Date(notification.created_at).toLocaleDateString()}

@@ -62,10 +62,11 @@ export async function markAsRead(req: AuthRequest, res: Response) {
   }
 
   try {
-    const adminId = req.user!.id
+    const userId = req.user!.id
+    const userRole = req.user!.role
     const notificationId = parseInt(req.params.id)
 
-    const success = await NotificationService.markAsRead(notificationId, adminId)
+    const success = await NotificationService.markAsRead(notificationId, userId, userRole)
     if (!success) {
       return res.status(404).json({ message: 'Notification not found' })
     }
@@ -80,8 +81,17 @@ export async function markAsRead(req: AuthRequest, res: Response) {
 // Mark all notifications as read
 export async function markAllAsRead(req: AuthRequest, res: Response) {
   try {
-    const adminId = req.user!.id
-    const updatedCount = await NotificationService.markAllAsRead(adminId)
+    const userId = req.user!.id
+    const userRole = req.user!.role
+    
+    let updatedCount
+    if (userRole === 'admin') {
+      updatedCount = await NotificationService.markAllAsRead(userId)
+    } else {
+      // For regular users, we need to implement markAllAsRead for users
+      updatedCount = await NotificationService.markAllUserNotificationsAsRead(userId)
+    }
+    
     res.json({ message: `${updatedCount} notifications marked as read` })
   } catch (error) {
     console.error('Error marking all notifications as read:', error)

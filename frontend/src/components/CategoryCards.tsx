@@ -1,17 +1,31 @@
 import React from 'react'
+import { useNavigate } from 'react-router-dom'
 
 export function CategoryCards() {
+  const navigate = useNavigate()
+
+  const handleCategoryClick = (category: string) => {
+    if (category === 'Best Sellers') {
+      navigate('/products?sort=best')
+    } else {
+      navigate(`/${category.toLowerCase()}`)
+    }
+  }
+
   return (
     <section className="pt-4 pb-12 px-4">
       <div className="max-w-9xl mx-auto">
         <div className="grid grid-cols-4 gap-4">
           {/* Best Sellers Card */}
-          <div className="group relative aspect-[0.77] overflow-hidden rounded-[20px] cursor-pointer">
+          <div 
+            className="group relative aspect-[0.77] overflow-hidden rounded-[20px] cursor-pointer"
+            onClick={() => handleCategoryClick('Best Sellers')}
+          >
             <div className="absolute inset-0">
               <img 
                 src="https://images.unsplash.com/photo-1549298916-b41d501d3772?w=800&h=1000&fit=crop" 
                 alt="Best Sellers" 
-                className="w-full h-full object-cover transition-transform duration-500 group-hover:scale-105"
+                className="w-full h-full object-cover transition-all duration-500 group-hover:scale-100 group-hover:rounded-[30%]"
               />
               <div className="absolute inset-0 bg-black/20 group-hover:bg-black/10 transition-colors duration-300"></div>
             </div>
@@ -29,12 +43,15 @@ export function CategoryCards() {
           </div>
 
           {/* Men Card */}
-          <div className="group relative aspect-[0.77] overflow-hidden rounded-[20px] cursor-pointer">
+          <div 
+            className="group relative aspect-[0.77] overflow-hidden rounded-[20px] cursor-pointer"
+            onClick={() => handleCategoryClick('Men')}
+          >
             <div className="absolute inset-0">
               <img 
                 src="https://images.unsplash.com/photo-1542291026-7eec264c27ff?w=800&h=1000&fit=crop" 
                 alt="Men" 
-                className="w-full h-full object-cover transition-transform duration-500 group-hover:scale-105"
+                className="w-full h-full object-cover transition-all duration-500 group-hover:scale-102 group-hover:rounded-[30%]"
               />
               <div className="absolute inset-0 bg-black/20 group-hover:bg-black/10 transition-colors duration-300"></div>
             </div>
@@ -52,12 +69,15 @@ export function CategoryCards() {
           </div>
 
           {/* Women Card */}
-          <div className="group relative aspect-[0.77] overflow-hidden rounded-[20px] cursor-pointer">
+          <div 
+            className="group relative aspect-[0.77] overflow-hidden rounded-[20px] cursor-pointer"
+            onClick={() => handleCategoryClick('Women')}
+          >
             <div className="absolute inset-0">
               <img 
                 src="https://images.unsplash.com/photo-1595950653106-6c9ebd614d3a?w=800&h=1000&fit=crop" 
                 alt="Women" 
-                className="w-full h-full object-cover transition-transform duration-500 group-hover:scale-105"
+                className="w-full h-full object-cover transition-all duration-500 group-hover:scale-100 group-hover:rounded-[30%]"
               />
               <div className="absolute inset-0 bg-black/20 group-hover:bg-black/10 transition-colors duration-300"></div>
             </div>
@@ -75,12 +95,15 @@ export function CategoryCards() {
           </div>
 
           {/* Kids Card */}
-          <div className="group relative aspect-[0.77] overflow-hidden rounded-[20px] cursor-pointer">
+          <div 
+            className="group relative aspect-[0.77] overflow-hidden rounded-[20px] cursor-pointer"
+            onClick={() => handleCategoryClick('Kids')}
+          >
             <div className="absolute inset-0">
               <img 
                 src="https://images.unsplash.com/photo-1542291026-7eec264c27ff?w=800&h=1000&fit=crop" 
                 alt="Kids" 
-                className="w-full h-full object-cover transition-transform duration-500 group-hover:scale-105"
+                className="w-full h-full object-cover transition-all duration-500 group-hover:scale-100 group-hover:rounded-[30%]"
               />
               <div className="absolute inset-0 bg-black/20 group-hover:bg-black/10 transition-colors duration-300"></div>
             </div>

@@ -19,6 +19,7 @@ export default function MensPage() {
     dispatch(fetchMenProducts({ page, limit: ITEMS_PER_PAGE }))
   }, [dispatch, page])
 
+
   const ProductSlider = ({ title, products, category }: { title: string, products: any[], category?: string }) => {
     const plugin = useRef(Autoplay({ delay: 2500, stopOnInteraction: true }))
 

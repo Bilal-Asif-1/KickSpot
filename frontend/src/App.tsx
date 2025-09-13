@@ -12,6 +12,8 @@ import ThankYouPage from '@/pages/user/ThankYouPage'
 import MensPage from '@/pages/user/MensPage'
 import WomensPage from '@/pages/user/WomensPage'
 import KidsPage from '@/pages/user/KidsPage'
+import WishlistPage from '@/pages/user/WishlistPage'
+import HelpSupportPage from '@/pages/user/HelpSupportPage'
 import AdminOrders from '@/pages/admin/AdminOrdersPage'
 import AdminCustomers from '@/pages/admin/AdminCustomersPage'
 import AdminNotifications from '@/pages/admin/AdminNotificationsPage'
@@ -25,18 +27,23 @@ import { useEffect } from 'react'
 import { useLocation } from 'react-router-dom'
 import { fetchCurrentUser } from '@/store/authSlice'
 import { useCartPersistence } from '@/hooks/useCartPersistence'
+import { useFavoritesPersistence } from '@/hooks/useFavoritesPersistence'
+import LogoutLoadingScreen from '@/components/LogoutLoadingScreen'
 
 function AppContent() {
-  const { user, token, loading } = useAppSelector(state => state.auth)
+  const { user, token, loading, logoutLoading } = useAppSelector(state => state.auth)
   const dispatch = useAppDispatch()
   const location = useLocation()
   const isAdminRoute = location.pathname.startsWith('/admin')
   const isOriginalLayout = location.pathname.startsWith('/original')
   const isCustomLayout = location.pathname === '/custom'
-  const isAdmin = user?.role === 'admin' && token
+  const isAdmin = user?.role === 'admin'
 
   // Initialize cart persistence
   useCartPersistence()
+  
+  // Initialize favorites persistence
+  useFavoritesPersistence()
 
   useEffect(() => {
     if (!user && token) {
@@ -60,6 +67,9 @@ function AppContent() {
   
   return (
     <>
+      {/* Show logout loading screen */}
+      {logoutLoading && <LogoutLoadingScreen />}
+      
       {!isCustomLayout && !isOriginalLayout && ((isAdminRoute || isAdmin) ? <AdminNavbar /> : null)}
           <Routes>
         <Route path="/" element={
@@ -158,27 +168,21 @@ function AppContent() {
         <Route path="/checkout" element={
           isAdmin ? <Navigate to="/admin" replace /> : (
             <ProtectedRoute>
-              <CustomNavbarWrapper>
-                <CheckoutPage />
-              </CustomNavbarWrapper>
+              <CheckoutPage />
             </ProtectedRoute>
           )
         } />
         <Route path="/thank-you" element={
           isAdmin ? <Navigate to="/admin" replace /> : (
             <ProtectedRoute>
-              <CustomNavbarWrapper>
-                <ThankYouPage />
-              </CustomNavbarWrapper>
+              <ThankYouPage />
             </ProtectedRoute>
           )
         } />
         <Route path="/orders" element={
           isAdmin ? <Navigate to="/admin" replace /> : (
             <ProtectedRoute>
-              <CustomNavbarWrapper>
-                <OrdersPage />
-              </CustomNavbarWrapper>
+              <OrdersPage />
             </ProtectedRoute>
           )
         } />
@@ -187,6 +191,24 @@ function AppContent() {
             <ProtectedRoute>
               <CustomNavbarWrapper>
                 <UserNotificationsPage />
+              </CustomNavbarWrapper>
+            </ProtectedRoute>
+          )
+        } />
+        <Route path="/wishlist" element={
+          isAdmin ? <Navigate to="/admin" replace /> : (
+            <ProtectedRoute>
+              <CustomNavbarWrapper>
+                <WishlistPage />
+              </CustomNavbarWrapper>
+            </ProtectedRoute>
+          )
+        } />
+        <Route path="/help" element={
+          isAdmin ? <Navigate to="/admin" replace /> : (
+            <ProtectedRoute>
+              <CustomNavbarWrapper>
+                <HelpSupportPage />
               </CustomNavbarWrapper>
             </ProtectedRoute>
           )

@@ -13,9 +13,13 @@ export default function ProductDetailPage() {
 	const navigate = useNavigate()
 	const { items, loading } = useAppSelector(s => s.products)
 	const { items: cartItems } = useAppSelector(s => s.cart)
-	const [activeImage, setActiveImage] = useState<string | null>(null)
 	const [size, setSize] = useState<'S' | 'M' | 'L' | 'XL' | null>(null)
 	const [itemAdded, setItemAdded] = useState(false)
+
+	const product: Product | undefined = useMemo(() => {
+		const pid = parseInt(id || '', 10)
+		return items.find(p => p.id === pid)
+	}, [items, id])
 
 	useEffect(() => {
 		if (!items || items.length === 0) dispatch(fetchProducts())
@@ -28,16 +32,7 @@ export default function ProductDetailPage() {
 		}
 	}, [])
 
-	const product: Product | undefined = useMemo(() => {
-		const pid = parseInt(id || '', 10)
-		return items.find(p => p.id === pid)
-	}, [items, id])
-
-	useEffect(() => {
-		if (product?.image_url) setActiveImage(product.image_url)
-	}, [product])
-
-	// Monitor cart changes - hide "Item added to cart" message if product is removed from cart
+	// Check if current product is still in cart and update itemAdded state
 	useEffect(() => {
 		if (product && itemAdded) {
 			const isInCart = cartItems.some(item => item.id === product.id)
@@ -46,6 +41,7 @@ export default function ProductDetailPage() {
 			}
 		}
 	}, [cartItems, product, itemAdded])
+
 
 	const toSrc = (url?: string | null) => {
 		if (!url) return ''
@@ -56,7 +52,7 @@ export default function ProductDetailPage() {
 	const handleAddToCart = () => {
 		if (!product) return
 		if (!size) return
-		dispatch(addToCart({ id: product.id, name: product.name, price: product.price, quantity: 1, image_url: product.image_url, category: product.category }))
+		dispatch(addToCart({ id: product.id, name: product.name, price: product.price, quantity: 1, image_url: toSrc(product.image_url), category: product.category }))
 		
 		// Show confirmation message on the page (stays until user leaves)
 		setItemAdded(true)
@@ -103,8 +99,7 @@ export default function ProductDetailPage() {
 		)
 	}
 
-	const gallery = [product.image_url, product.image_url, product.image_url].filter(Boolean).map(toSrc) as string[]
-	const activeSrc = toSrc(activeImage || undefined)
+	const activeSrc = toSrc(product.image_url)
 
 	return (
 		<div className="product-detail-page bg-black flex flex-col">
@@ -127,51 +122,21 @@ export default function ProductDetailPage() {
 				<div className=" bg-transparent rounded-2xl border border-white p-6 h-110">
 
 					<div className="flex gap-12">
-						{/* Left Side - Product Images */}
+						{/* Left Side - Product Image */}
 						<div className="w-2/5">
-							{/* Big Box with Main Image and Overlaid Thumbnails */}
-							<div className="relative">
-								{/* Main Product Image */}
-								<div className="w-full h-96 rounded-xl overflow-hidden bg-transparent border border-white">
-									{activeSrc ? (
-										<img 
-											src={activeSrc}
-											alt={product.name}
-											className="w-full h-full object-cover"
-										/>
-									) : (
-										<div className="w-full h-full flex items-center justify-center text-gray-400">
-											<span className="text-lg">Product Image</span>
-										</div>
-									)}
-								</div>
-								
-								{/* Overlaid Thumbnail Images */}
-								<div className="absolute bottom-4 left-4 right-4 flex gap-2 justify-center">
-									{gallery.map((src, idx) => (
-										<button 
-											key={idx} 
-											onClick={() => setActiveImage(src)} 
-											className={`w-16 h-16 rounded-lg overflow-hidden border-2 bg-transparent transition-all ${
-												activeSrc === src 
-													? 'border-white-500' 
-													: 'border-white hover:border-gray-300'
-											}`}
-										>
-											{src ? (
-												<img 
-													src={src}
-													alt={`${product.name} view ${idx + 1}`}
-													className="w-full h-full object-cover"
-												/>
-											) : (
-												<div className="w-full h-full bg-transparent flex items-center justify-center text-gray-400 text-xs">
-													{idx + 1}
-												</div>
-											)}
-										</button>
-									))}
-								</div>
+							{/* Main Product Image */}
+							<div className="w-full h-96 rounded-xl overflow-hidden bg-transparent border border-white">
+								{activeSrc ? (
+									<img 
+										src={activeSrc}
+										alt={product.name}
+										className="w-full h-full object-cover"
+									/>
+								) : (
+									<div className="w-full h-full flex items-center justify-center text-gray-400">
+										<span className="text-lg">Product Image</span>
+									</div>
+								)}
 							</div>
 						</div>
 
@@ -255,8 +220,19 @@ export default function ProductDetailPage() {
 												<span className="font-medium text-white capitalize">{product.category}</span>
 											</div>
 											<div className="flex justify-between">
+												<span className="text-gray-300">Sold:</span>
+												<span className="font-medium text-white">{product.buyCount || 0} units</span>
+											</div>
+											<div className="flex justify-between">
 												<span className="text-gray-300">Status:</span>
 												<span className="font-medium text-green-400">In Stock</span>
+											</div>
+											<div className="flex justify-between items-center">
+												<span className="text-gray-300">Rating:</span>
+												<div className="flex items-center gap-1">
+													<span className="text-yellow-400 text-lg">★★★★☆</span>
+													<span className="text-gray-300 text-sm ml-1">(4.2)</span>
+												</div>
 											</div>
 										</div>
 										

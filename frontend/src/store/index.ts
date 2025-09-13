@@ -5,6 +5,7 @@ import productsReducer from '@/store/productsSlice'
 import cartReducer from '@/store/cartSlice'
 import authReducer from '@/store/authSlice'
 import notificationReducer from '@/store/notificationSlice'
+import favoritesReducer from '@/store/favoritesSlice'
 
 export const store = configureStore({
   reducer: {
@@ -12,6 +13,7 @@ export const store = configureStore({
     cart: cartReducer,
     auth: authReducer,
     notifications: notificationReducer,
+    favorites: favoritesReducer,
   },
 })
 

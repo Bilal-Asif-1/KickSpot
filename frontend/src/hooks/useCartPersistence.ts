@@ -1,43 +1,62 @@
 import { useEffect, useRef } from 'react'
 import { useAppSelector, useAppDispatch } from '@/store'
-import { loadCartFromStorage } from '@/store/cartSlice'
+import { loadCartFromStorage, clearCart } from '@/store/cartSlice'
 import type { CartItem } from '@/store/cartSlice'
-
-const CART_STORAGE_KEY = 'kickspot_cart'
 
 export function useCartPersistence() {
   const dispatch = useAppDispatch()
   const { items } = useAppSelector(state => state.cart)
+  const { user } = useAppSelector(state => state.auth)
   const isInitialized = useRef(false)
+  const currentUserId = useRef<number | null>(null)
 
-  // Load cart from localStorage on app start (only once)
+  // Get user-specific storage key
+  const getCartStorageKey = (userId: number) => `kickspot_cart_${userId}`
+
+  // Load cart from localStorage when user changes or on app start
   useEffect(() => {
-    if (isInitialized.current) return
-    
-    try {
-      const savedCart = localStorage.getItem(CART_STORAGE_KEY)
-      if (savedCart) {
-        const cartItems: CartItem[] = JSON.parse(savedCart)
-        dispatch(loadCartFromStorage(cartItems))
+    if (!user) {
+      // If no user, clear cart and don't load anything
+      if (currentUserId.current !== null) {
+        dispatch(clearCart())
+        currentUserId.current = null
       }
-      isInitialized.current = true
-    } catch (error) {
-      console.error('Failed to load cart from localStorage:', error)
-      isInitialized.current = true
+      return
     }
-  }, [dispatch])
 
-  // Save cart to localStorage whenever it changes
+    // If user changed, clear current cart and load new user's cart
+    if (currentUserId.current !== user.id) {
+      dispatch(clearCart())
+      currentUserId.current = user.id
+      
+      try {
+        const storageKey = getCartStorageKey(user.id)
+        const savedCart = localStorage.getItem(storageKey)
+        if (savedCart) {
+          const cartItems: CartItem[] = JSON.parse(savedCart)
+          dispatch(loadCartFromStorage(cartItems))
+          console.log(`Loaded cart for user ${user.id}:`, cartItems.length, 'items')
+        }
+        isInitialized.current = true
+      } catch (error) {
+        console.error('Failed to load cart from localStorage:', error)
+        isInitialized.current = true
+      }
+    }
+  }, [dispatch, user])
+
+  // Save cart to localStorage whenever it changes (only for logged-in users)
   useEffect(() => {
-    if (!isInitialized.current) return // Don't save until we've loaded initial data
+    if (!isInitialized.current || !user) return // Don't save until we've loaded initial data and user is logged in
     
     try {
-      console.log('Saving cart to localStorage:', items.length, 'items')
-      localStorage.setItem(CART_STORAGE_KEY, JSON.stringify(items))
+      const storageKey = getCartStorageKey(user.id)
+      console.log(`Saving cart for user ${user.id}:`, items.length, 'items')
+      localStorage.setItem(storageKey, JSON.stringify(items))
     } catch (error) {
       console.error('Failed to save cart to localStorage:', error)
     }
-  }, [items])
+  }, [items, user])
 
   return null
 }

@@ -1,6 +1,8 @@
-import React from 'react'
+import { useNavigate } from 'react-router-dom'
 
 export function ImageCollage() {
+  const navigate = useNavigate()
+  
   const images = [
     {
       id: 1,
@@ -46,10 +48,16 @@ export function ImageCollage() {
               <p className="text-xs tracking-widest uppercase font-mono">Premium Collection</p>
               <p className="font-serif text-3xl md:text-[40px]">Colors of Expression</p>
               <div className="grid gap-2 grid-cols-2 my-4 md:my-5">
-                <button className="bg-white text-black px-4 py-2 rounded-lg font-medium hover:bg-gray-100 transition-colors">
+                <button 
+                  onClick={() => navigate('/men')}
+                  className="bg-white text-black px-4 py-2 rounded-lg font-medium hover:bg-gray-100 transition-colors"
+                >
                   Shop Men
                 </button>
-                <button className="bg-white text-black px-4 py-2 rounded-lg font-medium hover:bg-gray-100 transition-colors">
+                <button 
+                  onClick={() => navigate('/women')}
+                  className="bg-white text-black px-4 py-2 rounded-lg font-medium hover:bg-gray-100 transition-colors"
+                >
                   Shop Women
                 </button>
               </div>

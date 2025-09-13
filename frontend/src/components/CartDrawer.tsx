@@ -127,12 +127,16 @@ export default function CartDrawer({ isOpen, onClose }: CartDrawerProps) {
 
   const handleAddRecommended = (product: RecommendedProduct) => {
     // Add recommended product to cart
+    const processedImageUrl = product.image_url?.startsWith('http') 
+      ? product.image_url 
+      : `${import.meta.env.VITE_API_URL || 'http://localhost:5000'}${product.image_url || ''}`
+    
     const cartItem = {
       id: product.id,
       name: product.name,
       price: product.price,
       quantity: 1,
-      image_url: product.image_url,
+      image_url: processedImageUrl,
       category: product.category
     }
     
@@ -250,9 +254,24 @@ export default function CartDrawer({ isOpen, onClose }: CartDrawerProps) {
                   <div className="w-16 h-16 bg-white rounded-lg flex-shrink-0 flex items-center justify-center shadow-sm">
                     {item.image_url ? (
                       <img 
-                        src={item.image_url} 
+                        src={item.image_url.startsWith('http') ? item.image_url : `${import.meta.env.VITE_API_URL || 'http://localhost:5000'}${item.image_url}`}
                         alt={item.name}
                         className="w-full h-full object-cover rounded-lg"
+                        onError={(e) => {
+                          // If image fails to load, show placeholder
+                          const target = e.target as HTMLImageElement;
+                          target.style.display = 'none';
+                          const parent = target.parentElement;
+                          if (parent) {
+                            parent.innerHTML = `
+                              <div class="w-full h-full flex items-center justify-center text-gray-400">
+                                <svg class="h-8 w-8" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                                  <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M4 16l4.586-4.586a2 2 0 012.828 0L16 16m-2-2l1.586-1.586a2 2 0 012.828 0L20 14m-6-6h.01M6 20h12a2 2 0 002-2V6a2 2 0 00-2-2H6a2 2 0 00-2 2v12a2 2 0 002 2z"></path>
+                                </svg>
+                              </div>
+                            `;
+                          }
+                        }}
                       />
                     ) : (
                       <ShoppingBag className="h-8 w-8 text-gray-400" />
@@ -343,22 +362,13 @@ export default function CartDrawer({ isOpen, onClose }: CartDrawerProps) {
           <div className="p-4">
             <Button
               onClick={handleCheckout}
-              className="w-full bg-gray-900 hover:bg-gray-800 text-white font-semibold py-4 text-lg"
+              className="w-full bg-black hover:bg-gray-800 text-white font-semibold py-4 text-lg"
               disabled={items.length === 0}
             >
               CHECKOUT
             </Button>
           </div>
           
-          {/* PayPal Payment Option */}
-          <div className="pt-2">
-            <Button
-              variant="outline"
-              className="w-full bg-black hover:bg-gray-800 text-white border-black h-12"
-            >
-              <span className="text-sm font-medium">PayPal</span>
-            </Button>
-          </div>
         </div>
       </div>
     </>

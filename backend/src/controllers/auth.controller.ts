@@ -3,6 +3,7 @@ import { User } from '../models/index.js'
 import bcrypt from 'bcryptjs'
 import jwt from 'jsonwebtoken'
 import { body, validationResult } from 'express-validator'
+import { NotificationService } from '../services/notificationService.js'
 
 export const registerValidators = [
   body('name').isString().isLength({ min: 2 }),
@@ -20,8 +21,12 @@ export const registerValidators = [
 ]
 
 export async function register(req: Request, res: Response) {
+  console.log('📥 REGISTRATION REQUEST RECEIVED')
+  console.log('Request body:', req.body)
+  
   const errors = validationResult(req)
   if (!errors.isEmpty()) {
+    console.log('❌ Validation errors:', errors.array())
     return res.status(400).json({ errors: errors.array() })
   }
   
@@ -78,10 +83,19 @@ export async function register(req: Request, res: Response) {
   
   const existing = await User.findOne({ where: { email } })
   if (existing) {
+    console.log('❌ Email already exists:', email)
     return res.status(409).json({ message: 'Email already in use' })
   }
   
+  console.log('🔐 Hashing password...')
   const hash = await bcrypt.hash(password, 10)
+  
+  console.log('👤 Creating user with data:', {
+    name, email, role, contactNumber,
+    deliveryAddress: role === 'user' ? deliveryAddress : 'N/A for seller',
+    businessAddress: role === 'admin' ? businessAddress : 'N/A for customer',
+    cnicNumber, bankAccountNumber, bankName
+  })
   
   const user = await User.create({ 
     name, 
@@ -98,6 +112,8 @@ export async function register(req: Request, res: Response) {
     ...(bankAccountNumber && { bankAccountNumber }),
     ...(bankName && { bankName })
   })
+  
+  console.log('✅ User created successfully:', user.id)
   
   return res.status(201).json({ 
     id: user.id, 
@@ -126,6 +142,19 @@ export async function login(req: Request, res: Response) {
   if (!user) return res.status(401).json({ message: 'Invalid credentials' })
   const ok = await bcrypt.compare(password, user.password)
   if (!ok) return res.status(401).json({ message: 'Invalid credentials' })
+  
+  // Create login notification
+  try {
+    await NotificationService.createLoginNotification(user.id, user.role, {
+      userAgent: req.headers['user-agent'],
+      ip: req.ip || req.connection.remoteAddress,
+      timestamp: new Date().toISOString()
+    })
+  } catch (error) {
+    console.error('Failed to create login notification:', error)
+    // Don't fail login if notification fails
+  }
+  
   const token = jwt.sign({ id: user.id, role: user.role }, process.env.JWT_SECRET || 'secret', { expiresIn: '7d' })
   return res.json({ token, user: { id: user.id, name: user.name, email: user.email, role: user.role } })
 }

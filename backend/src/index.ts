@@ -45,7 +45,26 @@ app.use((err: any, _req: express.Request, res: express.Response, _next: express.
 const server = http.createServer(app)
 export const io = new Server(server, { cors: { origin: '*' } })
 
-io.on('connection', () => {})
+io.on('connection', (socket) => {
+  console.log('Client connected:', socket.id)
+  
+  // Handle admin room joining
+  socket.on('join_admin_room', (adminId: number) => {
+    socket.join(`admin_${adminId}`)
+    console.log(`Admin ${adminId} joined room admin_${adminId}`)
+  })
+  
+  // Handle user room joining
+  socket.on('join_user_room', (userId: number) => {
+    socket.join(`user_${userId}`)
+    console.log(`User ${userId} joined room user_${userId}`)
+  })
+  
+  // Handle disconnection
+  socket.on('disconnect', () => {
+    console.log('Client disconnected:', socket.id)
+  })
+})
 
 const PORT = process.env.PORT || 5000
 

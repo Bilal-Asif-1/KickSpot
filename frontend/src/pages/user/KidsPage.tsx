@@ -13,6 +13,7 @@ export default function KidsPage() {
     dispatch(fetchKidsProducts())
   }, [dispatch])
 
+
   const ProductSlider = ({ title, products, category }: { title: string, products: any[], category: string }) => {
     const scrollContainerRef = useRef<HTMLDivElement>(null)
     const [isDragging, setIsDragging] = useState(false)

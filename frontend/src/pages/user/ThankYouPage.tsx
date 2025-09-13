@@ -1,4 +1,5 @@
 import { useLocation, useNavigate } from 'react-router-dom'
+import { useEffect } from 'react'
 import { Card, CardContent, CardDescription, CardHeader, CardTitle } from '@/components/ui/card'
 import { Button } from '@/components/ui/button'
 import { Badge } from '@/components/ui/badge'
@@ -7,23 +8,42 @@ import {
   Package, 
   Truck, 
   Calendar, 
-  User, 
-  MapPin, 
-  Phone, 
-  Mail,
   Home,
-  ShoppingBag
+  ShoppingBag,
+  Banknote,
+  Clock
 } from 'lucide-react'
 
 export default function ThankYouPage() {
   const location = useLocation()
   const navigate = useNavigate()
   
-  const { orderId, customerDetails, items, total, paymentIntent } = location.state || {}
+  const { orderId, customerDetails, items, total, paymentIntent, paymentMethod } = location.state || {}
+
+  // Prevent back navigation from Thank You page
+  useEffect(() => {
+    const handlePopState = () => {
+      // Push the current state back to prevent going back to checkout
+      window.history.pushState(null, '', window.location.href)
+      // Navigate to landing page instead
+      navigate('/', { replace: true })
+    }
+
+    // Push current state to history to prevent back navigation
+    window.history.pushState(null, '', window.location.href)
+    
+    // Add event listener for back button
+    window.addEventListener('popstate', handlePopState)
+
+    // Cleanup
+    return () => {
+      window.removeEventListener('popstate', handlePopState)
+    }
+  }, [navigate])
 
   if (!orderId) {
     return (
-      <div className="min-h-screen bg-gradient-to-br from-slate-50 to-slate-100 flex items-center justify-center">
+      <div className="min-h-screen bg-black flex items-center justify-center">
         <Card className="w-full max-w-md">
           <CardContent className="p-8 text-center">
             <Package className="h-16 w-16 mx-auto mb-4 text-slate-300" />
@@ -38,25 +58,38 @@ export default function ThankYouPage() {
     )
   }
 
-  // Calculate estimated delivery date (3-5 business days)
+  // Calculate estimated delivery date (3-5 business days for Stripe, 5-7 for COD)
   const deliveryDate = new Date()
-  deliveryDate.setDate(deliveryDate.getDate() + 5)
+  deliveryDate.setDate(deliveryDate.getDate() + (paymentMethod === 'cod' ? 7 : 5))
 
   return (
-    <div className="min-h-screen bg-gradient-to-br from-slate-50 to-slate-100">
-      <div className="mx-auto max-w-4xl p-6">
+    <div className="min-h-screen bg-black">
+      <div className="mx-auto max-w-6xl p-6 pt-12">
         {/* Success Header */}
-        <div className="text-center mb-8">
-          <div className="inline-flex items-center justify-center w-20 h-20 bg-green-100 rounded-full mb-4">
-            <CheckCircle className="h-10 w-10 text-green-600" />
+        <div className="text-center mb-12">
+          <div className={`inline-flex items-center justify-center w-20 h-20 rounded-full mb-6 ${
+            paymentMethod === 'cod' ? 'bg-yellow-100' : 'bg-green-100'
+          }`}>
+            {paymentMethod === 'cod' ? (
+              <Banknote className="h-10 w-10 text-yellow-600" />
+            ) : (
+              <CheckCircle className="h-10 w-10 text-green-600" />
+            )}
           </div>
-          <h1 className="text-4xl font-bold text-slate-900 mb-2">Order Confirmed!</h1>
-          <p className="text-slate-600 text-lg">Thank you for your purchase, {customerDetails?.name}</p>
+          <h1 className="text-5xl font-bold text-white mb-4">
+            {paymentMethod === 'cod' ? 'COD Order Placed!' : 'Order Confirmed!'}
+          </h1>
+          <p className="text-gray-400 text-xl">
+            {paymentMethod === 'cod' 
+              ? `Thank you for your order, ${customerDetails?.name}. You will pay when delivered.`
+              : `Thank you for your purchase, ${customerDetails?.name}`
+            }
+          </p>
         </div>
 
-        <div className="grid grid-cols-1 lg:grid-cols-3 gap-8">
+        <div className="grid grid-cols-1 lg:grid-cols-2 gap-8">
           {/* Order Details */}
-          <div className="lg:col-span-2 space-y-6">
+          <div className="space-y-6">
             {/* Order Summary */}
             <Card>
               <CardHeader>
@@ -98,53 +131,16 @@ export default function ThankYouPage() {
               </CardContent>
             </Card>
 
-            {/* Customer Information */}
-            <Card>
-              <CardHeader>
-                <CardTitle className="flex items-center gap-2">
-                  <User className="h-5 w-5" />
-                  Customer Information
-                </CardTitle>
-              </CardHeader>
-              <CardContent className="space-y-4">
-                <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
-                  <div className="flex items-center gap-3">
-                    <User className="h-4 w-4 text-slate-500" />
-                    <div>
-                      <p className="font-medium">Name</p>
-                      <p className="text-sm text-slate-600">{customerDetails?.name}</p>
-                    </div>
-                  </div>
-                  <div className="flex items-center gap-3">
-                    <Mail className="h-4 w-4 text-slate-500" />
-                    <div>
-                      <p className="font-medium">Email</p>
-                      <p className="text-sm text-slate-600">{customerDetails?.email}</p>
-                    </div>
-                  </div>
-                  <div className="flex items-center gap-3">
-                    <Phone className="h-4 w-4 text-slate-500" />
-                    <div>
-                      <p className="font-medium">Contact</p>
-                      <p className="text-sm text-slate-600">{customerDetails?.contactNumber}</p>
-                    </div>
-                  </div>
-                  <div className="flex items-start gap-3">
-                    <MapPin className="h-4 w-4 text-slate-500 mt-1" />
-                    <div>
-                      <p className="font-medium">Delivery Address</p>
-                      <p className="text-sm text-slate-600">{customerDetails?.deliveryAddress}</p>
-                    </div>
-                  </div>
-                </div>
-              </CardContent>
-            </Card>
 
             {/* Payment Information */}
             <Card>
               <CardHeader>
                 <CardTitle className="flex items-center gap-2">
-                  <CheckCircle className="h-5 w-5" />
+                  {paymentMethod === 'cod' ? (
+                    <Banknote className="h-5 w-5" />
+                  ) : (
+                    <CheckCircle className="h-5 w-5" />
+                  )}
                   Payment Information
                 </CardTitle>
               </CardHeader>
@@ -152,23 +148,45 @@ export default function ThankYouPage() {
                 <div className="flex items-center justify-between">
                   <div>
                     <p className="font-medium">Payment Method</p>
-                    <p className="text-sm text-slate-600">Credit/Debit Card via Stripe</p>
+                    <p className="text-sm text-slate-600">
+                      {paymentMethod === 'cod' ? 'Cash on Delivery' : 'Credit/Debit Card via Stripe'}
+                    </p>
                   </div>
-                  <Badge className="bg-green-100 text-green-800">
-                    Paid
+                  <Badge className={
+                    paymentMethod === 'cod' 
+                      ? 'bg-yellow-100 text-yellow-800' 
+                      : 'bg-green-100 text-green-800'
+                  }>
+                    {paymentMethod === 'cod' ? 'Pending' : 'Paid'}
                   </Badge>
                 </div>
-                {paymentIntent && (
-                  <div className="mt-3 text-sm text-slate-500">
-                    Transaction ID: {paymentIntent.id}
+                {paymentMethod === 'cod' ? (
+                  <div className="mt-3 space-y-2">
+                    <div className="bg-yellow-50 border border-yellow-200 rounded-lg p-3">
+                      <div className="flex items-center gap-2">
+                        <Clock className="h-4 w-4 text-yellow-600" />
+                        <span className="text-sm text-yellow-800 font-medium">
+                          Payment Due on Delivery
+                        </span>
+                      </div>
+                      <p className="text-sm text-yellow-700 mt-1">
+                        You will pay ${total?.toFixed(2)} in cash when your order is delivered.
+                      </p>
+                    </div>
                   </div>
+                ) : (
+                  paymentIntent && (
+                    <div className="mt-3 text-sm text-slate-500">
+                      Transaction ID: {paymentIntent.id}
+                    </div>
+                  )
                 )}
               </CardContent>
             </Card>
           </div>
 
           {/* Delivery Information */}
-          <div className="lg:col-span-1">
+          <div>
             <Card className="sticky top-6">
               <CardHeader>
                 <CardTitle className="flex items-center gap-2">
@@ -183,7 +201,10 @@ export default function ThankYouPage() {
                   </div>
                   <h3 className="font-semibold mb-2">Order Processing</h3>
                   <p className="text-sm text-slate-600 mb-4">
-                    Your order is being prepared for shipment
+                    {paymentMethod === 'cod' 
+                      ? 'Your COD order is being prepared for shipment'
+                      : 'Your order is being prepared for shipment'
+                    }
                   </p>
                 </div>
 
@@ -235,41 +256,6 @@ export default function ThankYouPage() {
           </div>
         </div>
 
-        {/* Additional Information */}
-        <Card className="mt-8">
-          <CardContent className="p-6">
-            <h3 className="font-semibold mb-4">What's Next?</h3>
-            <div className="grid grid-cols-1 md:grid-cols-3 gap-6">
-              <div className="text-center">
-                <div className="inline-flex items-center justify-center w-10 h-10 bg-slate-100 rounded-full mb-3">
-                  <span className="text-sm font-semibold">1</span>
-                </div>
-                <h4 className="font-medium mb-2">Order Confirmation</h4>
-                <p className="text-sm text-slate-600">
-                  You'll receive an email confirmation with your order details
-                </p>
-              </div>
-              <div className="text-center">
-                <div className="inline-flex items-center justify-center w-10 h-10 bg-slate-100 rounded-full mb-3">
-                  <span className="text-sm font-semibold">2</span>
-                </div>
-                <h4 className="font-medium mb-2">Processing</h4>
-                <p className="text-sm text-slate-600">
-                  We'll prepare your order and notify you when it ships
-                </p>
-              </div>
-              <div className="text-center">
-                <div className="inline-flex items-center justify-center w-10 h-10 bg-slate-100 rounded-full mb-3">
-                  <span className="text-sm font-semibold">3</span>
-                </div>
-                <h4 className="font-medium mb-2">Delivery</h4>
-                <p className="text-sm text-slate-600">
-                  Your order will be delivered to your specified address
-                </p>
-              </div>
-            </div>
-          </CardContent>
-        </Card>
       </div>
     </div>
   )

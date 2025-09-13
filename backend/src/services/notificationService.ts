@@ -39,9 +39,11 @@ export class NotificationService {
       metadata: notification.metadata ? JSON.parse(notification.metadata) : null
     }
 
-    // Send to specific admin or broadcast to all admins
+    // Send to specific admin, user, or broadcast
     if (data.admin_id) {
       io.to(`admin_${data.admin_id}`).emit('notification', notificationData)
+    } else if (data.user_id) {
+      io.to(`user_${data.user_id}`).emit('notification', notificationData)
     } else {
       io.emit('notification', notificationData)
     }
@@ -70,15 +72,21 @@ export class NotificationService {
     }
   }
 
-  static async markAsRead(notificationId: number, adminId: number): Promise<boolean> {
+  static async markAsRead(notificationId: number, userId: number, userRole: string): Promise<boolean> {
+    const whereClause: any = { 
+      id: notificationId,
+      is_read: false
+    }
+    
+    if (userRole === 'admin') {
+      whereClause.admin_id = userId
+    } else {
+      whereClause.user_id = userId
+    }
+
     const [updatedCount] = await Notification.update(
       { is_read: true },
-      { 
-        where: { 
-          id: notificationId, 
-          admin_id: adminId 
-        } 
-      }
+      { where: whereClause }
     )
     return updatedCount > 0
   }
@@ -89,6 +97,19 @@ export class NotificationService {
       { 
         where: { 
           admin_id: adminId,
+          is_read: false 
+        } 
+      }
+    )
+    return updatedCount
+  }
+
+  static async markAllUserNotificationsAsRead(userId: number): Promise<number> {
+    const [updatedCount] = await Notification.update(
+      { is_read: true },
+      { 
+        where: { 
+          user_id: userId,
           is_read: false 
         } 
       }
@@ -275,6 +296,132 @@ export class NotificationService {
 
     const deletedCount = await Notification.destroy({ where: whereClause })
     return deletedCount > 0
+  }
+
+  // Login notification for all users
+  static async createLoginNotification(userId: number, userRole: 'admin' | 'user', deviceInfo?: any) {
+    const notificationData = {
+      type: 'account_security' as const,
+      title: 'Login Successful',
+      message: `Welcome back! You have successfully logged in.`,
+      priority: 'low' as const,
+      metadata: {
+        type: 'login',
+        deviceInfo,
+        timestamp: new Date().toISOString()
+      }
+    }
+
+    if (userRole === 'admin') {
+      notificationData.admin_id = userId
+    } else {
+      notificationData.user_id = userId
+    }
+
+    return await this.createNotification(notificationData)
+  }
+
+  // Purchase confirmation notification for buyers
+  static async createPurchaseConfirmationNotification(userId: number, orderId: number, totalAmount: number, items: any[]) {
+    return await this.createNotification({
+      type: 'order',
+      title: 'Order Confirmed',
+      message: `Your order #${orderId} has been confirmed! Total: $${totalAmount.toFixed(2)}`,
+      user_id: userId,
+      order_id: orderId,
+      priority: 'high',
+      metadata: {
+        orderId,
+        totalAmount,
+        itemsCount: items.length,
+        action: 'view_order'
+      }
+    })
+  }
+
+  // Order status change notification for buyers
+  static async createOrderStatusChangeNotification(userId: number, orderId: number, oldStatus: string, newStatus: string) {
+    const statusMessages = {
+      'pending': 'Your order has been placed and is being reviewed',
+      'processing': 'Your order is being prepared for shipment',
+      'shipped': 'Your order has been shipped and is on its way',
+      'delivered': 'Your order has been delivered successfully!',
+      'cancelled': 'Your order has been cancelled',
+      'refunded': 'Your refund has been processed'
+    }
+
+    const priority = newStatus === 'delivered' ? 'high' : 'medium'
+
+    return await this.createNotification({
+      type: 'order_update',
+      title: 'Order Status Update',
+      message: statusMessages[newStatus as keyof typeof statusMessages] || `Your order status has been updated to ${newStatus}`,
+      user_id: userId,
+      order_id: orderId,
+      priority,
+      metadata: {
+        oldStatus,
+        newStatus,
+        action: 'view_order'
+      }
+    })
+  }
+
+  // Low stock notification for sellers
+  static async createLowStockAlertNotification(adminId: number, productId: number, productName: string, currentStock: number) {
+    const priority = currentStock === 0 ? 'high' : currentStock <= 5 ? 'medium' : 'low'
+    
+    return await this.createNotification({
+      type: 'low-stock',
+      title: 'Low Stock Alert',
+      message: `⚠️ ${productName} has only ${currentStock} items left in stock`,
+      admin_id: adminId,
+      product_id: productId,
+      priority,
+      metadata: {
+        productId,
+        productName,
+        currentStock,
+        action: 'update_inventory'
+      }
+    })
+  }
+
+  // New order notification for sellers
+  static async createNewOrderNotification(adminId: number, orderId: number, customerName: string, totalAmount: number, items: any[]) {
+    return await this.createNotification({
+      type: 'order',
+      title: 'New Order Received',
+      message: `🎉 New order #${orderId} from ${customerName} - $${totalAmount.toFixed(2)}`,
+      admin_id: adminId,
+      order_id: orderId,
+      priority: 'high',
+      metadata: {
+        orderId,
+        customerName,
+        totalAmount,
+        itemsCount: items.length,
+        action: 'view_order'
+      }
+    })
+  }
+
+  // Payment received notification for sellers
+  static async createPaymentReceivedNotification(adminId: number, orderId: number, amount: number, customerName: string) {
+    return await this.createNotification({
+      type: 'payment-received',
+      title: 'Payment Received',
+      message: `💰 Payment of $${amount.toFixed(2)} received for order #${orderId} from ${customerName}`,
+      admin_id: adminId,
+      order_id: orderId,
+      priority: 'high',
+      metadata: {
+        orderId,
+        amount,
+        customerName,
+        action: 'view_order'
+      }
+    })
   }
 }
 

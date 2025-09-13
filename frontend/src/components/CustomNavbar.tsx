@@ -2,7 +2,7 @@ import { Button } from '@/components/ui/button'
 import { Badge } from '@/components/ui/badge'
 import { ShoppingCart, LogOut, User, Bell, Settings, History, Heart, MapPin, CreditCard, HelpCircle, ChevronDown } from 'lucide-react'
 import { useAppSelector, useAppDispatch } from '@/store'
-import { logout } from '@/store/authSlice'
+import { logoutUser } from '@/store/authSlice'
 import { useNavigate, useLocation } from 'react-router-dom'
 import { toast } from 'sonner'
 import { SparklesCore } from '@/components/ui/sparkles'
@@ -21,6 +21,7 @@ export default function CustomNavbar({ onCartOpen, onNotificationOpen, isCartOpe
   const location = useLocation()
   const { user } = useAppSelector(state => state.auth)
   const { items } = useAppSelector(state => state.cart)
+  const { items: favoriteItems } = useAppSelector(state => state.favorites)
   const [showLogo, setShowLogo] = useState(false)
   const [showNavbar, setShowNavbar] = useState(true)
   const [lastScrollY, setLastScrollY] = useState(0)
@@ -28,6 +29,7 @@ export default function CustomNavbar({ onCartOpen, onNotificationOpen, isCartOpe
   const profileDropdownRef = useRef<HTMLDivElement>(null)
 
   const cartItemCount = items.reduce((sum, item) => sum + item.quantity, 0)
+  const favoriteItemCount = favoriteItems.length
 
   const path = location.pathname.toLowerCase()
   const isCategoryPage = ['/men', '/women', '/kids'].includes(path) || path.startsWith('/products/')
@@ -79,7 +81,7 @@ export default function CustomNavbar({ onCartOpen, onNotificationOpen, isCartOpe
   }, [showProfileDropdown])
 
   const handleLogout = () => {
-    dispatch(logout())
+    dispatch(logoutUser())
     toast.success('Logged out successfully!', {
       style: {
         background: '#dc2626',
@@ -103,12 +105,21 @@ export default function CustomNavbar({ onCartOpen, onNotificationOpen, isCartOpe
       'Women': '/women',
       'Kids': '/kids'
     }
-    navigate(categoryMap[category] || `/products?category=${category}`)
+    
+    const targetPath = categoryMap[category] || `/products?category=${category}`
+    const currentPath = location.pathname
+    
+    // If navigating between category pages (men/women/kids), use replace to avoid history buildup
+    const isCategoryNavigation = ['/men', '/women', '/kids'].includes(currentPath) && 
+                                 ['/men', '/women', '/kids'].includes(targetPath)
+    
+    navigate(targetPath, { replace: isCategoryNavigation })
   }
 
   const handleCartClick = () => {
     onCartOpen()
   }
+
 
   const handleNotificationClick = () => {
     if (onNotificationOpen) {
@@ -126,20 +137,11 @@ export default function CustomNavbar({ onCartOpen, onNotificationOpen, isCartOpe
   const handleProfileMenuItem = (action: string) => {
     setShowProfileDropdown(false)
     switch (action) {
-      case 'profile':
-        navigate('/profile')
-        break
       case 'orders':
         navigate('/orders')
         break
       case 'wishlist':
         navigate('/wishlist')
-        break
-      case 'addresses':
-        navigate('/addresses')
-        break
-      case 'payments':
-        navigate('/payments')
         break
       case 'help':
         navigate('/help')
@@ -215,14 +217,6 @@ export default function CustomNavbar({ onCartOpen, onNotificationOpen, isCartOpe
                   
                   <div className="py-1">
                     <button
-                      onClick={() => handleProfileMenuItem('profile')}
-                      className="w-full flex items-center space-x-3 px-4 py-2 text-sm text-gray-700 hover:bg-gray-50 transition-colors"
-                    >
-                      <Settings className="h-4 w-4" />
-                      <span>Profile Settings</span>
-                    </button>
-                    
-                    <button
                       onClick={() => handleProfileMenuItem('orders')}
                       className="w-full flex items-center space-x-3 px-4 py-2 text-sm text-gray-700 hover:bg-gray-50 transition-colors"
                     >
@@ -232,26 +226,20 @@ export default function CustomNavbar({ onCartOpen, onNotificationOpen, isCartOpe
                     
                     <button
                       onClick={() => handleProfileMenuItem('wishlist')}
-                      className="w-full flex items-center space-x-3 px-4 py-2 text-sm text-gray-700 hover:bg-gray-50 transition-colors"
+                      className="w-full flex items-center justify-between px-4 py-2 text-sm text-gray-700 hover:bg-gray-50 transition-colors"
                     >
-                      <Heart className="h-4 w-4" />
-                      <span>Wishlist / Saved Items</span>
-                    </button>
-                    
-                    <button
-                      onClick={() => handleProfileMenuItem('addresses')}
-                      className="w-full flex items-center space-x-3 px-4 py-2 text-sm text-gray-700 hover:bg-gray-50 transition-colors"
-                    >
-                      <MapPin className="h-4 w-4" />
-                      <span>Address Book</span>
-                    </button>
-                    
-                    <button
-                      onClick={() => handleProfileMenuItem('payments')}
-                      className="w-full flex items-center space-x-3 px-4 py-2 text-sm text-gray-700 hover:bg-gray-50 transition-colors"
-                    >
-                      <CreditCard className="h-4 w-4" />
-                      <span>Payment Methods</span>
+                      <div className="flex items-center space-x-3">
+                        <Heart className="h-4 w-4" />
+                        <span>Wishlist / Saved Items</span>
+                      </div>
+                      {favoriteItemCount > 0 && (
+                        <Badge 
+                          variant="destructive" 
+                          className="h-5 w-5 rounded-full flex items-center justify-center text-xs"
+                        >
+                          {favoriteItemCount}
+                        </Badge>
+                      )}
                     </button>
                     
                     <button
