@@ -322,3 +322,16 @@ export const confirmPayment = async (req: AuthRequest, res: Response) => {
     res.status(500).json({ error: 'Failed to confirm payment' });
   }
 };
+
+export const webhook = async (req: Request, res: Response) => {
+  try {
+    // For now, just acknowledge webhook receipt
+    // In production, you would verify the signature and handle events
+    console.log('Webhook received:', req.body);
+    
+    res.json({ received: true });
+  } catch (error) {
+    console.error('Webhook error:', error);
+    res.status(500).json({ error: 'Webhook handler failed' });
+  }
+};
