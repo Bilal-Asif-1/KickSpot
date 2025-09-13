@@ -1,15 +1,16 @@
-import { Request, Response } from 'express';
+import { Response } from 'express';
 import { Op } from 'sequelize';
 import Stripe from 'stripe';
 import { Order, OrderItem, Product, User, Notification } from '../models';
-import { io } from '../socket';
+import { io } from '../index';
+import { AuthRequest } from '../middleware/auth';
 
 // Initialize Stripe with environment variable
 const stripe = new Stripe(process.env.STRIPE_SECRET_KEY || '', {
-  apiVersion: '2024-06-20',
+  apiVersion: '2025-08-27.basil',
 });
 
-export const createPaymentIntent = async (req: Request, res: Response) => {
+export const createPaymentIntent = async (req: AuthRequest, res: Response) => {
   try {
     const { items, customerInfo } = req.body;
     const userId = req.user?.id;
@@ -69,7 +70,7 @@ export const createPaymentIntent = async (req: Request, res: Response) => {
   }
 };
 
-export const createCODOrder = async (req: Request, res: Response) => {
+export const createCODOrder = async (req: AuthRequest, res: Response) => {
   try {
     const { items, customerInfo } = req.body;
     const userId = req.user?.id;
@@ -105,7 +106,9 @@ export const createCODOrder = async (req: Request, res: Response) => {
 
       const itemTotal = product.price * item.quantity;
       totalAmount += itemTotal;
-      sellerIds.add(product.sellerId);
+      if (product.seller_id) {
+        sellerIds.add(product.seller_id);
+      }
 
       orderItems.push({
         productId: product.id,
@@ -117,8 +120,8 @@ export const createCODOrder = async (req: Request, res: Response) => {
 
     // Create COD order
     const order = await Order.create({
-      userId,
-      totalAmount,
+      user_id: userId,
+      total_price: totalAmount,
       status: 'pending',
       payment_method: 'cod',
       payment_status: 'pending',
@@ -204,7 +207,7 @@ export const createCODOrder = async (req: Request, res: Response) => {
   }
 };
 
-export const confirmPayment = async (req: Request, res: Response) => {
+export const confirmPayment = async (req: AuthRequest, res: Response) => {
   try {
     const { paymentIntentId } = req.body;
     const userId = req.user?.id;
@@ -226,8 +229,8 @@ export const confirmPayment = async (req: Request, res: Response) => {
 
     // Create order
     const order = await Order.create({
-      userId,
-      totalAmount: paymentIntent.amount / 100,
+      user_id: userId,
+      total_price: paymentIntent.amount / 100,
       status: 'confirmed',
       payment_method: 'stripe',
       payment_status: 'completed',
@@ -251,8 +254,8 @@ export const confirmPayment = async (req: Request, res: Response) => {
 
       // Get product to find seller
       const product = await Product.findByPk(item.productId);
-      if (product) {
-        sellerIds.add(product.sellerId);
+      if (product && product.seller_id) {
+        sellerIds.add(product.seller_id);
       }
 
       // Decrement product stock
@@ -281,7 +284,7 @@ export const confirmPayment = async (req: Request, res: Response) => {
         data: {
           orderId: order.id,
           paymentMethod: 'stripe',
-          totalAmount: order.totalAmount,
+          totalAmount: order.total_price,
         },
         isRead: false,
       });
@@ -304,7 +307,7 @@ export const confirmPayment = async (req: Request, res: Response) => {
       data: {
         orderId: order.id,
         paymentMethod: 'stripe',
-        totalAmount: order.totalAmount,
+        totalAmount: order.total_price,
       },
       isRead: false,
     });
