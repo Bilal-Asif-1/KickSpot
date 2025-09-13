@@ -134,11 +134,10 @@ export const createCODOrder = async (req: AuthRequest, res: Response) => {
     // Create order items and update stock
     for (const item of orderItems) {
       await OrderItem.create({
-        orderId: order.id,
-        productId: item.productId,
+        order_id: order.id,
+        product_id: item.productId,
         quantity: item.quantity,
         price: item.price,
-        total: item.total,
       });
 
       // Decrement product stock
@@ -245,11 +244,10 @@ export const confirmPayment = async (req: AuthRequest, res: Response) => {
 
     for (const item of orderItems) {
       await OrderItem.create({
-        orderId: order.id,
-        productId: item.productId,
+        order_id: order.id,
+        product_id: item.productId,
         quantity: item.quantity,
         price: item.price,
-        total: item.total,
       });
 
       // Get product to find seller
