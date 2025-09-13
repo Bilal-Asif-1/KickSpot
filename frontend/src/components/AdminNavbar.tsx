@@ -1,5 +1,5 @@
 import { Link } from 'react-router-dom'
-import { Package, Users, BarChart3, Bell } from 'lucide-react'
+import { Bell } from 'lucide-react'
 import { useEffect } from 'react'
 import { useSocket } from '@/hooks/useSocket'
 import { Button } from '@/components/ui/button'
@@ -7,7 +7,6 @@ import { useAppSelector, useAppDispatch } from '@/store'
 import { logoutUser } from '@/store/authSlice'
 import { addNotification, fetchUnreadCount, setUnreadCount } from '@/store/notificationSlice'
 import type { Notification } from '@/store/notificationSlice'
-import ThemeToggle from '@/components/ThemeToggle'
 import { toast } from 'sonner'
 
 export default function AdminNavbar() {
@@ -57,28 +56,38 @@ export default function AdminNavbar() {
   }, [socket, user, dispatch])
 
   return (
-    <header className="border-b bg-slate-50">
-      <div className="mx-auto flex h-16 max-w-7xl items-center gap-4 px-4">
-        <Link to="/admin" className="font-semibold text-xl text-slate-800">KickSpot Admin</Link>
-        <nav className="ml-auto hidden gap-6 md:flex">
-          <Link to="/admin" className="flex items-center gap-1 text-sm text-slate-600 hover:text-slate-900">
-            <Package className="h-4 w-4" />
+    <header className="border-b bg-white shadow-sm">
+      <div className="mx-auto flex h-16 max-w-7xl items-center justify-between px-6">
+        {/* KICKSPOT Branding - Left */}
+        <Link to="/admin" className="font-bold text-2xl text-black">
+          KICKSPOT
+        </Link>
+        
+        {/* Navigation Elements - Center */}
+        <nav className="hidden gap-8 md:flex">
+          <Link 
+            to="/admin" 
+            className="text-sm font-medium text-gray-700 hover:text-black transition-colors"
+          >
             Products
           </Link>
-          <Link to="/admin/orders" className="flex items-center gap-1 text-sm text-slate-600 hover:text-slate-900">
-            <BarChart3 className="h-4 w-4" />
+          <Link 
+            to="/admin/orders" 
+            className="text-sm font-medium text-gray-700 hover:text-black transition-colors"
+          >
             Orders
           </Link>
-          <Link to="/admin/customers" className="flex items-center gap-1 text-sm text-slate-600 hover:text-slate-900">
-            <Users className="h-4 w-4" />
+          <Link 
+            to="/admin/customers" 
+            className="text-sm font-medium text-gray-700 hover:text-black transition-colors"
+          >
             Customers
           </Link>
           <Link 
             to="/admin/notifications" 
-            className="relative flex items-center gap-1 text-sm text-slate-600 hover:text-slate-900"
+            className="relative text-sm font-medium text-gray-700 hover:text-black transition-colors"
             onClick={() => dispatch(setUnreadCount(0))}
           >
-            <Bell className="h-4 w-4" />
             Notifications
             {unreadCount > 0 && (
               <span className="absolute -top-2 -right-3 inline-flex items-center justify-center rounded-full bg-red-600 text-white text-[10px] h-4 min-w-4 px-1">
@@ -87,19 +96,18 @@ export default function AdminNavbar() {
             )}
           </Link>
         </nav>
-        <div className="ml-auto flex items-center gap-2 md:ml-4">
-          <ThemeToggle />
-          {user && (
-            <div className="flex items-center gap-2">
-              <span className="text-sm text-slate-600">
-                Admin: {user.name}
-              </span>
-              <Button variant="outline" size="sm" onClick={handleLogout}>
-                Logout
-              </Button>
-            </div>
-          )}
-        </div>
+        
+        {/* Logout Button - Right */}
+        {user && (
+          <Button 
+            variant="outline" 
+            size="sm" 
+            onClick={handleLogout}
+            className="border-gray-300 text-gray-700 hover:bg-gray-50 hover:text-black"
+          >
+            Logout
+          </Button>
+        )}
       </div>
     </header>
   )
