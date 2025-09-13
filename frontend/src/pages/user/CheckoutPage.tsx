@@ -4,6 +4,7 @@ import { useAppSelector, useAppDispatch } from '../../store';
 import { clearCart } from '../../store/cartSlice';
 import { loadStripe } from '@stripe/stripe-js';
 import { Elements, CardElement, useStripe, useElements } from '@stripe/react-stripe-js';
+import { api } from '../../lib/api';
 
 // Initialize Stripe with environment variable
 const stripePromise = loadStripe(import.meta.env.VITE_STRIPE_PUBLISHABLE_KEY || '');
@@ -79,22 +80,15 @@ const CheckoutForm: React.FC<{ onPaymentSuccess: (orderId: string) => void }> = 
 
     try {
       // Create payment intent
-      const response = await fetch('/api/v1/payments/create-payment-intent', {
-        method: 'POST',
-        headers: {
-          'Content-Type': 'application/json',
-          'Authorization': `Bearer ${localStorage.getItem('token')}`,
-        },
-        body: JSON.stringify({
-          items: cartItems.map((item: any) => ({
-            productId: item.id,
-            quantity: item.quantity,
-          })),
-          customerInfo,
-        }),
+      const response = await api.post('/api/v1/payments/create-payment-intent', {
+        items: cartItems.map((item: any) => ({
+          productId: item.id,
+          quantity: item.quantity,
+        })),
+        customerInfo,
       });
 
-      const { clientSecret } = await response.json();
+      const { clientSecret } = response.data;
 
       // Confirm payment
       const { error: stripeError, paymentIntent } = await stripe.confirmCardPayment(clientSecret, {
@@ -118,18 +112,11 @@ const CheckoutForm: React.FC<{ onPaymentSuccess: (orderId: string) => void }> = 
 
       if (paymentIntent.status === 'succeeded') {
         // Confirm payment on backend
-        const confirmResponse = await fetch('/api/v1/payments/confirm-payment', {
-          method: 'POST',
-          headers: {
-            'Content-Type': 'application/json',
-            'Authorization': `Bearer ${localStorage.getItem('token')}`,
-          },
-          body: JSON.stringify({
-            paymentIntentId: paymentIntent.id,
-          }),
+        const confirmResponse = await api.post('/api/v1/payments/confirm-payment', {
+          paymentIntentId: paymentIntent.id,
         });
 
-        const { orderId } = await confirmResponse.json();
+        const { orderId } = confirmResponse.data;
         onPaymentSuccess(orderId);
       }
     } catch (err) {
@@ -144,22 +131,15 @@ const CheckoutForm: React.FC<{ onPaymentSuccess: (orderId: string) => void }> = 
     setError(null);
 
     try {
-      const response = await fetch('/api/v1/payments/create-cod-order', {
-        method: 'POST',
-        headers: {
-          'Content-Type': 'application/json',
-          'Authorization': `Bearer ${localStorage.getItem('token')}`,
-        },
-        body: JSON.stringify({
-          items: cartItems.map((item: any) => ({
-            productId: item.id,
-            quantity: item.quantity,
-          })),
-          customerInfo,
-        }),
+      const response = await api.post('/api/v1/payments/create-cod-order', {
+        items: cartItems.map((item: any) => ({
+          productId: item.id,
+          quantity: item.quantity,
+        })),
+        customerInfo,
       });
 
-      const { orderId } = await response.json();
+      const { orderId } = response.data;
       onPaymentSuccess(orderId);
     } catch (err) {
       setError('Failed to place COD order. Please try again.');
