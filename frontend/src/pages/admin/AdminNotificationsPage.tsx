@@ -1,6 +1,6 @@
 import { useEffect, useState } from 'react'
 import { useAppSelector, useAppDispatch } from '@/store'
-import { fetchNotifications, markAsRead, markAllAsRead, deleteNotification, resetNotifications } from '@/store/notificationSlice'
+import { fetchNotifications, fetchUnreadCount, markAsRead, markAllAsRead, deleteNotification, resetNotifications } from '@/store/notificationSlice'
 import type { Notification } from '@/store/notificationSlice'
 import { Button } from '@/components/ui/button'
 import { Trash2, Check, CheckCheck, Bell, Package, Users, AlertTriangle } from 'lucide-react'
@@ -30,6 +30,7 @@ export default function AdminNotificationsPage() {
   useEffect(() => {
     dispatch(resetNotifications())
     dispatch(fetchNotifications({ page: 1 }))
+    dispatch(fetchUnreadCount()) // Ensure unread count is fetched
   }, [dispatch])
 
   const filteredNotifications = notifications.filter(n => 
@@ -115,6 +116,55 @@ export default function AdminNotificationsPage() {
                 </div>
                 
                 <p className="text-sm text-gray-900 mb-2">{notification.message}</p>
+                
+                {/* Display detailed order information for order notifications */}
+                {notification.type === 'order' && notification.metadata && (
+                  <div className="bg-gray-50 p-3 rounded-lg mb-3">
+                    <h4 className="font-medium text-sm text-gray-900 mb-2">Order Details:</h4>
+                    {/* Debug: Log metadata to console */}
+                    {console.log('Notification metadata:', notification.metadata)}
+                    <div className="grid grid-cols-1 md:grid-cols-2 gap-3 text-xs">
+                      <div>
+                        <span className="font-medium">Customer:</span> {notification.metadata.customerName}
+                      </div>
+                      <div>
+                        <span className="font-medium">Email:</span> {notification.metadata.customerEmail}
+                      </div>
+                      <div>
+                        <span className="font-medium">Phone:</span> {notification.metadata.customerPhone}
+                      </div>
+                      <div>
+                        <span className="font-medium">Payment:</span> {notification.metadata.paymentMethod?.toUpperCase()}
+                      </div>
+                      <div className="md:col-span-2">
+                        <span className="font-medium">Address:</span> {notification.metadata.deliveryAddress}
+                      </div>
+                      <div>
+                        <span className="font-medium">Total:</span> ${notification.metadata.totalAmount}
+                      </div>
+                      <div>
+                        <span className="font-medium">Date:</span> {notification.metadata.orderDate ? new Date(notification.metadata.orderDate).toLocaleDateString() : 'N/A'}
+                      </div>
+                    </div>
+                    
+                    {/* Order Items */}
+                    {notification.metadata.orderItems && notification.metadata.orderItems.length > 0 && (
+                      <div className="mt-3">
+                        <span className="font-medium text-sm">Products:</span>
+                        <div className="mt-1 space-y-1">
+                          {notification.metadata.orderItems.map((item: any, index: number) => (
+                            <div key={index} className="text-xs bg-white p-2 rounded border">
+                              <div className="font-medium">{item.productName}</div>
+                              <div className="text-gray-600">
+                                Qty: {item.quantity} | Size: {item.size} | Price: ${item.price}
+                              </div>
+                            </div>
+                          ))}
+                        </div>
+                      </div>
+                    )}
+                  </div>
+                )}
                 
                 {notification.metadata?.action && (
                   <div className="flex gap-2">

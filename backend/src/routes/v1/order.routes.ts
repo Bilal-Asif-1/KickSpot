@@ -5,8 +5,8 @@ import { listOrders, placeOrder, placeOrderValidators, updateStatus, updateStatu
 const r = Router()
 
 r.get('/', authenticate, listOrders)
-r.post('/', authenticate, authorize(['user']), placeOrderValidators, placeOrder)
-r.put('/:id/status', authenticate, authorize(['admin']), updateStatusValidators, updateStatus)
+r.post('/', authenticate, authorize(['buyer']), placeOrderValidators, placeOrder)
+r.put('/:id/status', authenticate, authorize(['seller']), updateStatusValidators, updateStatus)
 r.delete('/:id', authenticate, deleteOrderValidators, deleteOrder)
 
 export default r

@@ -22,10 +22,10 @@ export async function createProduct(req: Request, res: Response) {
       return res.status(401).json({ message: 'Authentication required' })
     }
 
-    // Check if user is admin
+    // Check if user is seller
     const user = await User.findByPk(seller_id)
-    if (!user || user.role !== 'admin') {
-      return res.status(403).json({ message: 'Only admins can create products' })
+    if (!user || user.role !== 'seller') {
+      return res.status(403).json({ message: 'Only sellers can create products' })
     }
 
     // Validate required fields

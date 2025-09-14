@@ -4,13 +4,13 @@ import { Navigate, useLocation } from 'react-router-dom'
 interface ProtectedRouteProps {
   children: React.ReactNode
   requireAuth?: boolean
-  requireAdmin?: boolean
+  requireSeller?: boolean
 }
 
 export default function ProtectedRoute({ 
   children, 
   requireAuth = true, 
-  requireAdmin = false 
+  requireSeller = false 
 }: ProtectedRouteProps) {
   const { user, token, loading } = useAppSelector(state => state.auth)
   const location = useLocation()
@@ -31,8 +31,8 @@ export default function ProtectedRoute({
     return <Navigate to="/login" state={{ from: location }} replace />
   }
 
-  // If admin access is required but user is not admin
-  if (requireAdmin && user?.role !== 'admin') {
+  // If seller access is required but user is not seller
+  if (requireSeller && user?.role !== 'seller') {
     return <Navigate to="/" replace />
   }
 

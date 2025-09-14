@@ -9,6 +9,7 @@ import { login } from '@/store/authSlice'
 import { Link, useNavigate, useLocation } from 'react-router-dom'
 import { toast } from 'sonner'
 import { SparklesCore } from '@/components/ui/sparkles'
+import { useEffect } from 'react'
 
 const schema = z.object({
   email: z.string().email(),
@@ -20,7 +21,38 @@ export default function LoginPage() {
   const navigate = useNavigate()
   const location = useLocation()
   const { loading, error } = useAppSelector(s => s.auth)
-  const form = useForm<z.infer<typeof schema>>({ resolver: zodResolver(schema), defaultValues: { email: '', password: '' } })
+  
+  // Get registration success message and email from location state
+  const registrationMessage = (location.state as any)?.message
+  const registrationEmail = (location.state as any)?.email
+  
+  const form = useForm<z.infer<typeof schema>>({ 
+    resolver: zodResolver(schema), 
+    defaultValues: { 
+      email: registrationEmail || '', 
+      password: '' 
+    } 
+  })
+
+  // Show registration success message
+  useEffect(() => {
+    if (registrationMessage) {
+      toast.success(registrationMessage, {
+        style: {
+          background: '#10b981',
+          color: '#ffffff',
+          fontWeight: 'bold',
+          borderRadius: '9999px',
+          padding: '10px 16px',
+          fontSize: '14px',
+          border: 'none',
+          boxShadow: '0 4px 12px rgba(0, 0, 0, 0.15)',
+          width: 'fit-content',
+          minWidth: 'auto'
+        }
+      })
+    }
+  }, [registrationMessage])
 
   async function onSubmit(values: z.infer<typeof schema>) {
     const res = await dispatch(login(values))
@@ -44,7 +76,7 @@ export default function LoginPage() {
       })
       
       // Role-based redirect
-      if (user.role === 'admin') {
+      if (user.role === 'seller') {
         navigate(from || '/admin', { replace: true })
       } else {
         navigate(from || '/', { replace: true })

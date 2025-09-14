@@ -17,209 +17,235 @@ export async function getAdminDashboard(req: Request, res: Response) {
       attributes: ['id', 'name', 'email', 'created_at']
     })
 
-    // Get total products for this admin (including archived ones)
-    const totalProducts = await Product.count({
-      where: { seller_id: admin_id }
-    })
+    const user_role = (req as any).user?.role
 
-    // Get order IDs that contain admin's products
-    const adminOrderItems = await OrderItem.findAll({
-      include: [{
-        model: Product,
-        as: 'product',
-        where: { seller_id: admin_id },
-        attributes: []
-      }],
-      attributes: ['order_id'],
-      group: ['order_id']
-    })
-
-    const adminOrderIds = adminOrderItems.map(item => item.order_id)
-
-    // Get total orders for admin's products
-    const totalOrders = adminOrderIds.length
-
-    // Get total revenue from admin's products only
-    const revenueResult = await OrderItem.findAll({
-      attributes: [
-        [sequelize.fn('SUM', sequelize.literal('quantity * price')), 'total_revenue']
-      ],
-      include: [{
-        model: Product,
-        as: 'product',
-        where: { seller_id: admin_id },
-        attributes: []
-      }],
-      raw: true
-    })
-
-    const totalRevenue = revenueResult[0]?.total_revenue || 0
-
-    // Get unique buyers who purchased admin's products
-    const buyerIds = adminOrderIds.length > 0 ? await Order.findAll({
-      where: { id: adminOrderIds },
-      attributes: ['user_id'],
-      group: ['user_id']
-    }) : []
-
-    const totalBuyers = buyerIds.length
-
-    // Get recent orders containing admin's products
-    const recentOrders = adminOrderIds.length > 0 ? await Order.findAll({
-      where: { id: adminOrderIds },
-      include: [{
-        model: OrderItem,
-        as: 'orderItems',
+    if (user_role === 'seller') {
+      // Seller sees only their own data
+      const totalProducts = await Product.count({ where: { seller_id: admin_id } })
+      
+      // Get orders that contain seller's products
+      const sellerOrderItems = await OrderItem.findAll({
         include: [{
           model: Product,
           as: 'product',
           where: { seller_id: admin_id },
-          attributes: ['id', 'name', 'price']
-        }]
-      }, {
-        model: User,
-        as: 'user',
-        attributes: ['id', 'name', 'email']
-      }],
-      order: [['created_at', 'DESC']],
-      limit: 5
-    }) : []
+          attributes: []
+        }],
+        attributes: ['order_id'],
+        group: ['order_id']
+      })
+      
+      const sellerOrderIds = sellerOrderItems.map(item => item.order_id)
+      const totalOrders = sellerOrderIds.length
+      
+      // Calculate revenue from seller's products only
+      const revenueResult = await OrderItem.findAll({
+        include: [{
+          model: Product,
+          as: 'product',
+          where: { seller_id: admin_id },
+          attributes: []
+        }],
+        attributes: [
+          [sequelize.fn('SUM', sequelize.literal('quantity * price')), 'total_revenue']
+        ],
+        raw: true
+      })
+      const totalRevenue = (revenueResult[0] as any)?.total_revenue || 0
+      
+      // Count unique buyers who purchased seller's products
+      const buyerIds = await OrderItem.findAll({
+        include: [{
+          model: Product,
+          as: 'product',
+          where: { seller_id: admin_id },
+          attributes: []
+        }, {
+          model: Order,
+          as: 'order',
+          attributes: ['user_id']
+        }],
+        attributes: [[sequelize.fn('DISTINCT', sequelize.col('order.user_id')), 'user_id']],
+        raw: true
+      })
+      const totalBuyers = buyerIds.length
+      
+      // Get recent orders containing seller's products
+      let recentOrders: any[] = []
+      if (sellerOrderIds.length > 0) {
+        recentOrders = await Order.findAll({
+          where: { id: sellerOrderIds },
+          include: [{
+            model: OrderItem,
+            as: 'orderItems',
+            include: [{
+              model: Product,
+              as: 'product',
+              where: { seller_id: admin_id },
+              attributes: ['id', 'name', 'price']
+            }]
+          }, {
+            model: User,
+            as: 'user',
+          attributes: ['id', 'name', 'email']
+        }],
+        order: [['created_at', 'DESC']],
+        limit: 5
+      })
+      }
 
-    res.json({
-      admin,
-      stats: {
-        totalProducts,
-        totalOrders,
-        totalRevenue: parseFloat(totalRevenue),
-        totalBuyers
-      },
-      recentOrders
-    })
+      res.json({
+        admin,
+        stats: {
+          totalProducts,
+          totalOrders,
+          totalRevenue: parseFloat(totalRevenue),
+          totalBuyers
+        },
+        recentOrders
+      })
+    } else {
+      // Buyer role - return empty dashboard or redirect
+      return res.status(403).json({ message: 'Access denied. Sellers only.' })
+    }
   } catch (error) {
     console.error('Error fetching admin dashboard:', error)
     res.status(500).json({ message: 'Internal server error' })
   }
 }
 
-// Get admin's products
+// Get products (all products for admin, own products for seller)
 export async function getAdminProducts(req: Request, res: Response) {
   try {
-    const admin_id = (req as any).user?.id
-    if (!admin_id) {
+    const user_id = (req as any).user?.id
+    const user_role = (req as any).user?.role
+    if (!user_id) {
       return res.status(401).json({ message: 'Authentication required' })
     }
 
-    const products = await Product.findAll({
-      where: { seller_id: admin_id },
-      include: [{ model: User, as: 'seller', attributes: ['id', 'name', 'email'] }],
-      order: [['created_at', 'DESC']]
-    })
-
-    res.json(products)
+    if (user_role === 'seller') {
+      // Sellers can only see their own products
+      const products = await Product.findAll({
+        where: { seller_id: user_id },
+        include: [{ model: User, as: 'seller', attributes: ['id', 'name', 'email'] }],
+        order: [['created_at', 'DESC']]
+      })
+      res.json(products)
+    } else {
+      // Buyer role - access denied
+      return res.status(403).json({ message: 'Access denied. Sellers only.' })
+    }
   } catch (error) {
-    console.error('Error fetching admin products:', error)
+    console.error('Error fetching products:', error)
     res.status(500).json({ message: 'Internal server error' })
   }
 }
 
-// Get admin's orders (only orders containing admin's products)
+// Get orders (all orders for admin, own orders for seller)
 export async function getAdminOrders(req: Request, res: Response) {
   try {
-    const admin_id = (req as any).user?.id
-    if (!admin_id) {
+    const user_id = (req as any).user?.id
+    const user_role = (req as any).user?.role
+    if (!user_id) {
       return res.status(401).json({ message: 'Authentication required' })
     }
 
-    // First, get all order IDs that contain this admin's products
-    const orderItems = await OrderItem.findAll({
-      include: [{
-        model: Product,
-        as: 'product',
-        where: { seller_id: admin_id },
-        attributes: []
-      }],
-      attributes: ['order_id'],
-      group: ['order_id']
-    })
-
-    const orderIds = orderItems.map(item => item.order_id)
-
-    if (orderIds.length === 0) {
-      return res.json([])
-    }
-
-    // Now get the complete orders with only this admin's products
-    const orders = await Order.findAll({
-      where: { id: orderIds },
-      include: [{
-        model: OrderItem,
-        as: 'orderItems',
+    if (user_role === 'seller') {
+      // Sellers can only see orders containing their products
+      const sellerOrderItems = await OrderItem.findAll({
         include: [{
           model: Product,
           as: 'product',
-          where: { seller_id: admin_id },
-          attributes: ['id', 'name', 'price', 'image_url']
-        }]
-      }, {
-        model: User,
-        as: 'user',
-        attributes: ['id', 'name', 'email']
-      }],
-      order: [['created_at', 'DESC']]
-    })
+          where: { seller_id: user_id },
+          attributes: []
+        }],
+        attributes: ['order_id'],
+        group: ['order_id']
+      })
 
-    res.json(orders)
+      const sellerOrderIds = sellerOrderItems.map(item => item.order_id)
+
+      if (sellerOrderIds.length === 0) {
+        return res.json([])
+      }
+
+      const orders = await Order.findAll({
+        where: { id: sellerOrderIds },
+        include: [{
+          model: OrderItem,
+          as: 'orderItems',
+          include: [{
+            model: Product,
+            as: 'product',
+            where: { seller_id: user_id },
+            attributes: ['id', 'name', 'price', 'image_url']
+          }]
+        }, {
+          model: User,
+          as: 'user',
+          attributes: ['id', 'name', 'email']
+        }],
+        order: [['created_at', 'DESC']]
+      })
+      res.json(orders)
+    } else {
+      // Buyer role - access denied
+      return res.status(403).json({ message: 'Access denied. Sellers only.' })
+    }
   } catch (error) {
-    console.error('Error fetching admin orders:', error)
+    console.error('Error fetching orders:', error)
     res.status(500).json({ message: 'Internal server error' })
   }
 }
 
-// Get admin's buyers (only those who bought admin's products)
+// Get buyers (all users for admin, own customers for seller)
 export async function getAdminBuyers(req: Request, res: Response) {
   try {
-    const admin_id = (req as any).user?.id
-    if (!admin_id) {
+    const user_id = (req as any).user?.id
+    const user_role = (req as any).user?.role
+    if (!user_id) {
       return res.status(401).json({ message: 'Authentication required' })
     }
 
-    // First, get order IDs that contain admin's products
-    const adminOrderItems = await OrderItem.findAll({
-      include: [{
-        model: Product,
-        as: 'product',
-        where: { seller_id: admin_id },
-        attributes: []
-      }],
-      attributes: ['order_id'],
-      group: ['order_id']
-    })
+    if (user_role === 'seller') {
+      // Sellers can only see buyers who purchased their products
+      const sellerOrderItems = await OrderItem.findAll({
+        include: [{
+          model: Product,
+          as: 'product',
+          where: { seller_id: user_id },
+          attributes: []
+        }],
+        attributes: ['order_id'],
+        group: ['order_id']
+      })
 
-    const adminOrderIds = adminOrderItems.map(item => item.order_id)
+      const sellerOrderIds = sellerOrderItems.map(item => item.order_id)
 
-    if (adminOrderIds.length === 0) {
-      return res.json([])
+      if (sellerOrderIds.length === 0) {
+        return res.json([])
+      }
+
+      const buyerOrders = await Order.findAll({
+        where: { id: sellerOrderIds },
+        attributes: ['user_id'],
+        group: ['user_id']
+      })
+
+      const buyerIds = buyerOrders.map(order => order.user_id)
+
+      const buyers = await User.findAll({
+        where: { id: buyerIds, role: 'buyer' },
+        attributes: ['id', 'name', 'email', 'created_at'],
+        order: [['created_at', 'DESC']]
+      })
+      res.json(buyers)
+    } else {
+      // Buyer role - access denied
+      return res.status(403).json({ message: 'Access denied. Sellers only.' })
     }
-
-    // Get unique user IDs who placed these orders
-    const buyerOrders = await Order.findAll({
-      where: { id: adminOrderIds },
-      attributes: ['user_id'],
-      group: ['user_id']
-    })
-
-    const buyerIds = buyerOrders.map(order => order.user_id)
-
-    // Get buyer details
-    const buyers = await User.findAll({
-      where: { id: buyerIds, role: 'user' },
-      attributes: ['id', 'name', 'email', 'created_at'],
-      order: [['created_at', 'DESC']]
-    })
-
-    res.json(buyers)
   } catch (error) {
-    console.error('Error fetching admin buyers:', error)
+    console.error('Error fetching buyers:', error)
     res.status(500).json({ message: 'Internal server error' })
   }
 }

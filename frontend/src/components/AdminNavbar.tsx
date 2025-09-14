@@ -35,17 +35,17 @@ export default function AdminNavbar() {
 
   // Fetch initial unread count when component mounts
   useEffect(() => {
-    if (user?.role === 'admin') {
+    if (user?.role === 'seller') {
       dispatch(fetchUnreadCount())
     }
   }, [dispatch, user])
 
   // Listen for real-time notifications
   useEffect(() => {
-    if (!socket || user?.role !== 'admin') return
+    if (!socket || user?.role !== 'seller') return
     
     const onNotification = (notification: Notification) => {
-      // Only add notifications for this admin
+      // Only add notifications for this seller
       if (notification.admin_id === user.id) {
         dispatch(addNotification(notification))
       }

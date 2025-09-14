@@ -149,7 +149,7 @@ export default function AdminCustomersPage() {
             </CardHeader>
             <CardContent>
               <div className="text-2xl font-bold text-blue-600">
-                {customers.filter(c => c.role === 'user').length}
+                {customers.filter(c => c.role === 'buyer').length}
               </div>
               <p className="text-xs text-slate-500">Regular customers</p>
             </CardContent>
@@ -162,9 +162,9 @@ export default function AdminCustomersPage() {
             </CardHeader>
             <CardContent>
               <div className="text-2xl font-bold text-purple-600">
-                {customers.filter(c => c.role === 'admin').length}
+                {customers.filter(c => c.role === 'seller').length}
               </div>
-              <p className="text-xs text-slate-500">Admin users</p>
+              <p className="text-xs text-slate-500">Seller users</p>
             </CardContent>
           </Card>
         </div>
@@ -246,7 +246,7 @@ export default function AdminCustomersPage() {
                         </div>
                         
                         <Badge className={getRoleColor(customer.role)}>
-                          {customer.role === 'user' ? 'Buyer' : 'Seller'}
+                          {customer.role === 'buyer' ? 'Buyer' : 'Seller'}
                         </Badge>
                         
                         <Button
@@ -312,7 +312,7 @@ export default function AdminCustomersPage() {
                     </div>
                     <div className="flex items-center gap-3">
                       <Badge className={getRoleColor(selectedCustomer.role)}>
-                        {selectedCustomer.role === 'user' ? 'Buyer' : 'Seller'}
+                        {selectedCustomer.role === 'buyer' ? 'Buyer' : 'Seller'}
                       </Badge>
                     </div>
                   </div>
@@ -368,7 +368,7 @@ export default function AdminCustomersPage() {
                 )}
 
                 {/* Business Information (for sellers) */}
-                {selectedCustomer.role === 'admin' && (selectedCustomer.cnicNumber || selectedCustomer.bankAccountNumber || selectedCustomer.bankName) && (
+                {selectedCustomer.role === 'seller' && (selectedCustomer.cnicNumber || selectedCustomer.bankAccountNumber || selectedCustomer.bankName) && (
                   <div>
                     <h4 className="font-semibold text-slate-900 mb-3 flex items-center gap-2">
                       <DollarSign className="h-4 w-4" />

@@ -52,7 +52,19 @@ export default function ProductDetailPage() {
 	const handleAddToCart = () => {
 		if (!product) return
 		if (!size) return
-		dispatch(addToCart({ id: product.id, name: product.name, price: product.price, quantity: 1, image_url: toSrc(product.image_url), category: product.category }))
+		
+		const cartItem = { 
+			id: product.id, 
+			name: product.name, 
+			price: product.price, 
+			quantity: 1, 
+			image_url: toSrc(product.image_url), 
+			category: product.category,
+			size: size // Include the selected size
+		};
+		
+		console.log('Adding to cart with size:', cartItem);
+		dispatch(addToCart(cartItem))
 		
 		// Show confirmation message on the page (stays until user leaves)
 		setItemAdded(true)

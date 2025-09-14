@@ -9,7 +9,7 @@ export const registerValidators = [
   body('name').isString().isLength({ min: 2 }),
   body('email').isEmail(),
   body('password').isLength({ min: 6 }),
-  body('role').optional().isIn(['user', 'admin']),
+  body('role').optional().isIn(['buyer', 'seller']),
   // Common fields for both buyers and sellers
   body('contactNumber').isString().isLength({ min: 10 }),
   body('deliveryAddress').optional().isString(),
@@ -34,7 +34,7 @@ export async function register(req: Request, res: Response) {
     name, 
     email, 
     password, 
-    role = 'user',
+    role = 'buyer',
     // Common fields for both buyers and sellers
     contactNumber,
     deliveryAddress,
@@ -45,8 +45,8 @@ export async function register(req: Request, res: Response) {
     bankName
   } = req.body
 
-  // Custom validation: delivery address required for customers, not for sellers
-  if (role === 'user' && (!deliveryAddress || deliveryAddress.trim().length < 10)) {
+  // Custom validation: delivery address required for buyers, not for sellers
+  if (role === 'buyer' && (!deliveryAddress || deliveryAddress.trim().length < 10)) {
     return res.status(400).json({ 
       message: 'Delivery address is required for customers',
       errors: [{ field: 'deliveryAddress', message: 'Delivery address is required for customers' }]
@@ -54,7 +54,7 @@ export async function register(req: Request, res: Response) {
   }
 
   // Custom validation: seller fields required for sellers
-  if (role === 'admin') {
+  if (role === 'seller') {
     if (!businessAddress || businessAddress.trim().length === 0) {
       return res.status(400).json({ 
         message: 'Business address is required for sellers',
@@ -92,8 +92,8 @@ export async function register(req: Request, res: Response) {
   
   console.log('👤 Creating user with data:', {
     name, email, role, contactNumber,
-    deliveryAddress: role === 'user' ? deliveryAddress : 'N/A for seller',
-    businessAddress: role === 'admin' ? businessAddress : 'N/A for customer',
+    deliveryAddress: role === 'buyer' ? deliveryAddress : 'N/A for seller',
+    businessAddress: role === 'seller' ? businessAddress : 'N/A for customer',
     cnicNumber, bankAccountNumber, bankName
   })
   
@@ -104,9 +104,9 @@ export async function register(req: Request, res: Response) {
     role,
     // Common fields
     contactNumber,
-    // Delivery address only for customers, business address for sellers
-    ...(role === 'user' && deliveryAddress && { deliveryAddress }),
-    ...(role === 'admin' && businessAddress && { businessAddress }),
+    // Delivery address only for buyers, business address for sellers
+    ...(role === 'buyer' && deliveryAddress && { deliveryAddress }),
+    ...(role === 'seller' && businessAddress && { businessAddress }),
     // Seller-specific fields (only if provided)
     ...(cnicNumber && { cnicNumber }),
     ...(bankAccountNumber && { bankAccountNumber }),
@@ -164,7 +164,7 @@ export async function me(req: Request, res: Response) {
   if (!header?.startsWith('Bearer ')) return res.status(401).json({ message: 'Unauthorized' })
   const token = header.slice(7)
   try {
-    const payload = jwt.verify(token, process.env.JWT_SECRET || 'secret') as { id: number; role: 'admin' | 'user' }
+    const payload = jwt.verify(token, process.env.JWT_SECRET || 'secret') as { id: number; role: 'seller' | 'buyer' }
     const user = await User.findByPk(payload.id)
     if (!user) return res.status(401).json({ message: 'Unauthorized' })
     return res.json({ 

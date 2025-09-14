@@ -46,6 +46,7 @@ type Order = {
     }; 
     quantity: number; 
     price: number;
+    size?: string;
   }>;
 }
 
@@ -436,6 +437,7 @@ export default function AdminOrdersPage() {
                           <div className="flex-1">
                             <p className="font-medium">{item.product.name}</p>
                             <p className="text-sm text-slate-500">Quantity: {item.quantity}</p>
+                            {item.size && <p className="text-sm text-slate-500">Size: {item.size}</p>}
                           </div>
                           <div className="text-right">
                             <p className="font-medium">${item.price.toFixed(2)}</p>

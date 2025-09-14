@@ -42,7 +42,7 @@ export default function BuyerNavbar() {
 
   // Fetch initial unread count when component mounts
   useEffect(() => {
-    if (user?.role === 'user') {
+    if (user?.role === 'buyer') {
       console.log('🔔 Fetching unread count for user:', user.id)
       dispatch(fetchUnreadCount())
     }
@@ -56,7 +56,7 @@ export default function BuyerNavbar() {
 
   // Listen for real-time notifications
   useEffect(() => {
-    if (!socket || user?.role !== 'user') return
+    if (!socket || user?.role !== 'buyer') return
     
     const onNotification = (notification: Notification) => {
       // Only add notifications for this user
@@ -109,13 +109,13 @@ export default function BuyerNavbar() {
           <Link to="/products?category=Men" className="text-sm">Men</Link>
           <Link to="/products?category=Women" className="text-sm">Women</Link>
           <Link to="/products?category=Kids" className="text-sm">Kids</Link>
-          {user?.role === 'admin' && (
-            <Link to="/admin" className="text-sm font-medium">Admin</Link>
+          {user?.role === 'seller' && (
+            <Link to="/admin" className="text-sm font-medium">Seller Dashboard</Link>
           )}
           {user && (
             <Link to="/orders" className="text-sm">My Orders</Link>
           )}
-          {user && user.role === 'user' && (
+          {user && user.role === 'buyer' && (
             <button 
               onClick={() => handleNotificationDrawerToggle(true)}
               className="relative flex items-center gap-1 text-sm text-slate-600 hover:text-slate-900"
@@ -153,7 +153,7 @@ export default function BuyerNavbar() {
           {user ? (
             <div className="flex items-center gap-2">
               <span className="text-sm text-muted-foreground">
-                {user.name} {user.role === 'admin' ? '(Admin)' : ''}
+                {user.name} {user.role === 'seller' ? '(Seller)' : ''}
               </span>
               <Button variant="outline" size="sm" onClick={handleLogout}>
                 Logout

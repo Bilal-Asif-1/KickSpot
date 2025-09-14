@@ -4,9 +4,9 @@ import { getAdminDashboard, getAdminProducts, getAdminOrders, getAdminBuyers, up
 
 const r = Router()
 
-// All admin routes require authentication and admin role
+// All admin routes require authentication and seller role
 r.use(authenticate)
-r.use(authorize(['admin']))
+r.use(authorize(['seller']))
 
 // Admin dashboard
 r.get('/dashboard', getAdminDashboard)

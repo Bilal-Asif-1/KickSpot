@@ -7,7 +7,7 @@ import { Input } from '@/components/ui/input'
 import { Button } from '@/components/ui/button'
 import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from '@/components/ui/select'
 import { useAppDispatch, useAppSelector } from '@/store'
-import { registerUser, login } from '@/store/authSlice'
+import { registerUser } from '@/store/authSlice'
 import { Link, useNavigate } from 'react-router-dom'
 import { toast } from 'sonner'
 import { SparklesCore } from '@/components/ui/sparkles'
@@ -16,7 +16,7 @@ const schema = z.object({
   name: z.string().min(2),
   email: z.string().email(),
   password: z.string().min(6),
-  role: z.enum(['user', 'admin']),
+  role: z.enum(['buyer', 'seller']),
   // Common fields for both buyers and sellers
   contactNumber: z.string().min(10),
   deliveryAddress: z.string().min(10).optional(),
@@ -26,18 +26,18 @@ const schema = z.object({
   bankAccountNumber: z.string().optional(),
   bankName: z.string().optional(),
 }).refine((data) => {
-  // If role is user (customer), deliveryAddress is required
-  if (data.role === 'user') {
+  // If role is buyer, deliveryAddress is required
+  if (data.role === 'buyer') {
     return data.deliveryAddress && data.deliveryAddress.trim().length > 0
   }
-  // For sellers (admin), delivery address is not required
+  // For sellers, delivery address is not required
   return true
 }, {
-  message: "Delivery address is required for customers",
+  message: "Delivery address is required for buyers",
   path: ["deliveryAddress"]
 }).refine((data) => {
-  // If role is admin (seller), make seller fields required
-  if (data.role === 'admin') {
+  // If role is seller, make seller fields required
+  if (data.role === 'seller') {
     return data.businessAddress && data.businessAddress.trim().length > 0 &&
            data.cnicNumber && data.cnicNumber.trim().length > 0 &&
            data.bankAccountNumber && data.bankAccountNumber.trim().length > 0 &&
@@ -53,14 +53,14 @@ export default function RegisterPage() {
   const dispatch = useAppDispatch()
   const navigate = useNavigate()
   const { loading, error } = useAppSelector(s => s.auth)
-  const [selectedRole, setSelectedRole] = useState<'user' | 'admin'>('user')
+  const [selectedRole, setSelectedRole] = useState<'buyer' | 'seller'>('buyer')
   const form = useForm<z.infer<typeof schema>>({ 
     resolver: zodResolver(schema), 
     defaultValues: { 
       name: '', 
       email: '', 
       password: '', 
-      role: 'user',
+      role: 'buyer',
       contactNumber: '',
       deliveryAddress: '',
       businessAddress: '',
@@ -97,14 +97,14 @@ export default function RegisterPage() {
         }
       })
       
-      // Role-based redirect after successful registration
-      if (user.role === 'admin') {
-        console.log('Redirecting to admin dashboard')
-        navigate('/admin')
-      } else {
-        console.log('Redirecting to home page')
-        navigate('/')
-      }
+      // Redirect to login page with success message
+      console.log('Registration successful, redirecting to login')
+      navigate('/login', { 
+        state: { 
+          message: `Registration successful! Welcome to KickSpot, ${user.name}! Please login to continue.`,
+          email: user.email 
+        } 
+      })
     } else {
       const error = (res as any).payload || (res as any).error?.message || 'Registration failed'
       console.error('Registration failed:', error)
@@ -160,7 +160,7 @@ export default function RegisterPage() {
 
           {/* Registration Form - Right Side */}
           <div className={`bg-white/10 backdrop-blur-md rounded-2xl p-5 border border-white/20 shadow-2xl mx-auto transition-all duration-300 m-0 ${
-            selectedRole === 'admin' ? 'max-w-2xl' : 'max-w-sm'
+            selectedRole === 'seller' ? 'max-w-2xl' : 'max-w-sm'
           }`}>
             <div className="text-center mb-4">
               <h2 className="text-xl font-bold text-white mb-1">Create Account</h2>
@@ -175,7 +175,7 @@ export default function RegisterPage() {
                     <FormLabel className="text-white font-medium text-sm">Account Type</FormLabel>
                     <Select onValueChange={(value) => {
                       field.onChange(value)
-                      setSelectedRole(value as 'user' | 'admin')
+                      setSelectedRole(value as 'buyer' | 'seller')
                     }} defaultValue={field.value}>
                       <FormControl>
                         <SelectTrigger className="bg-white/20 border-white/30 text-white focus:border-white/50 h-10">
@@ -183,8 +183,8 @@ export default function RegisterPage() {
                         </SelectTrigger>
                       </FormControl>
                       <SelectContent className="bg-gray-800 border-gray-600">
-                        <SelectItem value="user" className="text-white hover:bg-gray-700">Customer (Buyer)</SelectItem>
-                        <SelectItem value="admin" className="text-white hover:bg-gray-700">Seller (Admin)</SelectItem>
+                        <SelectItem value="buyer" className="text-white hover:bg-gray-700">Customer (Buyer)</SelectItem>
+                        <SelectItem value="seller" className="text-white hover:bg-gray-700">Seller</SelectItem>
                       </SelectContent>
                     </Select>
                     <FormMessage className="text-red-300 text-xs" />
@@ -192,7 +192,7 @@ export default function RegisterPage() {
                 )} />
 
                 {/* Customer fields - Show when Customer is selected */}
-                {selectedRole === 'user' && (
+                {selectedRole === 'buyer' && (
                   <div className="space-y-3">
                     <div className="grid grid-cols-2 gap-3">
                       <FormField name="name" control={form.control} render={({ field }) => (
@@ -273,7 +273,7 @@ export default function RegisterPage() {
                 )}
 
                 {/* Seller fields - Show when Seller is selected */}
-                {selectedRole === 'admin' && (
+                {selectedRole === 'seller' && (
                   <div className="space-y-3">
                     <div className="grid grid-cols-2 gap-4">
                       {/* Left Column */}
@@ -421,7 +421,7 @@ export default function RegisterPage() {
                     
                     // Clean up the data - remove empty deliveryAddress for sellers
                     const cleanValues = { ...values }
-                    if (cleanValues.role === 'admin' && (!cleanValues.deliveryAddress || cleanValues.deliveryAddress.trim() === '')) {
+                    if (cleanValues.role === 'seller' && (!cleanValues.deliveryAddress || cleanValues.deliveryAddress.trim() === '')) {
                       delete cleanValues.deliveryAddress
                     }
                     

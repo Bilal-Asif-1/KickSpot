@@ -5,7 +5,14 @@ import { Trash2, ArrowLeft, Package, Calendar, DollarSign, AlertCircle } from 'l
 import { toast } from 'sonner'
 import { useNavigate } from 'react-router-dom'
 
-type Order = { id: number; total_price: number; status: string }
+type Order = { 
+  id: number; 
+  total_price: number; 
+  status: string; 
+  created_at: string;
+  payment_method?: string;
+  payment_status?: string;
+}
 
 export default function OrdersPage() {
   const navigate = useNavigate()
@@ -23,7 +30,13 @@ export default function OrdersPage() {
         setLoading(true)
         setError(undefined)
         const res = await api.get<Order[]>('/api/v1/orders')
-        setOrders(res.data)
+        // Sort orders by created_at date (newest first)
+        const sortedOrders = res.data.sort((a, b) => {
+          const dateA = new Date(a.created_at).getTime()
+          const dateB = new Date(b.created_at).getTime()
+          return dateB - dateA // Newest first
+        })
+        setOrders(sortedOrders)
       } catch (e: any) {
         setError(e?.response?.data?.message || e?.message || 'Failed to load orders')
       } finally {
@@ -152,7 +165,7 @@ export default function OrdersPage() {
                         <div>
                           <p className="text-sm font-semibold text-gray-500 uppercase tracking-wide">Order Date</p>
                           <p className="text-lg font-semibold text-gray-700">
-                            {order.createdAt ? new Date(order.createdAt).toLocaleDateString('en-US', { 
+                            {order.created_at ? new Date(order.created_at).toLocaleDateString('en-US', { 
                               month: 'short', 
                               day: 'numeric', 
                               year: 'numeric' 
@@ -160,6 +173,23 @@ export default function OrdersPage() {
                           </p>
                         </div>
                       </div>
+                      {order.payment_method && (
+                        <div className="flex items-center gap-3">
+                          <div className="w-5 h-5 flex items-center justify-center">
+                            {order.payment_method === 'cod' ? (
+                              <span className="text-yellow-600 font-bold text-sm">COD</span>
+                            ) : (
+                              <span className="text-green-600 font-bold text-sm">CARD</span>
+                            )}
+                          </div>
+                          <div>
+                            <p className="text-sm font-semibold text-gray-500 uppercase tracking-wide">Payment</p>
+                            <p className="text-lg font-semibold text-gray-700">
+                              {order.payment_method === 'cod' ? 'Cash on Delivery' : 'Credit/Debit Card'}
+                            </p>
+                          </div>
+                        </div>
+                      )}
                     </div>
                   </div>
 

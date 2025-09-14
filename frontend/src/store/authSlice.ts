@@ -2,12 +2,13 @@ import { createSlice, createAsyncThunk } from '@reduxjs/toolkit'
 import type { PayloadAction } from '@reduxjs/toolkit'
 import axios from 'axios'
 import { api } from '@/lib/api'
+import { fetchNotifications } from './notificationSlice'
 
 interface User { 
   id: number; 
   name: string; 
   email: string; 
-  role: 'admin' | 'user';
+  role: 'seller' | 'buyer';
   contactNumber?: string;
   deliveryAddress?: string;
   businessAddress?: string;
@@ -40,10 +41,17 @@ const initialState: AuthState = {
 
 export const login = createAsyncThunk(
   'auth/login',
-  async (payload: { email: string; password: string }, { rejectWithValue }) => {
+  async (payload: { email: string; password: string }, { rejectWithValue, dispatch }) => {
     try {
       const res = await axios.post(`${import.meta.env.VITE_API_URL || 'http://localhost:5000'}/api/v1/auth/login`, payload)
-      return res.data as { token: string; user: User }
+      const data = res.data as { token: string; user: User }
+      
+      // Fetch notifications after successful login
+      if (data.user.role === 'seller') {
+        dispatch(fetchNotifications({ page: 1, limit: 20 }))
+      }
+      
+      return data
     } catch (error: any) {
       return rejectWithValue(error.response?.data?.message || 'Login failed')
     }
@@ -56,7 +64,7 @@ export const registerUser = createAsyncThunk(
     name: string; 
     email: string; 
     password: string; 
-    role: 'user' | 'admin';
+    role: 'buyer' | 'seller';
     contactNumber: string;
     deliveryAddress?: string;
     businessAddress?: string;
@@ -66,14 +74,14 @@ export const registerUser = createAsyncThunk(
   }, { rejectWithValue }) => {
     try {
       const res = await axios.post(`${import.meta.env.VITE_API_URL || 'http://localhost:5000'}/api/v1/auth/register`, payload)
-      return res.data as { id: number; name: string; email: string; role: 'user' | 'admin' }
+      return res.data as { id: number; name: string; email: string; role: 'buyer' | 'seller' }
     } catch (error: any) {
       return rejectWithValue(error.response?.data?.message || 'Registration failed')
     }
   }
 )
 
-export const fetchCurrentUser = createAsyncThunk('auth/me', async (_, { rejectWithValue, getState }) => {
+export const fetchCurrentUser = createAsyncThunk('auth/me', async (_, { rejectWithValue, getState, dispatch }) => {
   try {
     const state = getState() as any
     const token: string | undefined = state.auth?.token || localStorage.getItem('token') || undefined
@@ -81,6 +89,12 @@ export const fetchCurrentUser = createAsyncThunk('auth/me', async (_, { rejectWi
     const res = await axios.get<User>(`${import.meta.env.VITE_API_URL || 'http://localhost:5000'}/api/v1/auth/me`, {
       headers: { Authorization: `Bearer ${token}` }
     })
+    
+    // Fetch notifications for sellers when app loads
+    if (res.data.role === 'seller') {
+      dispatch(fetchNotifications({ page: 1, limit: 20 }))
+    }
+    
     return { user: res.data, token }
   } catch (error: any) {
     return rejectWithValue(error.response?.data?.message || 'Unauthorized')
@@ -130,7 +144,7 @@ const authSlice = createSlice({
         state.loading = true
         state.error = undefined
       })
-      .addCase(registerUser.fulfilled, (state, action: PayloadAction<{ id: number; name: string; email: string; role: 'user' | 'admin' }>) => {
+      .addCase(registerUser.fulfilled, (state, action: PayloadAction<{ id: number; name: string; email: string; role: 'buyer' | 'seller' }>) => {
         state.loading = false
         state.user = action.payload
         state.error = undefined

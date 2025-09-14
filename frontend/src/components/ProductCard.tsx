@@ -23,8 +23,8 @@ export default function ProductCard({ product }: { product: Product }) {
       navigate('/login', { state: { from: { pathname: '/' } } })
       return
     }
-    if (user.role === 'admin') {
-      // Admins cannot buy products
+    if (user.role === 'seller') {
+      // Sellers cannot buy products
       return
     }
     

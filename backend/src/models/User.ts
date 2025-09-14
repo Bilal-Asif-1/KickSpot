@@ -6,7 +6,7 @@ export class User extends Model {
   declare name: string
   declare email: string
   declare password: string
-  declare role: 'admin' | 'user'
+  declare role: 'seller' | 'buyer'
   // Common fields for both buyers and sellers
   declare contactNumber: string
   declare deliveryAddress: string
@@ -23,7 +23,7 @@ User.init(
     name: { type: DataTypes.STRING, allowNull: false },
     email: { type: DataTypes.STRING, allowNull: false, unique: true },
     password: { type: DataTypes.STRING, allowNull: false },
-    role: { type: DataTypes.ENUM('admin', 'user'), allowNull: false, defaultValue: 'user' },
+    role: { type: DataTypes.ENUM('seller', 'buyer'), allowNull: false, defaultValue: 'buyer' },
     // Common fields for both buyers and sellers
     contactNumber: { type: DataTypes.STRING, allowNull: false },
     deliveryAddress: { type: DataTypes.TEXT, allowNull: true },

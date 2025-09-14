@@ -11,12 +11,17 @@ export async function getNotifications(req: AuthRequest, res: Response) {
     const page = parseInt(req.query.page as string) || 1
     const limit = parseInt(req.query.limit as string) || 20
 
+    console.log(`Fetching notifications for user ${userId} with role ${userRole}`);
+
     let result
     if (userRole === 'admin') {
       result = await NotificationService.getAdminNotifications(userId, page, limit)
     } else {
+      // For regular users (including sellers), get their notifications
       result = await NotificationService.getUserNotifications(userId, page, limit)
     }
+    
+    console.log(`Found ${result.notifications.length} notifications for user ${userId}`);
     res.json(result)
   } catch (error) {
     console.error('Error fetching notifications:', error)
@@ -40,6 +45,7 @@ export async function getUnreadCount(req: AuthRequest, res: Response) {
     if (userRole === 'admin') {
       count = await NotificationService.getUnreadCount(userId)
     } else {
+      // For regular users (including sellers), get their unread count
       count = await NotificationService.getUserUnreadCount(userId)
     }
     res.json({ count })

@@ -17,8 +17,8 @@ export default function Navbar() {
           {user && (
             <>
               <Link to="/orders" className="text-sm">Orders</Link>
-              {user.role === 'admin' && (
-                <Link to="/admin" className="text-sm">Admin</Link>
+              {user.role === 'seller' && (
+                <Link to="/admin" className="text-sm">Seller Dashboard</Link>
               )}
             </>
           )}
@@ -32,7 +32,7 @@ export default function Navbar() {
           {user ? (
             <div className="flex items-center gap-2">
               <span className="text-sm text-muted-foreground">
-                {user.name} ({user.role === 'user' ? 'Buyer' : 'Admin'})
+                {user.name} ({user.role === 'buyer' ? 'Buyer' : 'Seller'})
               </span>
               <Button variant="outline" size="sm" onClick={() => dispatch(logoutUser())}>
                 Logout

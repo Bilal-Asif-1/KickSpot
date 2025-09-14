@@ -89,9 +89,19 @@ const notificationSlice = createSlice({
   initialState,
   reducers: {
     addNotification: (state, action: PayloadAction<Notification>) => {
+      // Parse metadata from JSON string to object
+      const notification = {
+        ...action.payload,
+        metadata: action.payload.metadata ? 
+          (typeof action.payload.metadata === 'string' ? 
+            JSON.parse(action.payload.metadata) : 
+            action.payload.metadata) : 
+          undefined
+      }
+      
       // Add new notification to the beginning of the list
-      state.notifications.unshift(action.payload)
-      if (!action.payload.is_read) {
+      state.notifications.unshift(notification)
+      if (!notification.is_read) {
         state.unreadCount += 1
       }
     },
@@ -116,10 +126,24 @@ const notificationSlice = createSlice({
         state.loading = false
         const { notifications, page, hasMore, totalPages } = action.payload
         
+        // Parse metadata from JSON string to object
+        const parsedNotifications = notifications.map((notification: any) => ({
+          ...notification,
+          metadata: notification.metadata ? 
+            (typeof notification.metadata === 'string' ? 
+              JSON.parse(notification.metadata) : 
+              notification.metadata) : 
+            undefined
+        }))
+        
         if (page === 1) {
-          state.notifications = notifications
+          state.notifications = parsedNotifications
+          // Calculate unread count from all notifications
+          state.unreadCount = parsedNotifications.filter(n => !n.is_read).length
         } else {
-          state.notifications.push(...notifications)
+          state.notifications.push(...parsedNotifications)
+          // Update unread count when loading more
+          state.unreadCount = state.notifications.filter(n => !n.is_read).length
         }
         
         state.page = page

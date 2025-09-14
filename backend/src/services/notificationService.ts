@@ -78,7 +78,7 @@ export class NotificationService {
       is_read: false
     }
     
-    if (userRole === 'admin') {
+    if (userRole === 'seller') {
       whereClause.admin_id = userId
     } else {
       whereClause.user_id = userId
@@ -288,7 +288,7 @@ export class NotificationService {
   static async deleteNotification(notificationId: number, userId: number, userRole: string): Promise<boolean> {
     const whereClause: any = { id: notificationId }
     
-    if (userRole === 'admin') {
+    if (userRole === 'seller') {
       whereClause.admin_id = userId
     } else {
       whereClause.user_id = userId
@@ -299,8 +299,8 @@ export class NotificationService {
   }
 
   // Login notification for all users
-  static async createLoginNotification(userId: number, userRole: 'admin' | 'user', deviceInfo?: any) {
-    const notificationData = {
+  static async createLoginNotification(userId: number, userRole: 'seller' | 'buyer', deviceInfo?: any) {
+    const notificationData: any = {
       type: 'account_security' as const,
       title: 'Login Successful',
       message: `Welcome back! You have successfully logged in.`,
@@ -312,7 +312,7 @@ export class NotificationService {
       }
     }
 
-    if (userRole === 'admin') {
+    if (userRole === 'seller') {
       notificationData.admin_id = userId
     } else {
       notificationData.user_id = userId

@@ -129,9 +129,9 @@ export async function listOrders(req: AuthRequest, res: Response) {
     { model: OrderItem, as: 'orderItems', include: [{ model: Product, as: 'product' }] }
   ]
 
-  if (req.user!.role === 'admin') {
-    // Admin should only see orders containing their products
-    const adminOrderItems = await OrderItem.findAll({
+  if (req.user!.role === 'seller') {
+    // Seller should only see orders containing their products
+    const sellerOrderItems = await OrderItem.findAll({
       include: [{
         model: Product,
         as: 'product',
@@ -142,14 +142,14 @@ export async function listOrders(req: AuthRequest, res: Response) {
       group: ['order_id']
     })
 
-    const adminOrderIds = adminOrderItems.map(item => item.order_id)
+    const sellerOrderIds = sellerOrderItems.map(item => item.order_id)
     
-    if (adminOrderIds.length === 0) {
+    if (sellerOrderIds.length === 0) {
       return res.json([])
     }
 
     const orders = await Order.findAll({ 
-      where: { id: adminOrderIds },
+      where: { id: sellerOrderIds },
       include: [{
         model: OrderItem, 
         as: 'orderItems', 
@@ -161,9 +161,11 @@ export async function listOrders(req: AuthRequest, res: Response) {
       }]
     })
     return res.json(orders)
+  } else {
+    // Buyer can only see their own orders
+    const orders = await Order.findAll({ where: { user_id: req.user!.id }, include: commonInclude })
+    res.json(orders)
   }
-  const orders = await Order.findAll({ where: { user_id: req.user!.id }, include: commonInclude })
-  res.json(orders)
 }
 
 export const updateStatusValidators = [
@@ -226,16 +228,16 @@ export async function deleteOrder(req: AuthRequest, res: Response) {
     }
     
     // Check permissions
-    if (userRole === 'admin') {
-      // Admin can only delete orders that contain their products
-      const hasAdminProducts = order.orderItems?.some(item => 
+    if (userRole === 'seller') {
+      // Seller can only delete orders that contain their products
+      const hasSellerProducts = order.orderItems?.some(item => 
         item.product?.seller_id === userId
       )
-      if (!hasAdminProducts) {
+      if (!hasSellerProducts) {
         return res.status(403).json({ message: 'You can only delete orders containing your products' })
       }
     } else {
-      // Regular user can only delete their own orders
+      // Buyer can only delete their own orders
       if (order.user_id !== userId) {
         return res.status(403).json({ message: 'You can only delete your own orders' })
       }

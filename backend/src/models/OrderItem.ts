@@ -7,6 +7,7 @@ export class OrderItem extends Model {
   declare product_id: number
   declare quantity: number
   declare price: number
+  declare size?: string
 }
 
 OrderItem.init(
@@ -16,6 +17,7 @@ OrderItem.init(
     product_id: { type: DataTypes.INTEGER.UNSIGNED, allowNull: false },
     quantity: { type: DataTypes.INTEGER.UNSIGNED, allowNull: false },
     price: { type: DataTypes.FLOAT.UNSIGNED, allowNull: false },
+    size: { type: DataTypes.STRING, allowNull: true },
   },
   { sequelize, tableName: 'order_items', timestamps: false }
 )
