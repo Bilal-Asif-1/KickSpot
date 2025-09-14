@@ -112,11 +112,11 @@ export default function AdminOrdersPage() {
 
   const getStatusIcon = (status: string) => {
     switch (status) {
-      case 'pending': return <Clock className="h-4 w-4" />
-      case 'processing': return <Activity className="h-4 w-4" />
-      case 'delivered': return <CheckCircle className="h-4 w-4" />
-      case 'cancelled': return <XCircle className="h-4 w-4" />
-      default: return <Clock className="h-4 w-4" />
+      case 'pending': return <Clock className="h-3 w-3 sm:h-4 sm:w-4" />
+      case 'processing': return <Activity className="h-3 w-3 sm:h-4 sm:w-4" />
+      case 'delivered': return <CheckCircle className="h-3 w-3 sm:h-4 sm:w-4" />
+      case 'cancelled': return <XCircle className="h-3 w-3 sm:h-4 sm:w-4" />
+      default: return <Clock className="h-3 w-3 sm:h-4 sm:w-4" />
     }
   }
 
@@ -210,45 +210,45 @@ export default function AdminOrdersPage() {
 
   return (
     <div className="min-h-screen bg-gradient-to-br from-slate-50 to-slate-100">
-      <div className="mx-auto max-w-7xl p-6">
+      <div className="mx-auto max-w-7xl p-2 sm:p-4 lg:p-6">
         {/* Header */}
-        <div className="mb-8">
-          <h1 className="text-4xl font-bold text-slate-900 mb-2">Order Management</h1>
-          <p className="text-slate-600 text-lg">Manage customer orders and track their status</p>
+        <div className="mb-4 sm:mb-6 lg:mb-8">
+          <h1 className="text-xl sm:text-2xl lg:text-4xl font-bold text-slate-900 mb-1 sm:mb-2">Order Management</h1>
+          <p className="text-slate-600 text-sm sm:text-base lg:text-lg">Manage customer orders and track their status</p>
         </div>
 
         {error && (
-          <div className="mb-6 p-4 bg-red-50 border border-red-200 rounded-lg">
-            <p className="text-red-600">{error}</p>
+          <div className="mb-4 sm:mb-6 p-2 sm:p-3 lg:p-4 bg-red-50 border border-red-200 rounded-lg">
+            <p className="text-red-600 text-sm sm:text-base">{error}</p>
           </div>
         )}
 
         {loading && (
-          <div className="flex items-center justify-center py-12">
-            <div className="animate-spin rounded-full h-8 w-8 border-b-2 border-slate-900"></div>
-            <span className="ml-2 text-slate-600">Loading orders...</span>
+          <div className="flex items-center justify-center py-6 sm:py-8 lg:py-12">
+            <div className="animate-spin rounded-full h-6 w-6 sm:h-8 sm:w-8 border-b-2 border-slate-900"></div>
+            <span className="ml-2 text-slate-600 text-sm sm:text-base">Loading orders...</span>
           </div>
         )}
 
         {/* Filters and Search */}
-        <Card className="mb-6">
-          <CardContent className="p-6">
-            <div className="flex flex-col md:flex-row gap-4">
+        <Card className="mb-4 sm:mb-6">
+          <CardContent className="p-3 sm:p-4 lg:p-6">
+            <div className="flex flex-col md:flex-row gap-3 sm:gap-4">
               <div className="flex-1">
                 <div className="relative">
-                  <Search className="absolute left-3 top-1/2 transform -translate-y-1/2 text-slate-400 h-4 w-4" />
+                  <Search className="absolute left-2 sm:left-3 top-1/2 transform -translate-y-1/2 text-slate-400 h-3 w-3 sm:h-4 sm:w-4" />
                   <Input
                     placeholder="Search orders by ID, customer name, or email..."
                     value={searchTerm}
                     onChange={(e) => setSearchTerm(e.target.value)}
-                    className="pl-10"
+                    className="pl-8 sm:pl-10 text-sm sm:text-base"
                   />
                 </div>
               </div>
               <div className="flex gap-2">
                 <Select value={statusFilter} onValueChange={setStatusFilter}>
-                  <SelectTrigger className="w-[180px]">
-                    <Filter className="h-4 w-4 mr-2" />
+                  <SelectTrigger className="w-[140px] sm:w-[180px] text-xs sm:text-sm">
+                    <Filter className="h-3 w-3 sm:h-4 sm:w-4 mr-1 sm:mr-2" />
                     <SelectValue placeholder="Filter by status" />
                   </SelectTrigger>
                   <SelectContent>
@@ -266,56 +266,57 @@ export default function AdminOrdersPage() {
 
         {/* Orders List */}
         <Card>
-          <CardHeader>
-            <CardTitle className="flex items-center gap-2">
-              <Package className="h-5 w-5" />
+          <CardHeader className="p-3 sm:p-4 lg:p-6">
+            <CardTitle className="flex items-center gap-1 sm:gap-2 text-sm sm:text-lg lg:text-xl">
+              <Package className="h-4 w-4 sm:h-5 sm:w-5" />
               Orders ({filteredOrders.length})
             </CardTitle>
-            <CardDescription>
+            <CardDescription className="text-xs sm:text-sm">
               {searchTerm || statusFilter !== 'all' 
                 ? `Filtered results from ${orders.length} total orders`
                 : 'All customer orders'
               }
             </CardDescription>
           </CardHeader>
-          <CardContent>
-            <div className="space-y-4">
+          <CardContent className="p-3 sm:p-4 lg:p-6">
+            <div className="space-y-3 sm:space-y-4">
               {filteredOrders.length > 0 ? (
                 filteredOrders.map(order => (
-                  <div key={order.id} className="border rounded-lg p-4 hover:bg-slate-50 transition-colors">
-                    <div className="flex items-center justify-between">
-                      <div className="flex items-center gap-4">
-                        <div className="flex items-center gap-2">
+                  <div key={order.id} className="border rounded-lg p-2 sm:p-3 lg:p-4 hover:bg-slate-50 transition-colors">
+                    <div className="flex flex-col sm:flex-row sm:items-center justify-between gap-3 sm:gap-4">
+                      <div className="flex items-center gap-2 sm:gap-3 lg:gap-4">
+                        <div className="flex items-center gap-1 sm:gap-2">
                           {getStatusIcon(order.status)}
-                          <span className="font-semibold text-lg">#{order.id}</span>
+                          <span className="font-semibold text-sm sm:text-base lg:text-lg">#{order.id}</span>
                         </div>
                         <div>
-                          <p className="font-medium text-slate-900">
+                          <p className="font-medium text-slate-900 text-xs sm:text-sm lg:text-base">
                             {order.user?.name || `Customer #${order.user_id}`}
                           </p>
-                          <p className="text-sm text-slate-500">{order.user?.email}</p>
+                          <p className="text-xs sm:text-sm text-slate-500">{order.user?.email}</p>
                         </div>
                       </div>
                       
-                      <div className="flex items-center gap-4">
+                      <div className="flex items-center justify-between sm:justify-end gap-2 sm:gap-4">
                         <div className="text-right">
-                          <p className="font-semibold text-lg">${order.total_price.toFixed(2)}</p>
-                          <p className="text-sm text-slate-500">
+                          <p className="font-semibold text-sm sm:text-base lg:text-lg">${order.total_price.toFixed(2)}</p>
+                          <p className="text-xs sm:text-sm text-slate-500">
                             {order.created_at ? new Date(order.created_at).toLocaleDateString() : 'N/A'}
                           </p>
                         </div>
                         
-                        <Badge className={getStatusColor(order.status)}>
+                        <Badge className={`text-xs ${getStatusColor(order.status)}`}>
                           {order.status}
                         </Badge>
                         
-                        <div className="flex gap-2">
+                        <div className="flex gap-1 sm:gap-2">
                           <Button
                             variant="outline"
                             size="sm"
                             onClick={() => handleViewOrderDetails(order)}
+                            className="h-7 w-7 sm:h-8 sm:w-8 p-0"
                           >
-                            <Eye className="h-4 w-4" />
+                            <Eye className="h-3 w-3 sm:h-4 sm:w-4" />
                           </Button>
                           
                           {order.status === 'pending' && (
@@ -323,6 +324,7 @@ export default function AdminOrdersPage() {
                               variant="outline"
                               size="sm"
                               onClick={() => handleUpdateOrderStatus(order.id, 'processing')}
+                              className="text-xs px-2 py-1"
                             >
                               Process
                             </Button>
@@ -333,6 +335,7 @@ export default function AdminOrdersPage() {
                               variant="outline"
                               size="sm"
                               onClick={() => handleUpdateOrderStatus(order.id, 'delivered')}
+                              className="text-xs px-2 py-1"
                             >
                               Deliver
                             </Button>
@@ -343,12 +346,12 @@ export default function AdminOrdersPage() {
                             size="sm"
                             onClick={() => handleDeleteOrder(order.id)}
                             disabled={deletingId === order.id}
-                            className="text-red-600 hover:text-red-700"
+                            className="text-red-600 hover:text-red-700 h-7 w-7 sm:h-8 sm:w-8 p-0"
                           >
                             {deletingId === order.id ? (
-                              <div className="animate-spin rounded-full h-4 w-4 border-b-2 border-red-600"></div>
+                              <div className="animate-spin rounded-full h-3 w-3 sm:h-4 sm:w-4 border-b-2 border-red-600"></div>
                             ) : (
-                              <Trash2 className="h-4 w-4" />
+                              <Trash2 className="h-3 w-3 sm:h-4 sm:w-4" />
                             )}
                           </Button>
                         </div>
@@ -357,10 +360,10 @@ export default function AdminOrdersPage() {
                   </div>
                 ))
               ) : (
-                <div className="text-center py-12">
-                  <Package className="h-16 w-16 mx-auto mb-4 text-slate-300" />
-                  <h3 className="text-lg font-medium text-slate-900 mb-2">No orders found</h3>
-                  <p className="text-slate-500">
+                <div className="text-center py-6 sm:py-8 lg:py-12">
+                  <Package className="h-12 w-12 sm:h-14 sm:w-14 lg:h-16 lg:w-16 mx-auto mb-3 sm:mb-4 text-slate-300" />
+                  <h3 className="text-base sm:text-lg font-medium text-slate-900 mb-1 sm:mb-2">No orders found</h3>
+                  <p className="text-slate-500 text-sm sm:text-base">
                     {searchTerm || statusFilter !== 'all' 
                       ? 'Try adjusting your search or filter criteria'
                       : 'No orders have been placed yet'
@@ -374,74 +377,74 @@ export default function AdminOrdersPage() {
 
         {/* Order Details Modal */}
         {showOrderDetails && selectedOrder && (
-          <div className="fixed inset-0 bg-black/50 backdrop-blur-sm flex items-center justify-center p-4 z-50">
+          <div className="fixed inset-0 bg-black/50 backdrop-blur-sm flex items-center justify-center p-2 sm:p-4 z-50">
             <div className="bg-white rounded-xl shadow-2xl max-w-2xl w-full max-h-[90vh] overflow-y-auto">
-              <div className="p-6 border-b">
-                <h3 className="text-xl font-semibold text-slate-900">
+              <div className="p-3 sm:p-4 lg:p-6 border-b">
+                <h3 className="text-lg sm:text-xl font-semibold text-slate-900">
                   Order Details #{selectedOrder.id}
                 </h3>
-                <p className="text-sm text-slate-600 mt-1">
+                <p className="text-xs sm:text-sm text-slate-600 mt-1">
                   Customer order information and items
                 </p>
               </div>
-              <div className="p-6 space-y-6">
+              <div className="p-3 sm:p-4 lg:p-6 space-y-4 sm:space-y-6">
                 {/* Customer Info */}
                 <div>
-                  <h4 className="font-semibold text-slate-900 mb-3 flex items-center gap-2">
-                    <User className="h-4 w-4" />
+                  <h4 className="font-semibold text-slate-900 mb-2 sm:mb-3 flex items-center gap-1 sm:gap-2 text-sm sm:text-base">
+                    <User className="h-3 w-3 sm:h-4 sm:w-4" />
                     Customer Information
                   </h4>
-                  <div className="bg-slate-50 rounded-lg p-4 space-y-2">
-                    <p><span className="font-medium">Name:</span> {selectedOrder.user?.name || 'N/A'}</p>
-                    <p><span className="font-medium">Email:</span> {selectedOrder.user?.email || 'N/A'}</p>
-                    <p><span className="font-medium">Contact:</span> {selectedOrder.user?.contactNumber || 'N/A'}</p>
-                    <p><span className="font-medium">Address:</span> {selectedOrder.user?.deliveryAddress || 'N/A'}</p>
+                  <div className="bg-slate-50 rounded-lg p-2 sm:p-3 lg:p-4 space-y-1 sm:space-y-2">
+                    <p className="text-xs sm:text-sm"><span className="font-medium">Name:</span> {selectedOrder.user?.name || 'N/A'}</p>
+                    <p className="text-xs sm:text-sm"><span className="font-medium">Email:</span> {selectedOrder.user?.email || 'N/A'}</p>
+                    <p className="text-xs sm:text-sm"><span className="font-medium">Contact:</span> {selectedOrder.user?.contactNumber || 'N/A'}</p>
+                    <p className="text-xs sm:text-sm"><span className="font-medium">Address:</span> {selectedOrder.user?.deliveryAddress || 'N/A'}</p>
                   </div>
                 </div>
 
                 {/* Order Info */}
                 <div>
-                  <h4 className="font-semibold text-slate-900 mb-3 flex items-center gap-2">
-                    <Calendar className="h-4 w-4" />
+                  <h4 className="font-semibold text-slate-900 mb-2 sm:mb-3 flex items-center gap-1 sm:gap-2 text-sm sm:text-base">
+                    <Calendar className="h-3 w-3 sm:h-4 sm:w-4" />
                     Order Information
                   </h4>
-                  <div className="bg-slate-50 rounded-lg p-4 space-y-2">
-                    <p><span className="font-medium">Order ID:</span> #{selectedOrder.id}</p>
-                    <p><span className="font-medium">Status:</span> 
-                      <Badge className={`ml-2 ${getStatusColor(selectedOrder.status)}`}>
+                  <div className="bg-slate-50 rounded-lg p-2 sm:p-3 lg:p-4 space-y-1 sm:space-y-2">
+                    <p className="text-xs sm:text-sm"><span className="font-medium">Order ID:</span> #{selectedOrder.id}</p>
+                    <p className="text-xs sm:text-sm flex items-center"><span className="font-medium">Status:</span> 
+                      <Badge className={`ml-2 text-xs ${getStatusColor(selectedOrder.status)}`}>
                         {selectedOrder.status}
                       </Badge>
                     </p>
-                    <p><span className="font-medium">Total:</span> ${selectedOrder.total_price.toFixed(2)}</p>
-                    <p><span className="font-medium">Date:</span> {selectedOrder.created_at ? new Date(selectedOrder.created_at).toLocaleString() : 'N/A'}</p>
+                    <p className="text-xs sm:text-sm"><span className="font-medium">Total:</span> ${selectedOrder.total_price.toFixed(2)}</p>
+                    <p className="text-xs sm:text-sm"><span className="font-medium">Date:</span> {selectedOrder.created_at ? new Date(selectedOrder.created_at).toLocaleString() : 'N/A'}</p>
                   </div>
                 </div>
 
                 {/* Order Items */}
                 {selectedOrder.items && selectedOrder.items.length > 0 && (
                   <div>
-                    <h4 className="font-semibold text-slate-900 mb-3 flex items-center gap-2">
-                      <Package className="h-4 w-4" />
+                    <h4 className="font-semibold text-slate-900 mb-2 sm:mb-3 flex items-center gap-1 sm:gap-2 text-sm sm:text-base">
+                      <Package className="h-3 w-3 sm:h-4 sm:w-4" />
                       Order Items
                     </h4>
-                    <div className="space-y-3">
+                    <div className="space-y-2 sm:space-y-3">
                       {selectedOrder.items.map((item, index) => (
-                        <div key={index} className="flex items-center gap-4 p-3 border rounded-lg">
+                        <div key={index} className="flex items-center gap-2 sm:gap-3 lg:gap-4 p-2 sm:p-3 border rounded-lg">
                           {item.product.image_url && (
                             <img 
                               src={item.product.image_url.startsWith('http') ? item.product.image_url : `${import.meta.env.VITE_API_URL || 'http://localhost:5000'}${item.product.image_url}`} 
                               alt={item.product.name}
-                              className="w-12 h-12 object-cover rounded"
+                              className="w-8 h-8 sm:w-10 sm:h-10 lg:w-12 lg:h-12 object-cover rounded"
                             />
                           )}
                           <div className="flex-1">
-                            <p className="font-medium">{item.product.name}</p>
-                            <p className="text-sm text-slate-500">Quantity: {item.quantity}</p>
-                            {item.size && <p className="text-sm text-slate-500">Size: {item.size}</p>}
+                            <p className="font-medium text-xs sm:text-sm lg:text-base">{item.product.name}</p>
+                            <p className="text-xs sm:text-sm text-slate-500">Quantity: {item.quantity}</p>
+                            {item.size && <p className="text-xs sm:text-sm text-slate-500">Size: {item.size}</p>}
                           </div>
                           <div className="text-right">
-                            <p className="font-medium">${item.price.toFixed(2)}</p>
-                            <p className="text-sm text-slate-500">each</p>
+                            <p className="font-medium text-xs sm:text-sm lg:text-base">${item.price.toFixed(2)}</p>
+                            <p className="text-xs sm:text-sm text-slate-500">each</p>
                           </div>
                         </div>
                       ))}
@@ -449,15 +452,15 @@ export default function AdminOrdersPage() {
                   </div>
                 )}
               </div>
-              <div className="p-6 border-t flex justify-end gap-3">
-                <Button variant="outline" onClick={() => setShowOrderDetails(false)}>
+              <div className="p-3 sm:p-4 lg:p-6 border-t flex flex-col sm:flex-row justify-end gap-2 sm:gap-3">
+                <Button variant="outline" onClick={() => setShowOrderDetails(false)} size="sm" className="text-xs sm:text-sm">
                   Close
                 </Button>
                 {selectedOrder.status === 'pending' && (
                   <Button onClick={() => {
                     handleUpdateOrderStatus(selectedOrder.id, 'processing')
                     setShowOrderDetails(false)
-                  }}>
+                  }} size="sm" className="text-xs sm:text-sm">
                     Mark as Processing
                   </Button>
                 )}
@@ -465,7 +468,7 @@ export default function AdminOrdersPage() {
                   <Button onClick={() => {
                     handleUpdateOrderStatus(selectedOrder.id, 'delivered')
                     setShowOrderDetails(false)
-                  }}>
+                  }} size="sm" className="text-xs sm:text-sm">
                     Mark as Delivered
                   </Button>
                 )}

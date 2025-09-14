@@ -57,6 +57,7 @@ const CheckoutForm: React.FC<{ onPaymentSuccess: (orderId: string, paymentMethod
   const [paymentMethod, setPaymentMethod] = useState<string>('stripe');
   const [loading, setLoading] = useState(false);
   const [error, setError] = useState<string | null>(null);
+  const errorRef = React.useRef<HTMLDivElement>(null);
 
   const paymentMethods: PaymentMethod[] = [
     {
@@ -186,6 +187,13 @@ const CheckoutForm: React.FC<{ onPaymentSuccess: (orderId: string, paymentMethod
 
     if (!customerInfo.name || !customerInfo.email || !customerInfo.phone || !customerInfo.address) {
       setError('Please fill in all required fields');
+      // Scroll to error message
+      setTimeout(() => {
+        errorRef.current?.scrollIntoView({ 
+          behavior: 'smooth', 
+          block: 'center' 
+        });
+      }, 100);
       return;
     }
 
@@ -315,7 +323,7 @@ const CheckoutForm: React.FC<{ onPaymentSuccess: (orderId: string, paymentMethod
 
             {/* Error Message */}
             {error && (
-              <div className="bg-red-50 border border-red-200 rounded-md p-3">
+              <div ref={errorRef} className="bg-red-50 border border-red-200 rounded-md p-3">
                 <p className="text-red-600 text-sm">{error}</p>
               </div>
             )}
@@ -395,12 +403,13 @@ const CheckoutPage: React.FC = () => {
   const navigate = useNavigate();
   const dispatch = useAppDispatch();
   const { items: cartItems } = useAppSelector((state) => state.cart);
+  const [isProcessingPayment, setIsProcessingPayment] = useState(false);
 
   useEffect(() => {
-    if (cartItems.length === 0) {
+    if (cartItems.length === 0 && !isProcessingPayment) {
       navigate('/cart');
     }
-  }, [cartItems, navigate]);
+  }, [cartItems, navigate, isProcessingPayment]);
 
   const totalAmount = cartItems.reduce((total: number, item: any) => total + (item.price * item.quantity), 0);
   const shipping = 0; // Free shipping
@@ -408,6 +417,9 @@ const CheckoutPage: React.FC = () => {
   const finalTotal = totalAmount + shipping + tax;
 
   const handlePaymentSuccess = (orderId: string, paymentMethod: string, customerInfo: any) => {
+    // Set processing flag to prevent redirect to cart
+    setIsProcessingPayment(true);
+    
     // Navigate first, then clear cart
     navigate('/thank-you', {
       state: {

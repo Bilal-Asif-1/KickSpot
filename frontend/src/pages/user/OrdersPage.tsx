@@ -109,62 +109,72 @@ export default function OrdersPage() {
 
   return (
     <div className="min-h-screen bg-black">
-      <main className="mx-auto max-w-6xl px-4 pt-12 pb-16">
+      <main className="mx-auto max-w-6xl px-2 sm:px-4 lg:px-6 pt-3 sm:pt-8 lg:pt-12 pb-6 sm:pb-12 lg:pb-16">
         {/* Header */}
-        <div className="mb-12">
-          <h1 className="text-5xl font-bold text-white mb-4">Order History</h1>
-          <p className="text-gray-400 text-xl">View and manage your order history</p>
+        <div className="mb-4 sm:mb-8 lg:mb-12">
+          <h1 className="text-lg sm:text-3xl md:text-4xl lg:text-5xl font-bold text-white mb-1 sm:mb-3 lg:mb-4">Order History</h1>
+          <p className="text-gray-400 text-xs sm:text-base lg:text-xl">View and manage your order history</p>
         </div>
 
         {/* Loading State */}
         {loading && (
-          <div className="text-center py-16">
-            <div className="animate-spin rounded-full h-12 w-12 border-b-2 border-white mx-auto mb-4"></div>
-            <p className="text-white text-lg">Loading your orders...</p>
+          <div className="text-center py-6 sm:py-12 lg:py-16">
+            <div className="animate-spin rounded-full h-6 w-6 sm:h-10 sm:w-10 lg:h-12 lg:w-12 border-b-2 border-white mx-auto mb-2 sm:mb-4"></div>
+            <p className="text-white text-xs sm:text-base lg:text-lg">Loading your orders...</p>
           </div>
         )}
 
         {/* Error State */}
         {error && (
-          <div className="bg-red-50 border border-red-200 rounded-xl p-6 mb-8">
-            <div className="flex items-center gap-3">
-              <AlertCircle className="w-6 h-6 text-red-600" />
-              <p className="text-red-700 text-lg font-medium">{error}</p>
+          <div className="bg-red-50 border border-red-200 rounded-lg sm:rounded-xl p-3 sm:p-6 mb-4 sm:mb-8">
+            <div className="flex items-center gap-2 sm:gap-3">
+              <AlertCircle className="w-4 h-4 sm:w-6 sm:h-6 text-red-600 flex-shrink-0" />
+              <p className="text-red-700 text-xs sm:text-base lg:text-lg font-medium">{error}</p>
             </div>
           </div>
         )}
 
         {/* Orders List */}
         {!loading && !error && (
-          <div className="space-y-4">
+          <div className="space-y-2 sm:space-y-4">
             {orders.map(order => (
-              <div key={order.id} className="bg-white border border-gray-200 rounded-xl p-6 hover:shadow-lg transition-shadow">
-                <div className="flex items-center justify-between">
+              <div key={order.id} className="bg-white border border-gray-200 rounded-lg sm:rounded-xl p-3 sm:p-6 hover:shadow-lg transition-shadow">
+                <div className="flex flex-col lg:flex-row lg:items-center lg:justify-between gap-3 lg:gap-6">
                   {/* Order Info */}
                   <div className="flex-1">
-                    <div className="flex items-center gap-4 mb-4">
-                      <div className="flex items-center gap-2">
-                        <Package className="w-6 h-6 text-gray-700" />
-                        <h3 className="text-2xl font-bold text-gray-900">Order #{order.id}</h3>
+                    <div className="flex flex-col sm:flex-row sm:items-center gap-2 sm:gap-4 mb-3 sm:mb-4">
+                      <div className="flex items-center gap-1.5 sm:gap-2">
+                        <Package className="w-4 h-4 sm:w-6 sm:h-6 text-gray-700 flex-shrink-0" />
+                        <h3 className="text-base sm:text-xl lg:text-2xl font-bold text-gray-900">Order #{order.id}</h3>
                       </div>
-                      <span className={`px-4 py-2 rounded-full text-sm font-bold ${getStatusColor(order.status)}`}>
+                      <span className={`px-2 sm:px-4 py-1 sm:py-2 rounded-full text-xs sm:text-sm font-bold ${getStatusColor(order.status)} w-fit`}>
                         {order.status.toUpperCase()}
                       </span>
                     </div>
                     
-                    <div className="flex items-center gap-8">
-                      <div className="flex items-center gap-3">
-                        <DollarSign className="w-5 h-5 text-gray-600" />
-                        <div>
-                          <p className="text-sm font-semibold text-gray-500 uppercase tracking-wide">Total Amount</p>
-                          <p className="text-2xl font-bold text-gray-900">${order.total_price.toFixed(2)}</p>
+                    <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 gap-3 sm:gap-6 lg:gap-8">
+                      <div className="flex items-center gap-1.5 sm:gap-3">
+                        <DollarSign className="w-3 h-3 sm:w-5 sm:h-5 text-gray-600 flex-shrink-0" />
+                        <div className="min-w-0">
+                          <p className="text-xs font-semibold text-gray-500 uppercase tracking-wide">Total Amount</p>
+                          <p className="text-sm sm:text-xl lg:text-2xl font-bold text-gray-900">${order.total_price.toFixed(2)}</p>
                         </div>
                       </div>
-                      <div className="flex items-center gap-3">
-                        <Calendar className="w-5 h-5 text-gray-600" />
-                        <div>
-                          <p className="text-sm font-semibold text-gray-500 uppercase tracking-wide">Order Date</p>
-                          <p className="text-lg font-semibold text-gray-700">
+                      {order.payment_method && (
+                        <div className="flex items-center gap-1.5 sm:gap-3">
+                          <div className="min-w-0">
+                            <p className="text-xs font-semibold text-gray-500 uppercase tracking-wide">Payment</p>
+                            <p className="text-xs sm:text-base lg:text-lg font-semibold text-gray-700">
+                              {order.payment_method === 'cod' ? 'Cash on Delivery' : 'Credit/Debit Card'}
+                            </p>
+                          </div>
+                        </div>
+                      )}
+                      <div className="flex items-center gap-1.5 sm:gap-3">
+                        <Calendar className="w-3 h-3 sm:w-5 sm:h-5 text-gray-600 flex-shrink-0" />
+                        <div className="min-w-0">
+                          <p className="text-xs font-semibold text-gray-500 uppercase tracking-wide">Order Date</p>
+                          <p className="text-xs sm:text-base lg:text-lg font-semibold text-gray-700">
                             {order.created_at ? new Date(order.created_at).toLocaleDateString('en-US', { 
                               month: 'short', 
                               day: 'numeric', 
@@ -173,41 +183,24 @@ export default function OrdersPage() {
                           </p>
                         </div>
                       </div>
-                      {order.payment_method && (
-                        <div className="flex items-center gap-3">
-                          <div className="w-5 h-5 flex items-center justify-center">
-                            {order.payment_method === 'cod' ? (
-                              <span className="text-yellow-600 font-bold text-sm">COD</span>
-                            ) : (
-                              <span className="text-green-600 font-bold text-sm">CARD</span>
-                            )}
-                          </div>
-                          <div>
-                            <p className="text-sm font-semibold text-gray-500 uppercase tracking-wide">Payment</p>
-                            <p className="text-lg font-semibold text-gray-700">
-                              {order.payment_method === 'cod' ? 'Cash on Delivery' : 'Credit/Debit Card'}
-                            </p>
-                          </div>
-                        </div>
-                      )}
                     </div>
                   </div>
 
                   {/* Action Button */}
-                  <div className="ml-6">
+                  <div className="flex justify-end lg:justify-start">
                     <Button
                       onClick={() => handleDeleteOrder(order.id)}
                       disabled={deletingId === order.id}
-                      className="bg-black hover:bg-gray-800 text-white px-6 py-3 font-semibold"
+                      className="bg-black hover:bg-gray-800 text-white px-3 sm:px-6 py-1.5 sm:py-3 font-semibold text-xs sm:text-base w-full sm:w-auto"
                     >
                       {deletingId === order.id ? (
-                        <div className="flex items-center gap-2">
-                          <div className="animate-spin rounded-full h-4 w-4 border-b-2 border-white"></div>
+                        <div className="flex items-center gap-1.5 sm:gap-2">
+                          <div className="animate-spin rounded-full h-2.5 w-2.5 sm:h-4 sm:w-4 border-b-2 border-white"></div>
                           <span>Deleting...</span>
                         </div>
                       ) : (
-                        <div className="flex items-center gap-2">
-                          <Trash2 className="h-4 w-4" />
+                        <div className="flex items-center gap-1.5 sm:gap-2">
+                          <Trash2 className="h-2.5 w-2.5 sm:h-4 sm:w-4" />
                           <span>Delete Order</span>
                         </div>
                       )}
@@ -219,19 +212,19 @@ export default function OrdersPage() {
 
             {/* Empty State */}
             {orders.length === 0 && (
-              <div className="text-center py-16">
-                <Package className="w-24 h-24 text-gray-400 mx-auto mb-6" />
-                <h2 className="text-3xl font-bold text-white mb-4">No orders yet</h2>
-                <p className="text-gray-400 text-lg mb-8">Start shopping to see your order history here!</p>
+              <div className="text-center py-6 sm:py-12 lg:py-16">
+                <Package className="w-12 h-12 sm:w-20 sm:h-20 lg:w-24 lg:h-24 text-gray-400 mx-auto mb-3 sm:mb-6" />
+                <h2 className="text-lg sm:text-2xl lg:text-3xl font-bold text-white mb-2 sm:mb-4">No orders yet</h2>
+                <p className="text-gray-400 text-xs sm:text-base lg:text-lg mb-4 sm:mb-8">Start shopping to see your order history here!</p>
                 <Button 
                   onClick={() => navigate('/')}
-                  className="bg-black hover:bg-gray-800 text-white px-8 py-3 font-semibold"
+                  className="bg-black hover:bg-gray-800 text-white px-4 sm:px-8 py-1.5 sm:py-3 font-semibold text-xs sm:text-base"
                 >
                   Start Shopping
                 </Button>
               </div>
             )}
-          </div>
+            </div>
         )}
       </main>
     </div>

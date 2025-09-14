@@ -18,17 +18,7 @@ export default function ProductCard({ product }: { product: Product }) {
   // Inline add-to-cart handled via Buy Now in this card layout
 
   const handleBuyNow = () => {
-    if (!user) {
-      // Redirect to login with return path
-      navigate('/login', { state: { from: { pathname: '/' } } })
-      return
-    }
-    if (user.role === 'seller') {
-      // Sellers cannot buy products
-      return
-    }
-    
-    // Just navigate to product detail page without adding to cart
+    // Always navigate to product detail page first
     navigate(`/products/${product.id}`, { replace: false })
   }
 
@@ -71,10 +61,13 @@ export default function ProductCard({ product }: { product: Product }) {
   }
 
   return (
-    <Card className="relative w-full aspect-[0.77] overflow-hidden bg-white rounded-2xl shadow-lg border-15 border-black">
+    <Card 
+      className="relative w-full aspect-[0.77] overflow-hidden bg-white rounded-2xl shadow-lg border-15 border-black cursor-pointer"
+      onClick={handleBuyNow}
+    >
       {/* Sale Badge */}
       {product.isOnSale && (
-        <div className="absolute top-1 sm:top-2 left-1 sm:left-2 z-10 bg-red-500 text-white px-1.5 sm:px-2 py-0.5 sm:py-1 rounded-md text-xs sm:text-xs font-bold">
+        <div className="absolute top-0.5 sm:top-1 md:top-2 left-0.5 sm:left-1 md:left-2 z-10 bg-red-500 text-white px-0.5 sm:px-1 md:px-1.5 lg:px-2 py-0.5 sm:py-0.5 md:py-1 rounded text-xs sm:text-xs md:text-xs font-bold">
           {product.discount}% OFF
         </div>
       )}
@@ -82,7 +75,7 @@ export default function ProductCard({ product }: { product: Product }) {
       {/* Favorite Heart Button */}
       <button
         onClick={handleToggleFavorite}
-        className={`absolute top-1 sm:top-2 right-1 sm:right-2 z-10 p-1.5 sm:p-2 rounded-full transition-all duration-200 hover:scale-110 ${
+        className={`absolute top-1 sm:top-1.5 md:top-2 right-1 sm:right-1.5 md:right-2 z-10 p-1 sm:p-1.5 md:p-2 rounded-full transition-all duration-200 hover:scale-110 ${
           isFavorite 
             ? 'bg-red-500 text-white shadow-lg' 
             : 'bg-white/80 text-gray-600 hover:bg-white hover:text-red-500'
@@ -90,7 +83,7 @@ export default function ProductCard({ product }: { product: Product }) {
         title={isFavorite ? 'Remove from favorites' : 'Add to favorites'}
       >
         <Heart 
-          className={`w-3 h-3 sm:w-4 sm:h-4 ${isFavorite ? 'fill-current' : ''}`} 
+          className={`w-3 h-3 sm:w-3.5 sm:h-3.5 md:w-4 md:h-4 ${isFavorite ? 'fill-current' : ''}`} 
         />
       </button>
       
@@ -113,13 +106,13 @@ export default function ProductCard({ product }: { product: Product }) {
       
       {/* Bottom Overlay with Buy Now and Price */}
       <div className="absolute bottom-0 left-0 right-0 bg-gradient-to-t from-black/80 to-transparent p-2 sm:p-3 md:p-4">
-        <div className="flex items-center justify-between gap-2">
+        <div className="flex items-center justify-between gap-2 sm:gap-3">
           {/* Buy Now Button - Bottom Left */}
           <Button 
             onClick={handleBuyNow}
-            className="bg-white text-black hover:bg-gray-100 font-semibold px-2 sm:px-3 md:px-4 py-1 sm:py-1.5 md:py-2 rounded-md text-xs sm:text-sm md:text-base flex-shrink-0"
+            className="bg-white text-black hover:bg-gray-100 font-semibold px-2 sm:px-3 md:px-4 py-1 sm:py-1.5 md:py-2 rounded text-xs sm:text-sm md:text-base flex-shrink-0 h-6 sm:h-7 md:h-8"
           >
-            {user ? 'Buy Now' : 'Login to Buy'}
+            View Details
           </Button>
           
           {/* Price - Bottom Right */}

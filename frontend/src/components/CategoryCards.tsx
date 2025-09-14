@@ -1,10 +1,9 @@
-import React, { useState, useRef } from 'react'
+import { useRef } from 'react'
 import { useNavigate } from 'react-router-dom'
 import { ChevronLeft, ChevronRight } from 'lucide-react'
 
 export function CategoryCards() {
   const navigate = useNavigate()
-  const [currentIndex, setCurrentIndex] = useState(0)
   const scrollContainerRef = useRef<HTMLDivElement>(null)
 
   const handleCategoryClick = (category: string) => {
@@ -85,17 +84,17 @@ export function CategoryCards() {
         </div>
 
         {/* Mobile/Tablet Carousel Layout */}
-        <div className="md:hidden relative">
+        <div className="md:hidden relative category-carousel-container">
           <div 
             ref={scrollContainerRef}
-            className="flex gap-3 overflow-x-auto scrollbar-hide snap-x snap-mandatory px-4"
+            className="flex gap-2 sm:gap-3 overflow-x-auto scrollbar-hide snap-x snap-mandatory px-2 sm:px-4 category-carousel"
             style={{ scrollbarWidth: 'none', msOverflowStyle: 'none' }}
           >
-            {categories.map((category, index) => (
+            {categories.map((category) => (
               <div 
                 key={category.id} 
                 className="flex-shrink-0 snap-center" 
-                style={{ width: 'calc(80vw - 32px)' }}
+                style={{ width: 'calc(70vw - 16px)' }}
               >
                 <CategoryCard 
                   category={category}
@@ -128,24 +127,24 @@ export function CategoryCards() {
 function CategoryCard({ category, onClick }: { category: any, onClick: () => void }) {
   return (
     <div 
-      className="group relative aspect-[0.77] overflow-hidden rounded-[12px] sm:rounded-[16px] md:rounded-[20px] cursor-pointer transition-all duration-500 group-hover:rounded-[24px] sm:group-hover:rounded-[32px] md:group-hover:rounded-[40px]"
+      className="group relative aspect-[0.77] overflow-hidden rounded-[12px] sm:rounded-[16px] md:rounded-[20px] cursor-pointer transition-transform duration-300 ease-out category-card"
       onClick={onClick}
     >
-      <div className="absolute inset-0">
+      <div className="absolute inset-0 overflow-hidden rounded-[12px] sm:rounded-[16px] md:rounded-[20px]">
         <img 
           src={category.image} 
           alt={category.title} 
-          className="w-full h-full object-cover transition-all duration-500 group-hover:scale-105"
+          className="w-full h-full object-cover transition-all duration-300 ease-out group-hover:scale-110 group-hover:rounded-[60px]"
         />
         <div className="absolute inset-0 bg-black/20 group-hover:bg-black/10 transition-colors duration-300"></div>
       </div>
       
-      <div className="absolute inset-0 z-20 flex flex-col items-center justify-center gap-2 sm:gap-3 md:gap-4">
-        <h2 className="text-white text-lg sm:text-xl md:text-2xl lg:text-3xl font-semibold px-3 sm:px-4 md:px-6 py-2 sm:py-2.5 md:py-3 border border-white/30 rounded-full bg-white/10 backdrop-blur-sm">
+      <div className="absolute inset-0 z-20 flex flex-col items-center justify-center gap-1 sm:gap-2 md:gap-3 lg:gap-4">
+        <h2 className="text-white text-sm sm:text-lg md:text-xl lg:text-2xl xl:text-3xl font-semibold px-2 sm:px-3 md:px-4 lg:px-6 py-1 sm:py-2 md:py-2.5 lg:py-3 rounded-full bg-black/20 sm:bg-white/10 backdrop-blur-sm transition-transform duration-300 group-hover:scale-105">
           {category.title}
         </h2>
-        <div className="flex flex-col items-center gap-2 sm:gap-3 opacity-0 group-hover:opacity-100 transition-opacity duration-300">
-          <button className="px-4 sm:px-6 md:px-8 py-2 sm:py-2.5 md:py-3 bg-white/20 backdrop-blur-sm border border-white/30 rounded-full text-white text-xs sm:text-sm md:text-base font-medium hover:bg-white/30 transition-colors">
+        <div className="flex flex-col items-center gap-1 sm:gap-2 md:gap-3 opacity-0 group-hover:opacity-100 transition-opacity duration-300">
+          <button className="px-2 sm:px-4 md:px-6 lg:px-8 py-1 sm:py-2 md:py-2.5 lg:py-3 bg-black/30 sm:bg-white/20 backdrop-blur-sm rounded-full text-white text-xs sm:text-xs md:text-sm lg:text-base font-medium hover:bg-white/30 transition-colors">
             {category.buttonText}
           </button>
         </div>

@@ -194,13 +194,13 @@ export default function CartDrawer({ isOpen, onClose }: CartDrawerProps) {
       />
       
       {/* Cart Drawer */}
-      <div className="fixed right-0 top-0 h-full w-[480px] bg-white shadow-xl z-[200] transform transition-transform duration-300 ease-in-out overflow-hidden flex flex-col isolate" style={{ zIndex: 200 }}>
+      <div className="fixed right-0 top-0 h-full w-full sm:w-96 md:w-[480px] bg-white shadow-xl z-[200] transform transition-transform duration-300 ease-in-out overflow-hidden flex flex-col isolate" style={{ zIndex: 200 }}>
         
         {/* Header */}
-        <div className="flex items-center justify-between p-4 border-b bg-white relative z-10 isolate">
+        <div className="flex items-center justify-between p-3 sm:p-4 border-b bg-white relative z-10 isolate">
           <div className="flex items-center space-x-2">
-            <ShoppingBag className="h-5 w-5 text-gray-600" />
-            <h2 className="text-lg font-semibold text-gray-900">
+            <ShoppingBag className="h-4 w-4 sm:h-5 sm:w-5 text-gray-600" />
+            <h2 className="text-base sm:text-lg font-semibold text-gray-900">
               CART ({itemCount})
             </h2>
           </div>
@@ -209,29 +209,29 @@ export default function CartDrawer({ isOpen, onClose }: CartDrawerProps) {
               variant="ghost" 
               size="sm" 
               onClick={onClose}
-              className="relative z-50 isolate pointer-events-auto"
+              className="relative z-50 isolate pointer-events-auto p-2"
             >
-              <X className="h-5 w-5" />
+              <X className="h-4 w-4 sm:h-5 sm:w-5" />
             </Button>
           </div>
         </div>
 
         {/* Free Shipping Banner */}
         {freeShippingEarned && (
-          <div className="bg-green-50 border-b border-green-200 p-3 flex items-center justify-between">
+          <div className="bg-green-50 border-b border-green-200 p-2 sm:p-3 flex items-center justify-between">
             <div className="flex items-center space-x-2">
-              <Truck className="h-4 w-4 text-green-600" />
-              <span className="text-sm font-medium text-green-800">
+              <Truck className="h-3 w-3 sm:h-4 sm:w-4 text-green-600" />
+              <span className="text-xs sm:text-sm font-medium text-green-800">
                 You've earned free shipping!
               </span>
             </div>
             <Button 
               variant="ghost" 
               size="sm" 
-              className="h-6 w-6 p-0"
+              className="h-5 w-5 sm:h-6 sm:w-6 p-0"
               onClick={() => setFreeShippingEarned(false)}
             >
-              <X className="h-3 w-3" />
+              <X className="h-2 w-2 sm:h-3 sm:w-3" />
             </Button>
           </div>
         )}
@@ -240,18 +240,18 @@ export default function CartDrawer({ isOpen, onClose }: CartDrawerProps) {
         <div className="flex-1 overflow-y-auto">
           
           {/* Cart Items */}
-          <div className="p-4 space-y-4">
+          <div className="p-2 sm:p-4 space-y-2 sm:space-y-4">
             {items.length === 0 ? (
-              <div className="text-center py-8">
-                <ShoppingBag className="h-12 w-12 text-gray-400 mx-auto mb-3" />
+              <div className="text-center py-4 sm:py-8">
+                <ShoppingBag className="h-10 w-10 sm:h-12 sm:w-12 text-gray-400 mx-auto mb-2 sm:mb-3" />
                 <h3 className="text-sm font-medium text-gray-900 mb-1">Your cart is empty</h3>
                 <p className="text-xs text-gray-500">Add some items to get started</p>
               </div>
             ) : (
               items.map((item) => (
-                <div key={item.id} className="flex items-start space-x-3 p-3 border border-gray-200 rounded-lg bg-gray-50">
+                <div key={item.id} className="flex items-start space-x-2 sm:space-x-3 p-2 border border-gray-200 rounded-lg bg-gray-50">
                   {/* Product Image */}
-                  <div className="w-16 h-16 bg-white rounded-lg flex-shrink-0 flex items-center justify-center shadow-sm">
+                  <div className="w-12 h-12 sm:w-16 sm:h-16 bg-white rounded-lg flex-shrink-0 flex items-center justify-center shadow-sm">
                     {item.image_url ? (
                       <img 
                         src={item.image_url.startsWith('http') ? item.image_url : `${import.meta.env.VITE_API_URL || 'http://localhost:5000'}${item.image_url}`}
@@ -280,7 +280,7 @@ export default function CartDrawer({ isOpen, onClose }: CartDrawerProps) {
                   
                   {/* Product Details */}
                   <div className="flex-1 min-w-0">
-                    <h4 className="text-sm font-semibold text-gray-900 mb-1">
+                    <h4 className="text-xs sm:text-sm font-semibold text-gray-900 mb-1 line-clamp-2">
                       {item.name}
                     </h4>
                     <div className="space-y-1">
@@ -305,29 +305,29 @@ export default function CartDrawer({ isOpen, onClose }: CartDrawerProps) {
                         variant="outline"
                         size="sm"
                         onClick={() => handleQuantityChange(item.id, item.quantity - 1)}
-                        className="h-6 w-6 p-0 border-gray-300 text-xs"
+                        className="h-5 w-5 sm:h-6 sm:w-6 p-0 border-gray-300 text-xs"
                       >
-                        <Minus className="h-3 w-3" />
+                        <Minus className="h-2 w-2 sm:h-3 sm:w-3" />
                       </Button>
-                      <span className="text-xs font-medium w-6 text-center bg-gray-50 px-1 py-0.5 rounded border text-gray-700">
+                      <span className="text-xs font-medium w-5 sm:w-6 text-center bg-gray-50 px-1 py-0.5 rounded border text-gray-700">
                         {item.quantity}
                       </span>
                       <Button
                         variant="outline"
                         size="sm"
                         onClick={() => handleQuantityChange(item.id, item.quantity + 1)}
-                        className="h-6 w-6 p-0 border-gray-300 text-xs"
+                        className="h-5 w-5 sm:h-6 sm:w-6 p-0 border-gray-300 text-xs"
                       >
-                        <Plus className="h-3 w-3" />
+                        <Plus className="h-2 w-2 sm:h-3 sm:w-3" />
                       </Button>
                     </div>
                   </div>
                   
                   {/* Price and Remove */}
-                  <div className="flex flex-col items-end space-y-2">
+                  <div className="flex flex-col items-end space-y-1 sm:space-y-2">
                     <div className="text-right">
                       <span className="text-xs text-gray-500">${item.price.toFixed(2)} each</span>
-                      <div className="text-sm font-bold text-gray-900">
+                      <div className="text-xs sm:text-sm font-bold text-gray-900">
                         ${(item.price * item.quantity).toFixed(2)}
                       </div>
                     </div>
@@ -335,9 +335,9 @@ export default function CartDrawer({ isOpen, onClose }: CartDrawerProps) {
                       variant="ghost"
                       size="sm"
                       onClick={() => handleRemoveItem(item.id)}
-                      className="h-6 w-6 p-0 text-gray-400 hover:text-red-500 hover:bg-red-50 text-xs"
+                      className="h-5 w-5 sm:h-6 sm:w-6 p-0 text-gray-400 hover:text-red-500 hover:bg-red-50 text-xs"
                     >
-                      <X className="h-3 w-3" />
+                      <X className="h-2 w-2 sm:h-3 sm:w-3" />
                     </Button>
                   </div>
                 </div>
@@ -348,21 +348,21 @@ export default function CartDrawer({ isOpen, onClose }: CartDrawerProps) {
         </div>
 
         {/* Footer */}
-        <div className="border-t border-gray-200 bg-white p-4 space-y-3">
+        <div className="border-t border-gray-200 bg-white">
           
           {/* Subtotal */}
-          <div className="flex justify-between items-center py-4 border-t border-gray-200 bg-gray-50 px-4">
-            <span className="text-base font-semibold text-gray-900">Subtotal</span>
-            <span className="text-xl font-bold text-gray-900">
+          <div className="flex justify-between items-center py-1.5 sm:py-3 bg-gray-50 px-2 sm:px-4">
+            <span className="text-xs sm:text-base font-semibold text-gray-900">Subtotal</span>
+            <span className="text-sm sm:text-xl font-bold text-gray-900">
               ${total.toFixed(2)}
             </span>
           </div>
           
           {/* Checkout Button */}
-          <div className="p-4">
+          <div className="p-1.5 sm:p-3">
             <Button
               onClick={handleCheckout}
-              className="w-full bg-black hover:bg-gray-800 text-white font-semibold py-4 text-lg"
+              className="w-full bg-black hover:bg-gray-800 text-white font-semibold py-1.5 sm:py-3 text-xs sm:text-base"
               disabled={items.length === 0}
             >
               CHECKOUT

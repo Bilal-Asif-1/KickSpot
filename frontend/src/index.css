@@ -6,6 +6,13 @@
 @tailwind components;
 @tailwind utilities;
 
+/* Custom responsive breakpoints for extra small screens */
+@media (max-width: 475px) {
+  .xs\:grid-cols-2 {
+    grid-template-columns: repeat(2, minmax(0, 1fr));
+  }
+}
+
 @layer base {
   :root {
     --background: 0 0% 100%;
@@ -137,4 +144,29 @@
 
 .scrollbar-hide::-webkit-scrollbar {
   display: none;
+}
+
+/* Fix for category cards carousel - prevent page shake */
+.category-carousel {
+  contain: layout style paint;
+  will-change: transform;
+}
+
+.category-card {
+  contain: layout style paint;
+  transform: translateZ(0);
+  backface-visibility: hidden;
+  perspective: 1000px;
+}
+
+/* Ensure smooth transitions without layout shifts */
+.category-card img {
+  transform: translateZ(0);
+  backface-visibility: hidden;
+}
+
+/* Prevent any overflow issues */
+.category-carousel-container {
+  overflow: hidden;
+  position: relative;
 }

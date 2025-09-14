@@ -83,7 +83,7 @@ export default function MensPage() {
             return (
               <>
                 <div className="mb-2 text-sm text-white/60">Page {currentPage} of {computedTotalPages}</div>
-                <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-4 gap-4">
+                <div className="grid grid-cols-2 sm:grid-cols-2 lg:grid-cols-4 gap-4">
                   {pageItems.map((product: any) => (
                     <div key={product.id} className="flex-shrink-0">
                       <ProductCard product={product} />

@@ -2,6 +2,8 @@ import { useState, useEffect } from 'react'
 import { api } from '@/lib/api'
 import { Button } from '@/components/ui/button'
 import { Badge } from '@/components/ui/badge'
+import { useAppDispatch } from '@/store'
+import { markAllAsRead as markAllAsReadAction, setUnreadCount } from '@/store/notificationSlice'
 import { 
   Bell, 
   X, 
@@ -34,6 +36,7 @@ type NotificationDrawerProps = {
 }
 
 export default function NotificationDrawer({ isOpen, onClose, onUnreadCountChange }: NotificationDrawerProps) {
+  const dispatch = useAppDispatch()
   const [notifications, setNotifications] = useState<Notification[]>([])
   const [loading, setLoading] = useState(false)
   const [error, setError] = useState<string | undefined>()
@@ -85,12 +88,20 @@ export default function NotificationDrawer({ isOpen, onClose, onUnreadCountChang
   const markAllAsRead = async () => {
     try {
       await api.patch('/api/v1/notifications/mark-all-read')
+      
+      // Update local state
       setNotifications(prev => {
         const updated = prev.map(notif => ({ ...notif, is_read: true }))
-        // Update unread count in parent (should be 0)
-        onUnreadCountChange?.(0)
         return updated
       })
+      
+      // Update Redux state
+      dispatch(markAllAsReadAction())
+      dispatch(setUnreadCount(0))
+      
+      // Update parent component
+      onUnreadCountChange?.(0)
+      
       toast.success('All notifications marked as read', {
         style: {
           background: '#dc2626',
@@ -162,7 +173,7 @@ export default function NotificationDrawer({ isOpen, onClose, onUnreadCountChang
   }
 
   const getNotificationIcon = (type: string, priority: string) => {
-    const iconClass = `h-4 w-4 ${priority === 'high' ? 'text-red-500' : priority === 'medium' ? 'text-blue-500' : 'text-gray-500'}`
+    const iconClass = `h-3 w-3 sm:h-4 sm:w-4 ${priority === 'high' ? 'text-red-500' : priority === 'medium' ? 'text-blue-500' : 'text-gray-500'}`
     
     switch (type) {
       case 'order_update':
@@ -213,27 +224,27 @@ export default function NotificationDrawer({ isOpen, onClose, onUnreadCountChang
       />
       
       {/* Drawer */}
-      <div className="fixed right-0 top-0 h-full w-96 bg-white shadow-xl z-40 transform transition-transform duration-300 ease-in-out">
+      <div className="fixed right-0 top-0 h-full w-full sm:w-96 bg-white shadow-xl z-40 transform transition-transform duration-300 ease-in-out">
         <div className="flex flex-col h-full">
           {/* Header */}
-          <div className="flex items-center justify-between p-4 border-b">
-            <div className="flex items-center space-x-2">
-              <Bell className="h-5 w-5 text-gray-600" />
-              <h2 className="text-lg font-semibold text-gray-900">Notifications</h2>
+          <div className="flex items-center justify-between p-2 sm:p-3 lg:p-4 border-b">
+            <div className="flex items-center space-x-1 sm:space-x-2">
+              <Bell className="h-3 w-3 sm:h-4 sm:w-4 lg:h-5 lg:w-5 text-gray-600" />
+              <h2 className="text-sm sm:text-base lg:text-lg font-semibold text-gray-900">Notifications</h2>
               {unreadCount > 0 && (
                 <Badge className="bg-red-500 text-white text-xs">
                   {unreadCount > 99 ? '99+' : unreadCount}
                 </Badge>
               )}
             </div>
-            <Button variant="ghost" size="sm" onClick={onClose}>
-              <X className="h-4 w-4" />
+            <Button variant="ghost" size="sm" onClick={onClose} className="p-1 sm:p-2">
+              <X className="h-3 w-3 sm:h-4 sm:w-4" />
             </Button>
           </div>
 
           {/* Filters */}
-          <div className="p-4 border-b">
-            <div className="flex flex-wrap gap-2">
+          <div className="p-2 sm:p-3 lg:p-4 border-b">
+            <div className="flex flex-wrap gap-1 sm:gap-2">
               {[
                 { key: 'all', label: 'All' },
                 { key: 'unread', label: 'Unread' },
@@ -247,7 +258,7 @@ export default function NotificationDrawer({ isOpen, onClose, onUnreadCountChang
                   variant={filter === key ? 'default' : 'outline'}
                   size="sm"
                   onClick={() => setFilter(key as any)}
-                  className="text-xs"
+                  className="text-xs px-1.5 py-0.5 sm:px-2 sm:py-1 lg:px-3 lg:py-1.5"
                 >
                   {label}
                 </Button>
@@ -257,14 +268,14 @@ export default function NotificationDrawer({ isOpen, onClose, onUnreadCountChang
 
           {/* Actions */}
           {unreadCount > 0 && (
-            <div className="p-4 border-b">
+            <div className="p-2 sm:p-3 lg:p-4 border-b">
               <Button 
                 variant="outline" 
                 size="sm" 
                 onClick={markAllAsRead}
-                className="w-full"
+                className="w-full py-1.5 sm:py-2 lg:py-2.5 text-xs sm:text-sm"
               >
-                <CheckCircle className="h-4 w-4 mr-2" />
+                <CheckCircle className="h-3 w-3 sm:h-4 sm:w-4 mr-1 sm:mr-2" />
                 Mark All as Read
               </Button>
             </div>
@@ -273,29 +284,29 @@ export default function NotificationDrawer({ isOpen, onClose, onUnreadCountChang
           {/* Content */}
           <div className="flex-1 overflow-y-auto">
             {loading && (
-              <div className="flex items-center justify-center py-8">
-                <div className="animate-spin rounded-full h-6 w-6 border-b-2 border-gray-900"></div>
-                <span className="ml-2 text-sm text-gray-600">Loading...</span>
+              <div className="flex items-center justify-center py-4 sm:py-6 lg:py-8">
+                <div className="animate-spin rounded-full h-4 w-4 sm:h-5 sm:w-5 lg:h-6 lg:w-6 border-b-2 border-gray-900"></div>
+                <span className="ml-2 text-xs sm:text-sm text-gray-600">Loading...</span>
               </div>
             )}
 
             {error && (
-              <div className="p-4">
-                <div className="bg-red-50 border border-red-200 rounded-lg p-3">
+              <div className="p-2 sm:p-3 lg:p-4">
+                <div className="bg-red-50 border border-red-200 rounded-lg p-1.5 sm:p-2 lg:p-3">
                   <div className="flex items-center">
-                    <AlertCircle className="h-4 w-4 text-red-500 mr-2" />
-                    <span className="text-red-700 text-sm">{error}</span>
+                    <AlertCircle className="h-3 w-3 sm:h-4 sm:w-4 text-red-500 mr-1 sm:mr-2" />
+                    <span className="text-red-700 text-xs sm:text-sm">{error}</span>
                   </div>
                 </div>
               </div>
             )}
 
             {!loading && !error && (
-              <div className="p-4 space-y-3">
+              <div className="p-2 sm:p-3 lg:p-4 space-y-1.5 sm:space-y-2 lg:space-y-3">
                 {filteredNotifications.length === 0 ? (
-                  <div className="text-center py-8">
-                    <Bell className="h-12 w-12 text-gray-400 mx-auto mb-3" />
-                    <h3 className="text-sm font-medium text-gray-900 mb-1">No notifications</h3>
+                  <div className="text-center py-4 sm:py-6 lg:py-8">
+                    <Bell className="h-8 w-8 sm:h-10 sm:w-10 lg:h-12 lg:w-12 text-gray-400 mx-auto mb-2 sm:mb-3" />
+                    <h3 className="text-xs sm:text-sm font-medium text-gray-900 mb-1">No notifications</h3>
                     <p className="text-xs text-gray-500">
                       {filter === 'unread' ? 'No unread notifications' : 'No notifications found'}
                     </p>
@@ -304,28 +315,28 @@ export default function NotificationDrawer({ isOpen, onClose, onUnreadCountChang
                   filteredNotifications.map((notification) => (
                     <div 
                       key={notification.id} 
-                      className={`p-3 rounded-lg border transition-all hover:shadow-sm ${
+                      className={`p-1.5 sm:p-2 lg:p-3 rounded-lg border transition-all hover:shadow-sm ${
                         !notification.is_read 
                           ? 'bg-blue-50 border-blue-200' 
                           : 'bg-white border-gray-200'
                       }`}
                     >
                       <div className="flex items-start justify-between">
-                        <div className="flex items-start space-x-3 flex-1">
+                        <div className="flex items-start space-x-1.5 sm:space-x-2 lg:space-x-3 flex-1">
                           {getNotificationIcon(notification.type, notification.priority)}
                           <div className="flex-1 min-w-0">
-                            <div className="flex items-center space-x-2 mb-1">
-                              <h4 className="text-sm font-medium text-gray-900 truncate">
+                            <div className="flex items-center space-x-1 sm:space-x-2 mb-0.5 sm:mb-1">
+                              <h4 className="text-xs sm:text-sm font-medium text-gray-900 truncate">
                                 {notification.title}
                               </h4>
                               {!notification.is_read && (
-                                <div className="w-2 h-2 bg-blue-500 rounded-full flex-shrink-0"></div>
+                                <div className="w-1 h-1 sm:w-1.5 sm:h-1.5 lg:w-2 lg:h-2 bg-blue-500 rounded-full flex-shrink-0"></div>
                               )}
                             </div>
-                            <p className="text-xs text-gray-600 mb-2 leading-relaxed">
+                            <p className="text-xs text-gray-600 mb-1 sm:mb-2 leading-relaxed">
                               {notification.message}
                             </p>
-                            <div className="flex items-center space-x-2">
+                            <div className="flex items-center space-x-1 sm:space-x-2">
                               <Badge className={`text-xs ${getTypeColor(notification.type)}`}>
                                 {notification.type.replace('_', ' ')}
                               </Badge>
@@ -335,24 +346,24 @@ export default function NotificationDrawer({ isOpen, onClose, onUnreadCountChang
                             </div>
                           </div>
                         </div>
-                        <div className="flex flex-col space-y-1 ml-2">
+                        <div className="flex flex-col space-y-0.5 sm:space-y-1 ml-1 sm:ml-2">
                           {!notification.is_read && (
                             <Button
                               variant="ghost"
                               size="sm"
                               onClick={() => markAsRead(notification.id)}
-                              className="h-6 w-6 p-0"
+                              className="h-4 w-4 sm:h-5 sm:w-5 lg:h-6 lg:w-6 p-0"
                             >
-                              <CheckCircle className="h-3 w-3" />
+                              <CheckCircle className="h-2 w-2 sm:h-2.5 sm:w-2.5 lg:h-3 lg:w-3" />
                             </Button>
                           )}
                           <Button
                             variant="ghost"
                             size="sm"
                             onClick={() => deleteNotification(notification.id)}
-                            className="h-6 w-6 p-0 text-gray-400 hover:text-red-500"
+                            className="h-4 w-4 sm:h-5 sm:w-5 lg:h-6 lg:w-6 p-0 text-gray-400 hover:text-red-500"
                           >
-                            <X className="h-3 w-3" />
+                            <X className="h-2 w-2 sm:h-2.5 sm:w-2.5 lg:h-3 lg:w-3" />
                           </Button>
                         </div>
                       </div>

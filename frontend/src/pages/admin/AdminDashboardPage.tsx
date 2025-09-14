@@ -144,8 +144,8 @@ export default function AdminDashboardPage() {
     return (
       <div className="min-h-screen bg-gradient-to-br from-slate-50 to-slate-100 flex items-center justify-center">
         <div className="text-center">
-          <div className="animate-spin rounded-full h-12 w-12 border-b-2 border-slate-900 mx-auto mb-4"></div>
-          <p className="text-slate-600">Loading dashboard...</p>
+          <div className="animate-spin rounded-full h-8 w-8 sm:h-12 sm:w-12 border-b-2 border-slate-900 mx-auto mb-2 sm:mb-4"></div>
+          <p className="text-slate-600 text-sm sm:text-base">Loading dashboard...</p>
         </div>
       </div>
     )
@@ -155,10 +155,10 @@ export default function AdminDashboardPage() {
     return (
       <div className="min-h-screen bg-gradient-to-br from-slate-50 to-slate-100 flex items-center justify-center">
         <div className="text-center">
-          <div className="text-red-500 text-6xl mb-4">⚠️</div>
-          <h2 className="text-2xl font-bold text-slate-900 mb-2">Error Loading Dashboard</h2>
-          <p className="text-slate-600 mb-4">{error}</p>
-          <Button onClick={loadAll} variant="outline">
+          <div className="text-red-500 text-4xl sm:text-6xl mb-2 sm:mb-4">⚠️</div>
+          <h2 className="text-lg sm:text-2xl font-bold text-slate-900 mb-1 sm:mb-2">Error Loading Dashboard</h2>
+          <p className="text-slate-600 mb-2 sm:mb-4 text-sm sm:text-base">{error}</p>
+          <Button onClick={loadAll} variant="outline" size="sm" className="text-xs sm:text-sm">
             Try Again
           </Button>
         </div>
@@ -184,131 +184,131 @@ export default function AdminDashboardPage() {
 
   const getStatusIcon = (status: string) => {
     switch (status) {
-      case 'pending': return <Clock className="h-4 w-4" />
-      case 'processing': return <Activity className="h-4 w-4" />
-      case 'delivered': return <CheckCircle className="h-4 w-4" />
-      case 'cancelled': return <XCircle className="h-4 w-4" />
-      default: return <Clock className="h-4 w-4" />
+      case 'pending': return <Clock className="h-3 w-3 sm:h-4 sm:w-4" />
+      case 'processing': return <Activity className="h-3 w-3 sm:h-4 sm:w-4" />
+      case 'delivered': return <CheckCircle className="h-3 w-3 sm:h-4 sm:w-4" />
+      case 'cancelled': return <XCircle className="h-3 w-3 sm:h-4 sm:w-4" />
+      default: return <Clock className="h-3 w-3 sm:h-4 sm:w-4" />
     }
   }
 
   return (
     <div className="min-h-screen bg-gradient-to-br from-slate-50 to-slate-100">
-      <main className="mx-auto max-w-7xl p-6">
+      <main className="mx-auto max-w-7xl p-1 sm:p-2 md:p-4 lg:p-6">
         {/* Header */}
-        <div className="mb-8">
-          <h1 className="text-4xl font-bold text-slate-900 mb-2">Seller Dashboard</h1>
-          <p className="text-slate-600">Manage your products, orders, and business analytics</p>
+        <div className="mb-3 sm:mb-4 md:mb-6 lg:mb-8">
+          <h1 className="text-lg sm:text-xl md:text-2xl lg:text-4xl font-bold text-slate-900 mb-1 sm:mb-2">Seller Dashboard</h1>
+          <p className="text-slate-600 text-xs sm:text-sm md:text-base">Manage your products, orders, and business analytics</p>
         </div>
         
         {/* Statistics Cards */}
-        <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-4 gap-6 mb-8">
+        <div className="grid grid-cols-1 xs:grid-cols-2 sm:grid-cols-2 md:grid-cols-4 gap-1.5 sm:gap-2 md:gap-4 lg:gap-6 mb-3 sm:mb-4 md:mb-6 lg:mb-8">
           <Card className="hover:shadow-lg transition-shadow">
-            <CardHeader className="flex flex-row items-center justify-between space-y-0 pb-2">
-              <CardTitle className="text-sm font-medium text-slate-600">Total Products</CardTitle>
-              <Package className="h-4 w-4 text-slate-600" />
+            <CardHeader className="flex flex-row items-center justify-between space-y-0 pb-1 sm:pb-2 p-1.5 sm:p-2 md:p-4">
+              <CardTitle className="text-xs sm:text-sm font-medium text-slate-600">Total Products</CardTitle>
+              <Package className="h-3 w-3 sm:h-4 sm:w-4 text-slate-600" />
             </CardHeader>
-            <CardContent>
-              <div className="text-2xl font-bold text-slate-900">{products.length}</div>
+            <CardContent className="p-1.5 sm:p-2 md:p-4 pt-0">
+              <div className="text-base sm:text-lg md:text-xl lg:text-2xl font-bold text-slate-900">{products.length}</div>
               <p className="text-xs text-slate-500">Active inventory items</p>
             </CardContent>
           </Card>
 
           <Card className="hover:shadow-lg transition-shadow">
-            <CardHeader className="flex flex-row items-center justify-between space-y-0 pb-2">
-              <CardTitle className="text-sm font-medium text-slate-600">Total Orders</CardTitle>
-              <ShoppingCart className="h-4 w-4 text-slate-600" />
+            <CardHeader className="flex flex-row items-center justify-between space-y-0 pb-1 sm:pb-2 p-1.5 sm:p-2 md:p-4">
+              <CardTitle className="text-xs sm:text-sm font-medium text-slate-600">Total Orders</CardTitle>
+              <ShoppingCart className="h-3 w-3 sm:h-4 sm:w-4 text-slate-600" />
             </CardHeader>
-            <CardContent>
-              <div className="text-2xl font-bold text-slate-900">{orders.length}</div>
+            <CardContent className="p-1.5 sm:p-2 md:p-4 pt-0">
+              <div className="text-base sm:text-lg md:text-xl lg:text-2xl font-bold text-slate-900">{orders.length}</div>
               <p className="text-xs text-slate-500">{pendingOrders} pending</p>
             </CardContent>
           </Card>
 
           <Card className="hover:shadow-lg transition-shadow">
-            <CardHeader className="flex flex-row items-center justify-between space-y-0 pb-2">
-              <CardTitle className="text-sm font-medium text-slate-600">Total Revenue</CardTitle>
-              <DollarSign className="h-4 w-4 text-slate-600" />
+            <CardHeader className="flex flex-row items-center justify-between space-y-0 pb-1 sm:pb-2 p-1.5 sm:p-2 md:p-4">
+              <CardTitle className="text-xs sm:text-sm font-medium text-slate-600">Total Revenue</CardTitle>
+              <DollarSign className="h-3 w-3 sm:h-4 sm:w-4 text-slate-600" />
             </CardHeader>
-            <CardContent>
-              <div className="text-2xl font-bold text-slate-900">${totalRevenue.toFixed(2)}</div>
+            <CardContent className="p-1.5 sm:p-2 md:p-4 pt-0">
+              <div className="text-base sm:text-lg md:text-xl lg:text-2xl font-bold text-slate-900">${totalRevenue.toFixed(2)}</div>
               <p className="text-xs text-slate-500">All time sales</p>
             </CardContent>
           </Card>
 
           <Card className="hover:shadow-lg transition-shadow">
-            <CardHeader className="flex flex-row items-center justify-between space-y-0 pb-2">
-              <CardTitle className="text-sm font-medium text-slate-600">Low Stock Alert</CardTitle>
-              <AlertTriangle className="h-4 w-4 text-red-500" />
+            <CardHeader className="flex flex-row items-center justify-between space-y-0 pb-1 sm:pb-2 p-1.5 sm:p-2 md:p-4">
+              <CardTitle className="text-xs sm:text-sm font-medium text-slate-600">Low Stock Alert</CardTitle>
+              <AlertTriangle className="h-3 w-3 sm:h-4 sm:w-4 text-red-500" />
             </CardHeader>
-            <CardContent>
-              <div className="text-2xl font-bold text-red-600">{lowStockProducts}</div>
+            <CardContent className="p-1.5 sm:p-2 md:p-4 pt-0">
+              <div className="text-base sm:text-lg md:text-xl lg:text-2xl font-bold text-red-600">{lowStockProducts}</div>
               <p className="text-xs text-slate-500">Items need restocking</p>
             </CardContent>
           </Card>
         </div>
 
         {/* Product Inventory - Moved to be right after statistics */}
-        <Card className="mb-8">
-          <CardHeader>
-            <div className="flex items-center justify-between">
+        <Card className="mb-3 sm:mb-4 md:mb-6 lg:mb-8">
+          <CardHeader className="p-1.5 sm:p-2 md:p-4 lg:p-6">
+            <div className="flex flex-col sm:flex-row sm:items-center justify-between gap-2 sm:gap-0">
               <div>
-                <CardTitle className="flex items-center gap-2">
-                  <Package className="h-5 w-5" />
+                <CardTitle className="flex items-center gap-1 sm:gap-2 text-xs sm:text-sm md:text-lg lg:text-xl">
+                  <Package className="h-3 w-3 sm:h-4 sm:w-4 md:h-5 md:w-5" />
                   Product Inventory
                 </CardTitle>
-                <CardDescription>Manage your product catalog and inventory</CardDescription>
+                <CardDescription className="text-xs sm:text-sm">Manage your product catalog and inventory</CardDescription>
               </div>
-              <Button onClick={() => setShowProductForm(true)}>
-                <Plus className="h-4 w-4 mr-2" />
+              <Button onClick={() => setShowProductForm(true)} size="sm" className="text-xs sm:text-sm">
+                <Plus className="h-3 w-3 sm:h-4 sm:w-4 mr-1 sm:mr-2" />
                 Add Product
               </Button>
             </div>
           </CardHeader>
-          <CardContent>
-            <div className="h-72 overflow-y-auto scrollbar-thin scrollbar-thumb-slate-300 scrollbar-track-slate-100 hover:scrollbar-thumb-slate-400">
-              <div className="overflow-x-auto pr-2">
+          <CardContent className="p-1.5 sm:p-2 md:p-4 lg:p-6">
+            <div className="h-40 sm:h-48 md:h-64 lg:h-72 overflow-y-auto scrollbar-thin scrollbar-thumb-slate-300 scrollbar-track-slate-100 hover:scrollbar-thumb-slate-400">
+              <div className="overflow-x-auto pr-1 sm:pr-2">
                 <table className="w-full">
                   <thead>
                     <tr className="text-left border-b">
-                      <th className="p-3 font-medium text-slate-600">Product</th>
-                      <th className="p-3 font-medium text-slate-600">Category</th>
-                      <th className="p-3 font-medium text-slate-600">Price</th>
-                      <th className="p-3 font-medium text-slate-600">Stock</th>
-                      <th className="p-3 font-medium text-slate-600">Status</th>
-                      <th className="p-3 font-medium text-slate-600">Actions</th>
+                      <th className="p-1 sm:p-2 lg:p-3 font-medium text-slate-600 text-xs sm:text-sm">Product</th>
+                      <th className="p-1 sm:p-2 lg:p-3 font-medium text-slate-600 text-xs sm:text-sm">Category</th>
+                      <th className="p-1 sm:p-2 lg:p-3 font-medium text-slate-600 text-xs sm:text-sm">Price</th>
+                      <th className="p-1 sm:p-2 lg:p-3 font-medium text-slate-600 text-xs sm:text-sm">Stock</th>
+                      <th className="p-1 sm:p-2 lg:p-3 font-medium text-slate-600 text-xs sm:text-sm">Status</th>
+                      <th className="p-1 sm:p-2 lg:p-3 font-medium text-slate-600 text-xs sm:text-sm">Actions</th>
                     </tr>
                   </thead>
                   <tbody>
                     {recentProducts.map(product => (
                       <tr key={product.id} className="border-b hover:bg-slate-50 transition-colors">
-                        <td className="p-3">
-                          <div className="flex items-center gap-3">
+                        <td className="p-1 sm:p-2 lg:p-3">
+                          <div className="flex items-center gap-1 sm:gap-2 lg:gap-3">
                             {product.image_url ? (
                               <img 
                                 src={product.image_url.startsWith('http') ? product.image_url : `${import.meta.env.VITE_API_URL || 'http://localhost:5000'}${product.image_url}`} 
                                 alt={product.name} 
-                                className="w-12 h-12 object-cover rounded-lg" 
+                                className="w-8 h-8 sm:w-10 sm:h-10 lg:w-12 lg:h-12 object-cover rounded-lg" 
                               />
                             ) : (
-                              <div className="w-12 h-12 bg-slate-200 rounded-lg flex items-center justify-center">
-                                <Package className="h-6 w-6 text-slate-400" />
+                              <div className="w-8 h-8 sm:w-10 sm:h-10 lg:w-12 lg:h-12 bg-slate-200 rounded-lg flex items-center justify-center">
+                                <Package className="h-4 w-4 sm:h-5 sm:w-5 lg:h-6 lg:w-6 text-slate-400" />
                               </div>
                             )}
                             <div>
-                              <p className="font-medium text-slate-900">{product.name}</p>
-                              <p className="text-sm text-slate-500">ID: #{product.id}</p>
+                              <p className="font-medium text-slate-900 text-xs sm:text-sm lg:text-base">{product.name}</p>
+                              <p className="text-xs text-slate-500">ID: #{product.id}</p>
                             </div>
                           </div>
                         </td>
-                        <td className="p-3">
+                        <td className="p-1 sm:p-2 lg:p-3">
                           <Badge variant="outline" className="text-xs">
                             {product.category}
                           </Badge>
                         </td>
-                        <td className="p-3">
+                        <td className="p-1 sm:p-2 lg:p-3">
                           <div className="flex flex-col">
-                            <span className="font-medium text-slate-900">${product.price.toFixed(2)}</span>
+                            <span className="font-medium text-slate-900 text-xs sm:text-sm">${product.price.toFixed(2)}</span>
                             {product.originalPrice && product.originalPrice > product.price && (
                               <span className="text-xs text-slate-500 line-through">
                                 ${product.originalPrice.toFixed(2)}
@@ -316,23 +316,23 @@ export default function AdminDashboardPage() {
                             )}
                           </div>
                         </td>
-                        <td className="p-3">
-                          <div className="flex items-center gap-2">
-                            <span className={`font-medium ${product.stock <= 5 ? 'text-red-600' : product.stock <= 10 ? 'text-yellow-600' : 'text-green-600'}`}>
+                        <td className="p-1 sm:p-2 lg:p-3">
+                          <div className="flex items-center gap-1 sm:gap-2">
+                            <span className={`font-medium text-xs sm:text-sm ${product.stock <= 5 ? 'text-red-600' : product.stock <= 10 ? 'text-yellow-600' : 'text-green-600'}`}>
                               {product.stock}
                             </span>
                             {product.stock <= 5 && (
-                              <AlertTriangle className="h-4 w-4 text-red-500" />
+                              <AlertTriangle className="h-3 w-3 sm:h-4 sm:w-4 text-red-500" />
                             )}
                           </div>
                         </td>
-                        <td className="p-3">
-                          <Badge className={product.stock > 0 ? 'bg-green-100 text-green-800' : 'bg-red-100 text-red-800'}>
+                        <td className="p-1 sm:p-2 lg:p-3">
+                          <Badge className={`text-xs ${product.stock > 0 ? 'bg-green-100 text-green-800' : 'bg-red-100 text-red-800'}`}>
                             {product.stock > 0 ? 'In Stock' : 'Out of Stock'}
                           </Badge>
                         </td>
-                        <td className="p-3">
-                          <div className="flex items-center gap-2">
+                        <td className="p-1 sm:p-2 lg:p-3">
+                          <div className="flex items-center gap-1 sm:gap-2">
                             <Button 
                               variant="outline" 
                               size="sm" 
@@ -340,6 +340,7 @@ export default function AdminDashboardPage() {
                                 setEditingProduct(product)
                                 setShowProductForm(true)
                               }}
+                              className="h-6 w-6 sm:h-8 sm:w-8 p-0"
                             >
                               <Edit className="h-3 w-3" />
                             </Button>
@@ -347,7 +348,7 @@ export default function AdminDashboardPage() {
                               variant="outline" 
                               size="sm" 
                               onClick={() => deleteProduct(product.id)}
-                              className="text-red-600 hover:text-red-700 hover:bg-red-50"
+                              className="text-red-600 hover:text-red-700 hover:bg-red-50 h-6 w-6 sm:h-8 sm:w-8 p-0"
                             >
                               <Trash2 className="h-3 w-3" />
                             </Button>
@@ -358,9 +359,9 @@ export default function AdminDashboardPage() {
                   </tbody>
                 </table>
                 {products.length === 0 && !loading && (
-                  <div className="text-center py-8 text-slate-500">
-                    <Package className="h-12 w-12 mx-auto mb-3 text-slate-300" />
-                    <p>No products yet. Add your first product to get started!</p>
+                  <div className="text-center py-4 sm:py-6 lg:py-8 text-slate-500">
+                    <Package className="h-8 w-8 sm:h-10 sm:w-10 lg:h-12 lg:w-12 mx-auto mb-2 sm:mb-3 text-slate-300" />
+                    <p className="text-xs sm:text-sm lg:text-base">No products yet. Add your first product to get started!</p>
                   </div>
                 )}
               </div>
@@ -369,34 +370,34 @@ export default function AdminDashboardPage() {
         </Card>
         
         {/* Recent Activity & Quick Actions */}
-        <div className="grid grid-cols-1 lg:grid-cols-3 gap-6 mb-8">
+        <div className="grid grid-cols-1 lg:grid-cols-3 gap-3 sm:gap-4 md:gap-6 mb-3 sm:mb-4 md:mb-6 lg:mb-8">
           {/* Recent Orders */}
           <Card className="lg:col-span-2">
-            <CardHeader>
-              <CardTitle className="flex items-center gap-2">
-                <ShoppingCart className="h-5 w-5" />
+            <CardHeader className="p-1.5 sm:p-2 md:p-4 lg:p-6">
+              <CardTitle className="flex items-center gap-1 sm:gap-2 text-xs sm:text-sm md:text-lg lg:text-xl">
+                <ShoppingCart className="h-3 w-3 sm:h-4 sm:w-4 md:h-5 md:w-5" />
                 Recent Orders
               </CardTitle>
-              <CardDescription>Latest customer orders and their status</CardDescription>
+              <CardDescription className="text-xs sm:text-sm">Latest customer orders and their status</CardDescription>
             </CardHeader>
-            <CardContent>
-              <div className="h-72 overflow-y-auto scrollbar-thin scrollbar-thumb-slate-300 scrollbar-track-slate-100 hover:scrollbar-thumb-slate-400">
-                <div className="space-y-4 pr-2">
+            <CardContent className="p-1.5 sm:p-2 md:p-4 lg:p-6">
+              <div className="h-40 sm:h-48 md:h-64 lg:h-72 overflow-y-auto scrollbar-thin scrollbar-thumb-slate-300 scrollbar-track-slate-100 hover:scrollbar-thumb-slate-400">
+                <div className="space-y-2 sm:space-y-3 lg:space-y-4 pr-1 sm:pr-2">
                   {recentOrders.length > 0 ? (
                     recentOrders.map(order => (
-                      <div key={order.id} className="flex items-center justify-between p-3 border rounded-lg hover:bg-slate-50 transition-colors">
-                        <div className="flex items-center gap-3">
-                          <div className="flex items-center gap-2">
+                      <div key={order.id} className="flex flex-col sm:flex-row sm:items-center justify-between p-2 sm:p-3 border rounded-lg hover:bg-slate-50 transition-colors gap-2 sm:gap-0">
+                        <div className="flex items-center gap-2 sm:gap-3">
+                          <div className="flex items-center gap-1 sm:gap-2">
                             {getStatusIcon(order.status)}
-                            <span className="font-medium">#{order.id}</span>
+                            <span className="font-medium text-xs sm:text-sm">#{order.id}</span>
                           </div>
                           <div>
-                            <p className="text-sm font-medium">Customer #{order.user_id}</p>
+                            <p className="text-xs sm:text-sm font-medium">Customer #{order.user_id}</p>
                             <p className="text-xs text-slate-500">${order.total_price.toFixed(2)}</p>
                           </div>
                         </div>
-                        <div className="flex items-center gap-2">
-                          <Badge className={getStatusColor(order.status)}>
+                        <div className="flex items-center gap-1 sm:gap-2">
+                          <Badge className={`text-xs ${getStatusColor(order.status)}`}>
                             {order.status}
                           </Badge>
                           <div className="flex gap-1">
@@ -405,6 +406,7 @@ export default function AdminDashboardPage() {
                               size="sm" 
                               onClick={() => updateOrderStatus(order.id, 'processing')}
                               disabled={order.status === 'processing' || order.status === 'delivered'}
+                              className="text-xs px-2 py-1"
                             >
                               Process
                             </Button>
@@ -413,6 +415,7 @@ export default function AdminDashboardPage() {
                               size="sm" 
                               onClick={() => updateOrderStatus(order.id, 'delivered')}
                               disabled={order.status === 'delivered'}
+                              className="text-xs px-2 py-1"
                             >
                               Deliver
                             </Button>
@@ -421,9 +424,9 @@ export default function AdminDashboardPage() {
                       </div>
                     ))
                   ) : (
-                    <div className="text-center py-8 text-slate-500">
-                      <ShoppingCart className="h-12 w-12 mx-auto mb-3 text-slate-300" />
-                      <p>No orders yet</p>
+                    <div className="text-center py-4 sm:py-6 lg:py-8 text-slate-500">
+                      <ShoppingCart className="h-8 w-8 sm:h-10 sm:w-10 lg:h-12 lg:w-12 mx-auto mb-2 sm:mb-3 text-slate-300" />
+                      <p className="text-xs sm:text-sm lg:text-base">No orders yet</p>
                     </div>
                   )}
                 </div>
@@ -433,48 +436,48 @@ export default function AdminDashboardPage() {
 
           {/* Quick Actions */}
           <Card>
-            <CardHeader>
-              <CardTitle className="flex items-center gap-2">
-                <Activity className="h-5 w-5" />
+            <CardHeader className="p-1.5 sm:p-2 md:p-4 lg:p-6">
+              <CardTitle className="flex items-center gap-1 sm:gap-2 text-xs sm:text-sm md:text-lg lg:text-xl">
+                <Activity className="h-3 w-3 sm:h-4 sm:w-4 md:h-5 md:w-5" />
                 Quick Actions
               </CardTitle>
-              <CardDescription>Common admin tasks</CardDescription>
+              <CardDescription className="text-xs sm:text-sm">Common admin tasks</CardDescription>
             </CardHeader>
-            <CardContent className="space-y-3">
+            <CardContent className="space-y-2 sm:space-y-3 p-1.5 sm:p-2 md:p-4 lg:p-6">
               <Button 
                 onClick={() => setShowProductForm(true)} 
-                className="w-full justify-start"
+                className="w-full justify-start text-xs sm:text-sm"
                 size="sm"
               >
-                <Plus className="h-4 w-4 mr-2" />
+                <Plus className="h-3 w-3 sm:h-4 sm:w-4 mr-1 sm:mr-2" />
                 Add New Product
               </Button>
               <Button 
                 variant="outline" 
-                className="w-full justify-start"
+                className="w-full justify-start text-xs sm:text-sm"
                 size="sm"
                 onClick={() => window.location.href = '/admin/orders'}
               >
-                <Eye className="h-4 w-4 mr-2" />
+                <Eye className="h-3 w-3 sm:h-4 sm:w-4 mr-1 sm:mr-2" />
                 View All Orders
               </Button>
               <Button 
                 variant="outline" 
-                className="w-full justify-start"
+                className="w-full justify-start text-xs sm:text-sm"
                 size="sm"
                 onClick={() => window.location.href = '/admin/customers'}
               >
-                <Users className="h-4 w-4 mr-2" />
+                <Users className="h-3 w-3 sm:h-4 sm:w-4 mr-1 sm:mr-2" />
                 Manage Customers
               </Button>
               {lowStockProducts > 0 && (
                 <Button 
                   variant="destructive" 
-                  className="w-full justify-start"
+                  className="w-full justify-start text-xs sm:text-sm"
                   size="sm"
                   onClick={() => window.location.href = '/admin/products'}
                 >
-                  <AlertTriangle className="h-4 w-4 mr-2" />
+                  <AlertTriangle className="h-3 w-3 sm:h-4 sm:w-4 mr-1 sm:mr-2" />
                   Restock Items ({lowStockProducts})
                 </Button>
               )}
@@ -483,17 +486,17 @@ export default function AdminDashboardPage() {
         </div>
         
         {showProductForm && (
-          <div className="fixed inset-0 bg-black/50 backdrop-blur-sm flex items-center justify-center p-4 z-50">
+          <div className="fixed inset-0 bg-black/50 backdrop-blur-sm flex items-center justify-center p-2 sm:p-4 z-50">
             <div className="bg-white rounded-xl shadow-2xl max-w-2xl w-full max-h-[90vh] overflow-y-auto">
-              <div className="p-6 border-b">
-                <h3 className="text-xl font-semibold text-slate-900">
+              <div className="p-3 sm:p-4 lg:p-6 border-b">
+                <h3 className="text-lg sm:text-xl font-semibold text-slate-900">
                   {editingProduct ? 'Edit Product' : 'Add New Product'}
                 </h3>
-                <p className="text-sm text-slate-600 mt-1">
+                <p className="text-xs sm:text-sm text-slate-600 mt-1">
                   {editingProduct ? 'Update product information' : 'Add a new product to your inventory'}
                 </p>
               </div>
-              <div className="p-6">
+              <div className="p-3 sm:p-4 lg:p-6">
               <ProductForm
                 product={editingProduct}
                 onSuccess={() => {

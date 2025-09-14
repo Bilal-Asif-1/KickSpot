@@ -1,12 +1,13 @@
 import { Button } from '@/components/ui/button'
 import { Badge } from '@/components/ui/badge'
-import { ShoppingCart, LogOut, User, Bell, Settings, History, Heart, MapPin, CreditCard, HelpCircle, ChevronDown, Menu, X } from 'lucide-react'
+import { ShoppingCart, LogOut, User, Bell, History, Heart, HelpCircle, ChevronDown, Menu, X } from 'lucide-react'
 import { useAppSelector, useAppDispatch } from '@/store'
 import { logoutUser } from '@/store/authSlice'
 import { useNavigate, useLocation } from 'react-router-dom'
 import { toast } from 'sonner'
 import { SparklesCore } from '@/components/ui/sparkles'
 import { useState, useEffect, useRef } from 'react'
+import { fetchUnreadCount } from '@/store/notificationSlice'
 
 type CustomNavbarProps = {
   onCartOpen: () => void
@@ -21,6 +22,7 @@ export default function CustomNavbar({ onCartOpen, onNotificationOpen, isCartOpe
   const location = useLocation()
   const { user } = useAppSelector(state => state.auth)
   const { items } = useAppSelector(state => state.cart)
+  const { unreadCount } = useAppSelector(state => state.notifications)
   const { items: favoriteItems } = useAppSelector(state => state.favorites)
   const [showLogo, setShowLogo] = useState(false)
   const [showNavbar, setShowNavbar] = useState(true)
@@ -28,6 +30,7 @@ export default function CustomNavbar({ onCartOpen, onNotificationOpen, isCartOpe
   const [showProfileDropdown, setShowProfileDropdown] = useState(false)
   const [showMobileMenu, setShowMobileMenu] = useState(false)
   const profileDropdownRef = useRef<HTMLDivElement>(null)
+  const mobileMenuRef = useRef<HTMLDivElement>(null)
 
   const cartItemCount = items.reduce((sum, item) => sum + item.quantity, 0)
   const favoriteItemCount = favoriteItems.length
@@ -80,6 +83,30 @@ export default function CustomNavbar({ onCartOpen, onNotificationOpen, isCartOpe
       document.removeEventListener('mousedown', handleClickOutside)
     }
   }, [showProfileDropdown])
+
+  // Handle click outside to close mobile menu
+  useEffect(() => {
+    const handleClickOutside = (event: MouseEvent) => {
+      if (mobileMenuRef.current && !mobileMenuRef.current.contains(event.target as Node)) {
+        setShowMobileMenu(false)
+      }
+    }
+
+    if (showMobileMenu) {
+      document.addEventListener('mousedown', handleClickOutside)
+    }
+
+    return () => {
+      document.removeEventListener('mousedown', handleClickOutside)
+    }
+  }, [showMobileMenu])
+
+  // Fetch notifications for buyers
+  useEffect(() => {
+    if (user && user.role === 'buyer') {
+      dispatch(fetchUnreadCount())
+    }
+  }, [dispatch, user])
 
   const handleLogout = () => {
     dispatch(logoutUser())
@@ -206,21 +233,21 @@ export default function CustomNavbar({ onCartOpen, onNotificationOpen, isCartOpe
             <Button
               variant="ghost"
               onClick={() => handleCategoryClick('Men')}
-              className="text-black hover:text-blue-200 hover:bg-blue-50 px-2 md:px-3 lg:px-4 py-1.5 md:py-2 rounded-full font-medium text-sm"
+              className="text-black hover:text-white hover:bg-gray-800 px-2 md:px-3 lg:px-4 py-1.5 md:py-2 rounded-full font-medium text-sm transition-colors"
             >
               MEN
             </Button>
             <Button
               variant="ghost"
               onClick={() => handleCategoryClick('Women')}
-              className="text-black hover:text-blue-200 hover:bg-blue-50 px-2 md:px-3 lg:px-4 py-1.5 md:py-2 rounded-full font-medium text-sm"
+              className="text-black hover:text-white hover:bg-gray-800 px-2 md:px-3 lg:px-4 py-1.5 md:py-2 rounded-full font-medium text-sm transition-colors"
             >
               WOMEN
             </Button>
             <Button
               variant="ghost"
               onClick={() => handleCategoryClick('Kids')}
-              className="text-black hover:text-blue-200 hover:bg-blue-50 px-2 md:px-3 lg:px-4 py-1.5 md:py-2 rounded-full font-medium text-sm"
+              className="text-black hover:text-white hover:bg-gray-800 px-2 md:px-3 lg:px-4 py-1.5 md:py-2 rounded-full font-medium text-sm transition-colors"
             >
               KIDS
             </Button>
@@ -231,23 +258,22 @@ export default function CustomNavbar({ onCartOpen, onNotificationOpen, isCartOpe
             <Button
               variant="ghost"
               onClick={handleMobileMenuToggle}
-              className="text-black hover:text-blue-200 hover:bg-blue-50 p-2 rounded-full"
+              className="text-black hover:text-white hover:bg-gray-800 p-2 rounded-full transition-colors group"
             >
-              {showMobileMenu ? <X className="h-5 w-5" /> : <Menu className="h-5 w-5" />}
+              {showMobileMenu ? <X className="h-5 w-5 group-hover:text-white transition-colors" /> : <Menu className="h-5 w-5 group-hover:text-white transition-colors" />}
             </Button>
           </div>
 
-          {/* Right side - Cart and Profile buttons */}
+          {/* Right side - Cart, Notifications and Profile buttons */}
           <div className="flex items-center space-x-2">
             {/* Cart Button - Always visible */}
             <div className="relative">
               <Button
                 variant="outline"
                 onClick={handleCartClick}
-                className="flex items-center space-x-1 sm:space-x-2 px-2 sm:px-3 md:px-4 py-1 sm:py-1.5 md:py-2 rounded-full border-gray-300 hover:border-blue-500 hover:bg-blue-50"
+                className="flex items-center justify-center px-2 sm:px-3 md:px-4 py-1 sm:py-1.5 md:py-2 rounded-full border-gray-300 hover:border-gray-800 hover:bg-gray-800 hover:text-white transition-colors group"
               >
-                <ShoppingCart className="h-4 w-4 sm:h-5 sm:w-5 text-gray-700" />
-                <span className="text-gray-700 font-medium text-xs sm:text-sm hidden sm:inline">Cart</span>
+                <ShoppingCart className="h-4 w-4 sm:h-5 sm:w-5 text-gray-700 group-hover:text-white transition-colors" />
                 {cartItemCount > 0 && (
                   <Badge 
                     variant="destructive" 
@@ -259,16 +285,37 @@ export default function CustomNavbar({ onCartOpen, onNotificationOpen, isCartOpe
               </Button>
             </div>
 
+            {/* Notification Button - Only for buyers */}
+            {user && user.role === 'buyer' && (
+              <div className="relative">
+                <Button
+                  variant="outline"
+                  onClick={handleNotificationClick}
+                  className="flex items-center justify-center px-2 sm:px-3 md:px-4 py-1 sm:py-1.5 md:py-2 rounded-full border-gray-300 hover:border-gray-800 hover:bg-gray-800 hover:text-white transition-colors group"
+                >
+                  <Bell className="h-4 w-4 sm:h-5 sm:w-5 text-gray-700 group-hover:text-white transition-colors" />
+                  {unreadCount > 0 && (
+                    <Badge 
+                      variant="destructive" 
+                      className="absolute -top-1 sm:-top-2 -right-1 sm:-right-2 h-4 w-4 sm:h-5 sm:w-5 rounded-full flex items-center justify-center text-xs"
+                    >
+                      {unreadCount > 99 ? '99+' : unreadCount}
+                    </Badge>
+                  )}
+                </Button>
+              </div>
+            )}
+
             {/* Profile Button - Always visible */}
             {user ? (
               <div className="relative" ref={profileDropdownRef}>
                 <Button
                   variant="ghost"
                   onClick={handleProfileClick}
-                  className="flex items-center space-x-1 p-2 rounded-full hover:bg-gray-100"
+                  className="flex items-center space-x-1 p-2 rounded-full hover:bg-gray-800 hover:text-white transition-colors group"
                 >
-                  <User className="h-4 w-4 sm:h-5 sm:w-5 text-gray-700" />
-                  <ChevronDown className={`h-3 w-3 sm:h-4 sm:w-4 text-gray-700 transition-transform duration-200 ${
+                  <User className="h-4 w-4 sm:h-5 sm:w-5 text-gray-700 group-hover:text-white transition-colors" />
+                  <ChevronDown className={`h-3 w-3 sm:h-4 sm:w-4 text-gray-700 group-hover:text-white transition-all duration-200 ${
                     showProfileDropdown ? 'rotate-180' : ''
                   }`} />
                 </Button>
@@ -330,19 +377,13 @@ export default function CustomNavbar({ onCartOpen, onNotificationOpen, isCartOpe
                 )}
               </div>
             ) : (
-              <div className="flex items-center space-x-1">
+              <div className="flex items-center">
                 <Button
                   variant="ghost"
                   onClick={() => navigate('/login')}
-                  className="text-gray-700 hover:text-blue-600 hover:bg-blue-50 px-2 py-1 text-xs sm:text-sm font-medium rounded-full"
+                  className="text-red-600 hover:text-white hover:bg-red-600 px-2 py-1 text-xs sm:text-sm font-medium rounded-full transition-colors"
                 >
                   Login
-                </Button>
-                <Button
-                  onClick={() => navigate('/register')}
-                  className="bg-black text-white hover:bg-gray-800 px-2 py-1 text-xs sm:text-sm font-medium rounded-full"
-                >
-                  Sign Up
                 </Button>
               </div>
             )}
@@ -363,7 +404,7 @@ export default function CustomNavbar({ onCartOpen, onNotificationOpen, isCartOpe
                   handleCategoryClick('Men')
                   handleMobileMenuClose()
                 }}
-                className="w-full justify-start text-black hover:text-blue-200 hover:bg-blue-50 py-3 text-base font-medium"
+                className="w-full justify-start text-black hover:text-white hover:bg-gray-800 py-3 text-base font-medium transition-colors"
               >
                 MEN
               </Button>
@@ -373,7 +414,7 @@ export default function CustomNavbar({ onCartOpen, onNotificationOpen, isCartOpe
                   handleCategoryClick('Women')
                   handleMobileMenuClose()
                 }}
-                className="w-full justify-start text-black hover:text-blue-200 hover:bg-blue-50 py-3 text-base font-medium"
+                className="w-full justify-start text-black hover:text-white hover:bg-gray-800 py-3 text-base font-medium transition-colors"
               >
                 WOMEN
               </Button>
@@ -383,7 +424,7 @@ export default function CustomNavbar({ onCartOpen, onNotificationOpen, isCartOpe
                   handleCategoryClick('Kids')
                   handleMobileMenuClose()
                 }}
-                className="w-full justify-start text-black hover:text-blue-200 hover:bg-blue-50 py-3 text-base font-medium"
+                className="w-full justify-start text-black hover:text-white hover:bg-gray-800 py-3 text-base font-medium transition-colors"
               >
                 KIDS
               </Button>

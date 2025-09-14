@@ -101,10 +101,11 @@ export const fetchCurrentUser = createAsyncThunk('auth/me', async (_, { rejectWi
   }
 })
 
-export const logoutUser = createAsyncThunk('auth/logout', async (_, { getState }) => {
+export const logoutUser = createAsyncThunk('auth/logout', async (_, { dispatch }) => {
   // Add a 1-second delay to show loading screen
   await new Promise(resolve => setTimeout(resolve, 1000))
-  // Don't clear cart on logout - preserve for same user
+  // Clear authentication data
+  dispatch(logout())
   return true
 })
 

@@ -130,7 +130,7 @@ export function SaleBestSellersSection() {
     return (
       <div className="flex-1">
         <div className="flex items-center justify-between mb-2 sm:mb-3">
-          <h3 className="text-lg sm:text-xl md:text-2xl font-bold text-white">{title}</h3>
+          <h3 className="text-base sm:text-lg md:text-xl lg:text-2xl font-bold text-white">{title}</h3>
         </div>
 
         <div className="relative">
@@ -161,7 +161,9 @@ export function SaleBestSellersSection() {
                   scrollSnapAlign: 'start'
                 }}
               >
-                <ProductCard product={product} />
+                <div className="transform scale-90 sm:scale-100">
+                  <ProductCard product={product} />
+                </div>
               </div>
             ))}
           </div>
@@ -171,9 +173,9 @@ export function SaleBestSellersSection() {
             type="button"
             aria-label="Scroll left"
             onClick={() => scrollByAmount(-(scrollContainerRef.current?.clientWidth || 0) / 2)}
-            className="absolute left-0.5 sm:left-1 top-1/2 -translate-y-1/2 h-8 w-8 sm:h-10 sm:w-10 rounded-full bg-white/5 hover:bg-white/10 border border-white/20 flex items-center justify-center text-white/50 hover:text-white/80 backdrop-blur-sm"
+            className="absolute left-0.5 sm:left-1 top-1/2 -translate-y-1/2 h-6 w-6 sm:h-8 sm:w-8 md:h-10 md:w-10 rounded-full bg-white/5 hover:bg-white/10 border border-white/20 flex items-center justify-center text-white/50 hover:text-white/80 backdrop-blur-sm"
           >
-            <svg width="14" height="14" className="sm:w-[18px] sm:h-[18px]" viewBox="0 0 24 24" fill="none" xmlns="http://www.w3.org/2000/svg">
+            <svg width="10" height="10" className="sm:w-[14px] sm:h-[14px] md:w-[18px] md:h-[18px]" viewBox="0 0 24 24" fill="none" xmlns="http://www.w3.org/2000/svg">
               <path d="M15 18L9 12L15 6" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round"/>
             </svg>
           </button>
@@ -181,9 +183,9 @@ export function SaleBestSellersSection() {
             type="button"
             aria-label="Scroll right"
             onClick={() => scrollByAmount((scrollContainerRef.current?.clientWidth || 0) / 2)}
-            className="absolute right-0.5 sm:right-1 top-1/2 -translate-y-1/2 h-8 w-8 sm:h-10 sm:w-10 rounded-full bg-white/5 hover:bg-white/10 border border-white/20 flex items-center justify-center text-white/50 hover:text-white/80 backdrop-blur-sm"
+            className="absolute right-0.5 sm:right-1 top-1/2 -translate-y-1/2 h-6 w-6 sm:h-8 sm:w-8 md:h-10 md:w-10 rounded-full bg-white/5 hover:bg-white/10 border border-white/20 flex items-center justify-center text-white/50 hover:text-white/80 backdrop-blur-sm"
           >
-            <svg width="14" height="14" className="sm:w-[18px] sm:h-[18px]" viewBox="0 0 24 24" fill="none" xmlns="http://www.w3.org/2000/svg">
+            <svg width="10" height="10" className="sm:w-[14px] sm:h-[14px] md:w-[18px] md:h-[18px]" viewBox="0 0 24 24" fill="none" xmlns="http://www.w3.org/2000/svg">
               <path d="M9 18L15 12L9 6" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round"/>
             </svg>
           </button>
@@ -202,7 +204,7 @@ export function SaleBestSellersSection() {
           {seeMoreHref && (
             <button 
               onClick={() => navigate(seeMoreHref)} 
-              className="text-xs sm:text-xs text-white/70 hover:text-white cursor-pointer"
+              className="text-xs sm:text-sm text-white/70 hover:text-white cursor-pointer"
             >
               See more
             </button>
