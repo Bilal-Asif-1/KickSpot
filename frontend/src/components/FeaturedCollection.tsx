@@ -2,7 +2,7 @@ import React from 'react'
 
 export function FeaturedCollection() {
   return (
-    <section className="pt-12 pb-8 px-4 relative z-20">
+    <section className="pt-4 pb-4 sm:pt-8 sm:pb-6 md:pt-12 md:pb-8 px-4 relative z-20">
       <div className="max-w-6xl mx-auto text-center">
         <h2 className="text-3xl font-bold text-white mb-4">Featured Collection</h2>
         <p className="text-gray-300 text-lg">Discover our curated selection of premium footwear</p>

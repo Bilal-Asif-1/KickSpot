@@ -129,14 +129,14 @@ export function SaleBestSellersSection() {
 
     return (
       <div className="flex-1">
-        <div className="flex items-center justify-between mb-3">
-          <h3 className="text-2xl font-bold text-white">{title}</h3>
+        <div className="flex items-center justify-between mb-2 sm:mb-3">
+          <h3 className="text-lg sm:text-xl md:text-2xl font-bold text-white">{title}</h3>
         </div>
 
         <div className="relative">
           <div 
             ref={scrollContainerRef}
-            className="flex gap-4 overflow-x-auto scrollbar-hide cursor-grab active:cursor-grabbing select-none"
+            className="flex gap-2 sm:gap-3 md:gap-4 overflow-x-auto scrollbar-hide cursor-grab active:cursor-grabbing select-none"
             style={{ 
               scrollbarWidth: 'none', 
               msOverflowStyle: 'none',
@@ -157,7 +157,7 @@ export function SaleBestSellersSection() {
                 key={product.id} 
                 className="flex-shrink-0" 
                 style={{ 
-                  width: 'calc(50% - 8px)',
+                  width: 'calc(50% - 4px)',
                   scrollSnapAlign: 'start'
                 }}
               >
@@ -171,9 +171,9 @@ export function SaleBestSellersSection() {
             type="button"
             aria-label="Scroll left"
             onClick={() => scrollByAmount(-(scrollContainerRef.current?.clientWidth || 0) / 2)}
-            className="absolute left-1 top-1/2 -translate-y-1/2 h-10 w-10 rounded-full bg-white/5 hover:bg-white/10 border border-white/20 flex items-center justify-center text-white/50 hover:text-white/80 backdrop-blur-sm"
+            className="absolute left-0.5 sm:left-1 top-1/2 -translate-y-1/2 h-8 w-8 sm:h-10 sm:w-10 rounded-full bg-white/5 hover:bg-white/10 border border-white/20 flex items-center justify-center text-white/50 hover:text-white/80 backdrop-blur-sm"
           >
-            <svg width="18" height="18" viewBox="0 0 24 24" fill="none" xmlns="http://www.w3.org/2000/svg">
+            <svg width="14" height="14" className="sm:w-[18px] sm:h-[18px]" viewBox="0 0 24 24" fill="none" xmlns="http://www.w3.org/2000/svg">
               <path d="M15 18L9 12L15 6" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round"/>
             </svg>
           </button>
@@ -181,20 +181,20 @@ export function SaleBestSellersSection() {
             type="button"
             aria-label="Scroll right"
             onClick={() => scrollByAmount((scrollContainerRef.current?.clientWidth || 0) / 2)}
-            className="absolute right-1 top-1/2 -translate-y-1/2 h-10 w-10 rounded-full bg-white/5 hover:bg-white/10 border border-white/20 flex items-center justify-center text-white/50 hover:text-white/80 backdrop-blur-sm"
+            className="absolute right-0.5 sm:right-1 top-1/2 -translate-y-1/2 h-8 w-8 sm:h-10 sm:w-10 rounded-full bg-white/5 hover:bg-white/10 border border-white/20 flex items-center justify-center text-white/50 hover:text-white/80 backdrop-blur-sm"
           >
-            <svg width="18" height="18" viewBox="0 0 24 24" fill="none" xmlns="http://www.w3.org/2000/svg">
+            <svg width="14" height="14" className="sm:w-[18px] sm:h-[18px]" viewBox="0 0 24 24" fill="none" xmlns="http://www.w3.org/2000/svg">
               <path d="M9 18L15 12L9 6" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round"/>
             </svg>
           </button>
         </div>
 
         {/* Footer row: tagline left (SALE only), see more right */}
-        <div className="mt-3 flex items-center justify-between">
+        <div className="mt-2 sm:mt-3 flex items-center justify-between">
           {showTagline ? (
-            <div className="relative overflow-hidden h-5 flex-1 mr-3">
-              <div className="absolute whitespace-nowrap text-[11px] tracking-wide text-white/70" style={{ animation: 'ks-marquee 12s linear infinite' }}>
-                Sale ends in 3 days · New markdowns added · Limited stock · Don’t miss out · 
+            <div className="relative overflow-hidden h-4 sm:h-5 flex-1 mr-2 sm:mr-3">
+              <div className="absolute whitespace-nowrap text-[10px] sm:text-[11px] tracking-wide text-white/70" style={{ animation: 'ks-marquee 12s linear infinite' }}>
+                Sale ends in 3 days · New markdowns added · Limited stock · Don't miss out · 
               </div>
             </div>
           ) : (<div className="flex-1" />)}
@@ -202,7 +202,7 @@ export function SaleBestSellersSection() {
           {seeMoreHref && (
             <button 
               onClick={() => navigate(seeMoreHref)} 
-              className="text-xs text-white/70 hover:text-white cursor-pointer"
+              className="text-xs sm:text-xs text-white/70 hover:text-white cursor-pointer"
             >
               See more
             </button>
@@ -214,11 +214,11 @@ export function SaleBestSellersSection() {
   }
 
   return (
-    <section className="pt-12 pb-0 px-4">
+    <section className="pt-2 pb-2 sm:pt-4 sm:pb-4 md:pt-8 md:pb-0 px-2 sm:px-4">
       <div className="max-w-9xl mx-auto">
-        <div className="grid grid-cols-1 lg:grid-cols-2 gap-8">
+        <div className="grid grid-cols-1 lg:grid-cols-2 gap-4 sm:gap-6 md:gap-8">
           {/* SALE Section */}
-          <div className="border border-white/30 rounded-2xl p-5 shadow-md shadow-white/10">
+          <div className="border border-white/30 rounded-xl sm:rounded-2xl p-3 sm:p-4 md:p-5 shadow-md shadow-white/10">
             <SaleScrollSection 
               title="SALE" 
               products={saleProductsToShow}
@@ -228,7 +228,7 @@ export function SaleBestSellersSection() {
           </div>
           
           {/* Best Sellers Section */}
-          <div className="border border-white/30 rounded-2xl p-5 shadow-md shadow-white/10">
+          <div className="border border-white/30 rounded-xl sm:rounded-2xl p-3 sm:p-4 md:p-5 shadow-md shadow-white/10">
             <SaleScrollSection 
               title="Best Sellers" 
               products={bestSellersToShow}

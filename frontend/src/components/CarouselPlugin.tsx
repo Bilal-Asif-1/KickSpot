@@ -28,7 +28,7 @@ export function CarouselPlugin() {
     <Carousel
       plugins={[plugin.current]}
       opts={{ align: 'center', loop: true, containScroll: 'trimSnaps' }}
-      className="w-screen h-[50vh] overflow-hidden bg-black"
+      className="w-screen h-[40vh] md:h-[50vh] lg:h-[50vh] overflow-hidden bg-black"
       onMouseEnter={plugin.current.stop}
       onMouseLeave={plugin.current.reset}
     >
@@ -38,7 +38,7 @@ export function CarouselPlugin() {
             key={index}
             className="rounded-2xl flex items-center justify-center select-none basis-[75vw] md:basis-[60vw] lg:basis-[50vw] pl-0"
           >
-            <div className="relative h-[40vh] w-full overflow-hidden md:h-[45vh] lg:h-[70vh]">
+            <div className="relative h-[40vh] w-full overflow-hidden md:h-[50vh] lg:h-[60vh]">
               <img
                 alt={`Carousel slide ${index + 1}`}
                 className="block h-full w-full rounded-lg object-contain object-center bg-black"

@@ -74,7 +74,7 @@ export default function ProductCard({ product }: { product: Product }) {
     <Card className="relative w-full aspect-[0.77] overflow-hidden bg-white rounded-2xl shadow-lg border-15 border-black">
       {/* Sale Badge */}
       {product.isOnSale && (
-        <div className="absolute top-2 left-2 z-10 bg-red-500 text-white px-2 py-1 rounded-md text-xs font-bold">
+        <div className="absolute top-1 sm:top-2 left-1 sm:left-2 z-10 bg-red-500 text-white px-1.5 sm:px-2 py-0.5 sm:py-1 rounded-md text-xs sm:text-xs font-bold">
           {product.discount}% OFF
         </div>
       )}
@@ -82,7 +82,7 @@ export default function ProductCard({ product }: { product: Product }) {
       {/* Favorite Heart Button */}
       <button
         onClick={handleToggleFavorite}
-        className={`absolute top-2 right-2 z-10 p-2 rounded-full transition-all duration-200 hover:scale-110 ${
+        className={`absolute top-1 sm:top-2 right-1 sm:right-2 z-10 p-1.5 sm:p-2 rounded-full transition-all duration-200 hover:scale-110 ${
           isFavorite 
             ? 'bg-red-500 text-white shadow-lg' 
             : 'bg-white/80 text-gray-600 hover:bg-white hover:text-red-500'
@@ -90,7 +90,7 @@ export default function ProductCard({ product }: { product: Product }) {
         title={isFavorite ? 'Remove from favorites' : 'Add to favorites'}
       >
         <Heart 
-          className={`w-4 h-4 ${isFavorite ? 'fill-current' : ''}`} 
+          className={`w-3 h-3 sm:w-4 sm:h-4 ${isFavorite ? 'fill-current' : ''}`} 
         />
       </button>
       
@@ -112,29 +112,29 @@ export default function ProductCard({ product }: { product: Product }) {
       </div>
       
       {/* Bottom Overlay with Buy Now and Price */}
-      <div className="absolute bottom-0 left-0 right-0 bg-gradient-to-t from-black/80 to-transparent p-3 md:p-4">
-        <div className="flex items-center justify-between">
+      <div className="absolute bottom-0 left-0 right-0 bg-gradient-to-t from-black/80 to-transparent p-2 sm:p-3 md:p-4">
+        <div className="flex items-center justify-between gap-2">
           {/* Buy Now Button - Bottom Left */}
           <Button 
             onClick={handleBuyNow}
-            className="bg-white text-black hover:bg-gray-100 font-semibold px-3 py-1.5 md:px-4 md:py-2 rounded-md text-sm md:text-base"
+            className="bg-white text-black hover:bg-gray-100 font-semibold px-2 sm:px-3 md:px-4 py-1 sm:py-1.5 md:py-2 rounded-md text-xs sm:text-sm md:text-base flex-shrink-0"
           >
             {user ? 'Buy Now' : 'Login to Buy'}
           </Button>
           
           {/* Price - Bottom Right */}
-          <div className="text-right">
+          <div className="text-right flex-shrink-0">
             {product.isOnSale && product.originalPrice ? (
               <div>
-                <div className="text-white font-bold text-base md:text-lg">
+                <div className="text-white font-bold text-sm sm:text-base md:text-lg">
                   ${product.price.toFixed(2)}
                 </div>
-                <div className="text-gray-300 line-through text-sm">
+                <div className="text-gray-300 line-through text-xs sm:text-sm">
                   ${product.originalPrice.toFixed(2)}
                 </div>
               </div>
             ) : (
-              <div className="text-white font-bold text-base md:text-lg">
+              <div className="text-white font-bold text-sm sm:text-base md:text-lg">
                 ${product.price.toFixed(2)}
               </div>
             )}

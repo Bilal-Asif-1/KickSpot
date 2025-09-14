@@ -120,15 +120,9 @@ export default function LoginPage() {
         <div className="w-full max-w-3xl grid grid-cols-1 lg:grid-cols-2 gap-0 items-center">
           {/* KICKSPOT Branding - Left Side */}
           <div className="text-center lg:text-center flex flex-col items-center lg:items-center p-0 m-0">
-            <h1 className="text-6xl font-bold text-white mb-3">
+            <h1 className="text-4xl sm:text-5xl lg:text-6xl font-bold text-white mb-3">
               KICKSPOT
             </h1>
-            <p className="text-gray-300 text-lg mb-1">
-              Welcome Back to Your Sneaker World
-            </p>
-            <p className="text-gray-400">
-              Sign in to continue your journey
-            </p>
           </div>
 
           {/* Login Form - Right Side */}

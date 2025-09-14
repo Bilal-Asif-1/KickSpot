@@ -40,29 +40,30 @@ export default function ProductsPage() {
 
   return (
     <div>
-      <main className="mx-auto max-w-7xl p-4">
-        <h1 className="text-2xl font-semibold mb-4">
+      <main className="mx-auto max-w-7xl p-2 sm:p-4 lg:p-6">
+        <h1 className="text-xl sm:text-2xl lg:text-3xl font-semibold mb-3 sm:mb-4 px-2 sm:px-0">
           {selectedCategory === 'All' ? 'All Products' : 
            selectedCategory === 'Sales' ? 'Sale Products' : 
            `${selectedCategory} Shoes`}
         </h1>
         
         {/* Category Filter */}
-        <div className="flex gap-2 mb-6">
+        <div className="flex flex-wrap gap-2 mb-4 sm:mb-6 px-2 sm:px-0">
           {categories.map(category => (
             <Button
               key={category}
               variant={selectedCategory === category ? 'default' : 'outline'}
               onClick={() => handleCategoryChange(category)}
+              className="text-xs sm:text-sm px-3 sm:px-4 py-1.5 sm:py-2"
             >
               {category}
             </Button>
           ))}
         </div>
 
-        {loading && <p>Loading...</p>}
-        {error && <p className="text-red-600">{error}</p>}
-        <div className="grid grid-cols-1 sm:grid-cols-2 md:grid-cols-3 lg:grid-cols-4 gap-4">
+        {loading && <p className="text-center py-8 text-gray-500">Loading...</p>}
+        {error && <p className="text-red-600 text-center py-4">{error}</p>}
+        <div className="grid grid-cols-2 sm:grid-cols-2 md:grid-cols-3 lg:grid-cols-4 xl:grid-cols-5 gap-2 sm:gap-3 md:gap-4">
           {filteredProducts.map(p => (
             <ProductCard key={p.id} product={p} />
           ))}

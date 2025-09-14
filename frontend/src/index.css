@@ -128,3 +128,13 @@
 .hover\:scrollbar-thumb-slate-400:hover::-webkit-scrollbar-thumb {
   background-color: #94a3b8;
 }
+
+/* Hide scrollbar for carousel */
+.scrollbar-hide {
+  -ms-overflow-style: none;
+  scrollbar-width: none;
+}
+
+.scrollbar-hide::-webkit-scrollbar {
+  display: none;
+}
