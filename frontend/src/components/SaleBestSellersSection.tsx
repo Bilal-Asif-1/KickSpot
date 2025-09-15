@@ -1,7 +1,15 @@
-import { useRef, useState } from 'react'
+import { useRef } from 'react'
 import { useAppSelector } from '@/store'
 import { useNavigate } from 'react-router-dom'
 import ProductCard from '@/components/ProductCard'
+import Autoplay from "embla-carousel-autoplay"
+import {
+  Carousel,
+  CarouselContent,
+  CarouselItem,
+  CarouselNext,
+  CarouselPrevious,
+} from "@/components/ui/carousel"
  
 
 export function SaleBestSellersSection() {
@@ -44,92 +52,11 @@ export function SaleBestSellersSection() {
   const saleProductsToShow = saleProducts.length > 0 ? saleProducts : sampleSaleProducts
   const bestSellersToShow = bestSellers.length > 0 ? bestSellers : sampleBestSellers
 
-  // Scroll functionality for both sections
-  const SaleScrollSection = ({ title, products, showTagline = false, seeMoreHref }: { title: string, products: any[], showTagline?: boolean, seeMoreHref?: string }) => {
-    const scrollContainerRef = useRef<HTMLDivElement>(null)
-    const [isDragging, setIsDragging] = useState(false)
-    const [startX, setStartX] = useState(0)
-    const [scrollLeft, setScrollLeft] = useState(0)
-    const [velocity, setVelocity] = useState(0)
-    const [lastTime, setLastTime] = useState(0)
-    const [lastScrollLeft, setLastScrollLeft] = useState(0)
-
-    const scrollByAmount = (amount: number) => {
-      if (!scrollContainerRef.current) return
-      scrollContainerRef.current.scrollBy({ left: amount, behavior: 'smooth' })
-    }
-
-    
-
-    const handleStart = (clientX: number) => {
-      setIsDragging(true)
-      setStartX(clientX)
-      setScrollLeft(scrollContainerRef.current?.scrollLeft || 0)
-      setVelocity(0)
-      setLastTime(Date.now())
-      setLastScrollLeft(scrollContainerRef.current?.scrollLeft || 0)
-    }
-
-    const handleMove = (clientX: number) => {
-      if (!isDragging || !scrollContainerRef.current) return
-      
-      const x = clientX
-      const walk = (x - startX) * 2
-      scrollContainerRef.current.scrollLeft = scrollLeft - walk
-      
-      const now = Date.now()
-      const timeDiff = now - lastTime
-      if (timeDiff > 0) {
-        const scrollDiff = scrollContainerRef.current.scrollLeft - lastScrollLeft
-        setVelocity(scrollDiff / timeDiff)
-        setLastTime(now)
-        setLastScrollLeft(scrollContainerRef.current.scrollLeft)
-      }
-    }
-
-    const handleEnd = () => {
-      setIsDragging(false)
-      if (Math.abs(velocity) < 0.1) {
-        if (scrollContainerRef.current) {
-          const container = scrollContainerRef.current
-          const cardWidth = container.clientWidth / 2
-          const currentScroll = container.scrollLeft
-          const targetScroll = Math.round(currentScroll / cardWidth) * cardWidth
-          container.scrollTo({ left: targetScroll, behavior: 'smooth' })
-        }
-      }
-    }
-
-    const handleMouseDown = (e: React.MouseEvent) => {
-      e.preventDefault()
-      handleStart(e.clientX)
-    }
-
-    const handleMouseMove = (e: React.MouseEvent) => {
-      e.preventDefault()
-      handleMove(e.clientX)
-    }
-
-    const handleMouseUp = (e: React.MouseEvent) => {
-      e.preventDefault()
-      handleEnd()
-    }
-
-    const handleMouseLeave = () => {
-      handleEnd()
-    }
-
-    const handleTouchStart = (e: React.TouchEvent) => {
-      handleStart(e.touches[0].clientX)
-    }
-
-    const handleTouchMove = (e: React.TouchEvent) => {
-      handleMove(e.touches[0].clientX)
-    }
-
-    const handleTouchEnd = () => {
-      handleEnd()
-    }
+  // Carousel section component using Embla Carousel
+  const CarouselSection = ({ title, products, showTagline = false, seeMoreHref }: { title: string, products: any[], showTagline?: boolean, seeMoreHref?: string }) => {
+    const autoplayPlugin = useRef(
+      Autoplay({ delay: 4000, stopOnInteraction: true })
+    )
 
     return (
       <div className="flex-1">
@@ -138,61 +65,30 @@ export function SaleBestSellersSection() {
         </div>
 
         <div className="relative">
-          <div 
-            ref={scrollContainerRef}
-            className="flex gap-2 sm:gap-3 md:gap-4 overflow-x-auto scrollbar-hide cursor-grab active:cursor-grabbing select-none"
-            style={{ 
-              scrollbarWidth: 'none', 
-              msOverflowStyle: 'none',
-              scrollBehavior: 'smooth',
-              scrollSnapType: 'x mandatory',
-              scrollPaddingLeft: '0px'
+          <Carousel
+            plugins={[autoplayPlugin.current]}
+            opts={{ 
+              align: 'start', 
+              loop: true, 
+              containScroll: 'trimSnaps',
+              slidesToScroll: 1
             }}
-            onMouseDown={handleMouseDown}
-            onMouseMove={isDragging ? handleMouseMove : undefined}
-            onMouseUp={handleMouseUp}
-            onMouseLeave={handleMouseLeave}
-            onTouchStart={handleTouchStart}
-            onTouchMove={handleTouchMove}
-            onTouchEnd={handleTouchEnd}
+            className="w-full"
+            onMouseEnter={autoplayPlugin.current.stop}
+            onMouseLeave={autoplayPlugin.current.reset}
           >
-            {products.map(product => (
-              <div 
-                key={product.id} 
-                className="flex-shrink-0" 
-                style={{ 
-                  width: 'calc(50% - 4px)',
-                  scrollSnapAlign: 'start'
-                }}
-              >
-                <div className="transform scale-90 sm:scale-100">
-                  <ProductCard product={product} />
-                </div>
-              </div>
-            ))}
-          </div>
-
-          {/* Faint overlay arrows */}
-          <button
-            type="button"
-            aria-label="Scroll left"
-            onClick={() => scrollByAmount(-(scrollContainerRef.current?.clientWidth || 0) / 2)}
-            className="absolute left-0.5 sm:left-1 top-1/2 -translate-y-1/2 h-6 w-6 sm:h-8 sm:w-8 md:h-10 md:w-10 rounded-full bg-white/5 hover:bg-white/10 border border-white/20 flex items-center justify-center text-white/50 hover:text-white/80 backdrop-blur-sm"
-          >
-            <svg width="10" height="10" className="sm:w-[14px] sm:h-[14px] md:w-[18px] md:h-[18px]" viewBox="0 0 24 24" fill="none" xmlns="http://www.w3.org/2000/svg">
-              <path d="M15 18L9 12L15 6" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round"/>
-            </svg>
-          </button>
-          <button
-            type="button"
-            aria-label="Scroll right"
-            onClick={() => scrollByAmount((scrollContainerRef.current?.clientWidth || 0) / 2)}
-            className="absolute right-0.5 sm:right-1 top-1/2 -translate-y-1/2 h-6 w-6 sm:h-8 sm:w-8 md:h-10 md:w-10 rounded-full bg-white/5 hover:bg-white/10 border border-white/20 flex items-center justify-center text-white/50 hover:text-white/80 backdrop-blur-sm"
-          >
-            <svg width="10" height="10" className="sm:w-[14px] sm:h-[14px] md:w-[18px] md:h-[18px]" viewBox="0 0 24 24" fill="none" xmlns="http://www.w3.org/2000/svg">
-              <path d="M9 18L15 12L9 6" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round"/>
-            </svg>
-          </button>
+            <CarouselContent className="-ml-2 md:-ml-4">
+              {products.map((product) => (
+                <CarouselItem key={product.id} className="pl-2 md:pl-4 basis-1/2 md:basis-1/3 lg:basis-1/4">
+                  <div className="transform scale-90 sm:scale-100">
+                    <ProductCard product={product} />
+                  </div>
+                </CarouselItem>
+              ))}
+            </CarouselContent>
+            <CarouselPrevious className="left-1 sm:left-2 h-6 w-6 sm:h-8 sm:w-8 md:h-10 md:w-10 bg-white/5 hover:bg-white/10 border-white/20 text-white/50 hover:text-white/80" />
+            <CarouselNext className="right-1 sm:right-2 h-6 w-6 sm:h-8 sm:w-8 md:h-10 md:w-10 bg-white/5 hover:bg-white/10 border-white/20 text-white/50 hover:text-white/80" />
+          </Carousel>
         </div>
 
         {/* Footer row: tagline left (SALE only), see more right */}
@@ -225,7 +121,7 @@ export function SaleBestSellersSection() {
         <div className="grid grid-cols-1 lg:grid-cols-2 gap-4 sm:gap-6 md:gap-8">
           {/* SALE Section */}
           <div className="border border-white/30 rounded-xl sm:rounded-2xl p-3 sm:p-4 md:p-5 shadow-md shadow-white/10">
-            <SaleScrollSection 
+            <CarouselSection 
               title="SALE" 
               products={saleProductsToShow}
               showTagline={true}
@@ -235,7 +131,7 @@ export function SaleBestSellersSection() {
           
           {/* Best Sellers Section */}
           <div className="border border-white/30 rounded-xl sm:rounded-2xl p-3 sm:p-4 md:p-5 shadow-md shadow-white/10">
-            <SaleScrollSection 
+            <CarouselSection 
               title="Best Sellers" 
               products={bestSellersToShow}
               seeMoreHref="/products?sort=best"
