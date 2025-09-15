@@ -1,11 +1,19 @@
 import multer from 'multer'
-import path from 'path'
 import { Request } from 'express'
+import { v2 as cloudinary } from 'cloudinary'
+import path from 'path'
 
-// Configure storage
+// Configure Cloudinary
+cloudinary.config({
+  cloud_name: process.env.CLOUDINARY_CLOUD_NAME,
+  api_key: process.env.CLOUDINARY_API_KEY,
+  api_secret: process.env.CLOUDINARY_API_SECRET,
+})
+
+// Configure temporary storage for Cloudinary upload
 const storage = multer.diskStorage({
   destination: (req: Request, file: Express.Multer.File, cb: Function) => {
-    cb(null, 'uploads/products/')
+    cb(null, 'uploads/temp/')
   },
   filename: (req: Request, file: Express.Multer.File, cb: Function) => {
     // Generate unique filename: timestamp + random + original extension
@@ -37,3 +45,23 @@ export const uploadSingle = upload.single('image')
 
 // Multiple files upload middleware
 export const uploadMultiple = upload.array('images', 5)
+
+// Cloudinary upload function
+export const uploadToCloudinary = async (filePath: string, folder: string = 'kickspot/products') => {
+  try {
+    const result = await cloudinary.uploader.upload(filePath, {
+      folder: folder,
+      transformation: [
+        { width: 800, height: 800, crop: 'limit' },
+        { quality: 'auto' }
+      ]
+    })
+    return result.secure_url
+  } catch (error) {
+    console.error('Cloudinary upload error:', error)
+    throw error
+  }
+}
+
+// Export cloudinary instance for direct usage
+export { cloudinary }

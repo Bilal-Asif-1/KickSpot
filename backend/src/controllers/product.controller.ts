@@ -2,8 +2,9 @@ import { Request, Response } from 'express'
 import { Op } from 'sequelize'
 import { Product, User, OrderItem } from '../models/index.js'
 import { body, param, validationResult } from 'express-validator'
-import { uploadSingle } from '../middleware/upload.js'
+import { uploadSingle, uploadToCloudinary } from '../middleware/upload.js'
 import path from 'path'
+import fs from 'fs'
 
 export const createProductValidators = [
   body('name').isString().notEmpty(),
@@ -58,8 +59,24 @@ export async function createProduct(req: Request, res: Response) {
     // Handle file upload
     let finalImageUrl = image_url || null
     if (req.file) {
-      // Create URL for the uploaded file
-      finalImageUrl = `/uploads/products/${req.file.filename}`
+      try {
+        // Upload to Cloudinary
+        finalImageUrl = await uploadToCloudinary(req.file.path)
+        console.log('Image uploaded to Cloudinary:', finalImageUrl)
+        
+        // Clean up temporary file
+        fs.unlinkSync(req.file.path)
+      } catch (error) {
+        console.error('Failed to upload to Cloudinary:', error)
+        // Clean up temporary file on error
+        if (req.file && fs.existsSync(req.file.path)) {
+          fs.unlinkSync(req.file.path)
+        }
+        return res.status(500).json({ 
+          message: 'Failed to upload image',
+          error: 'UPLOAD_ERROR'
+        })
+      }
     }
 
     const productData = {
@@ -152,7 +169,24 @@ export async function updateProduct(req: Request, res: Response) {
 
   // Image: prefer uploaded file; otherwise respect provided image_url (can be empty string to clear)
   if (req.file) {
-    updates.image_url = `/uploads/products/${req.file.filename}`
+    try {
+      // Upload to Cloudinary
+      updates.image_url = await uploadToCloudinary(req.file.path)
+      console.log('Image updated on Cloudinary:', updates.image_url)
+      
+      // Clean up temporary file
+      fs.unlinkSync(req.file.path)
+    } catch (error) {
+      console.error('Failed to upload to Cloudinary:', error)
+      // Clean up temporary file on error
+      if (req.file && fs.existsSync(req.file.path)) {
+        fs.unlinkSync(req.file.path)
+      }
+      return res.status(500).json({ 
+        message: 'Failed to upload image',
+        error: 'UPLOAD_ERROR'
+      })
+    }
   } else if (image_url !== undefined) {
     updates.image_url = image_url || null
   }
