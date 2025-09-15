@@ -71,9 +71,14 @@ const PORT = process.env.PORT || 5000
 async function start() {
   try {
     console.log('🔄 Connecting to MySQL database...')
-    console.log(`📊 Database: ${process.env.MYSQL_DB || 'kickspot'}`)
-    console.log(`👤 User: ${process.env.MYSQL_USER || 'root'}`)
-    console.log(`🌐 Host: ${process.env.MYSQL_HOST || 'localhost'}`)
+    if (process.env.DATABASE_URL) {
+      console.log('🔗 Using DATABASE_URL for connection...')
+      console.log('🔗 Connection URL:', process.env.DATABASE_URL.replace(/\/\/.*@/, '//***:***@'))
+    } else {
+      console.log(`📊 Database: ${process.env.MYSQL_DB || 'kickspot'}`)
+      console.log(`👤 User: ${process.env.MYSQL_USER || 'root'}`)
+      console.log(`🌐 Host: ${process.env.MYSQL_HOST || 'localhost'}`)
+    }
     
     await sequelize.authenticate()
     console.log('✅ MySQL database connected successfully!')
