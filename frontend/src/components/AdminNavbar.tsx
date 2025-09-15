@@ -1,5 +1,5 @@
 import { Link } from 'react-router-dom'
-import { Bell, Menu, X } from 'lucide-react'
+import { Menu, X } from 'lucide-react'
 import { useEffect, useState, useRef } from 'react'
 import { useSocket } from '@/hooks/useSocket'
 import { Button } from '@/components/ui/button'

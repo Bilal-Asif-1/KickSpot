@@ -16,7 +16,7 @@ export default function KidsPage() {
   }, [dispatch, page])
 
 
-  const ProductSlider = ({ title, products, category }: { title: string, products: any[], category?: string }) => {
+  const ProductSlider = ({ title, products }: { title: string, products: any[] }) => {
     const plugin = useRef(Autoplay({ delay: 2500, stopOnInteraction: true }))
 
     // Show loading state if no products
@@ -61,7 +61,6 @@ export default function KidsPage() {
       <ProductSlider 
         title="Best Sellers" 
         products={[...kidsProducts].sort((a: any, b: any) => (b.buyCount || 0) - (a.buyCount || 0)).slice(0, 10)} 
-        category="bestsellers" 
       />
 
       {/* Kids Collection - Grid with pagination */}

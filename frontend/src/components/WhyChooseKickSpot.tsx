@@ -1,9 +1,9 @@
-import React, { useEffect, useRef } from 'react'
+import { useEffect, useRef } from 'react'
 import { Spotlight } from './ui/spotlight'
 
 export function WhyChooseKickSpot() {
   const sectionRef = useRef(null)
-  const spotlightRef = useRef(null)
+  const spotlightRef = useRef<SVGSVGElement>(null)
 
   useEffect(() => {
     const sectionEl = sectionRef.current

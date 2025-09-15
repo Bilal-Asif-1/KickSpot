@@ -139,7 +139,7 @@ const notificationSlice = createSlice({
         if (page === 1) {
           state.notifications = parsedNotifications
           // Calculate unread count from all notifications
-          state.unreadCount = parsedNotifications.filter(n => !n.is_read).length
+          state.unreadCount = parsedNotifications.filter((n: any) => !n.is_read).length
         } else {
           state.notifications.push(...parsedNotifications)
           // Update unread count when loading more

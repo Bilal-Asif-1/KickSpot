@@ -16,9 +16,7 @@ import {
   Activity,
   User,
   Package,
-  DollarSign,
-  Calendar,
-  MoreHorizontal
+  Calendar
 } from 'lucide-react'
 import { toast } from 'sonner'
 

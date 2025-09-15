@@ -13,10 +13,7 @@ export default function OriginalLayoutPage({ children }: OriginalLayoutPageProps
 
   return (
     <div className="relative">
-      <BuyerNavbar 
-        onCartOpen={() => setIsCartOpen(true)}
-        onNotificationOpen={() => setIsNotificationOpen(true)}
-      />
+      <BuyerNavbar />
       
       {/* Main Content */}
       <div className="pt-16">

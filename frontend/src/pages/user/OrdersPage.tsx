@@ -1,7 +1,7 @@
 import { useEffect, useRef, useState } from 'react'
 import { api } from '@/lib/api'
 import { Button } from '@/components/ui/button'
-import { Trash2, ArrowLeft, Package, Calendar, DollarSign, AlertCircle } from 'lucide-react'
+import { Trash2, Package, Calendar, DollarSign, AlertCircle } from 'lucide-react'
 import { toast } from 'sonner'
 import { useNavigate } from 'react-router-dom'
 

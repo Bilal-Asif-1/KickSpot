@@ -52,10 +52,10 @@ export function SaleCarousel() {
           onMouseLeave={plugin.current.reset}
         >
           <CarouselContent className="-ml-2 md:-ml-4">
-            {productsToShow.map((product, index) => (
+            {productsToShow.map((product) => (
               <CarouselItem key={product.id} className="pl-2 md:pl-4 basis-1/2 md:basis-1/3 lg:basis-1/4">
                 <div className="p-1">
-                  <ProductCard product={product} />
+                  <ProductCard product={product as any} />
                 </div>
               </CarouselItem>
             ))}

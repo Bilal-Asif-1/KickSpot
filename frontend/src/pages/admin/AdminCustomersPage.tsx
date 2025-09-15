@@ -14,7 +14,6 @@ import {
   Phone, 
   MapPin, 
   Calendar,
-  ShoppingBag,
   DollarSign,
   Users,
   UserCheck,
