@@ -16,10 +16,18 @@ app.use(morgan('dev'))
 // Serve uploaded files
 app.use('/uploads', express.static(path.join(process.cwd(), 'uploads')))
 
-// Health check endpoint
-app.get('/api/health', async (req, res) => {
+// Simple health check endpoint - no database dependency
+app.get('/api/health', (req, res) => {
+  res.json({ 
+    status: 'healthy', 
+    message: 'Server is running',
+    timestamp: new Date().toISOString()
+  })
+})
+
+// Database health check endpoint (optional)
+app.get('/api/health/db', async (req, res) => {
   try {
-    // Try to authenticate with database
     await sequelize.authenticate()
     res.json({ 
       status: 'healthy', 
@@ -27,11 +35,10 @@ app.get('/api/health', async (req, res) => {
       timestamp: new Date().toISOString()
     })
   } catch (error) {
-    // Even if database is not connected, return healthy status for basic server health
-    res.json({ 
-      status: 'healthy', 
-      database: 'connecting',
-      message: 'Server is running, database connection in progress',
+    res.status(500).json({ 
+      status: 'unhealthy', 
+      database: 'disconnected',
+      error: error.message,
       timestamp: new Date().toISOString()
     })
   }
@@ -74,7 +81,7 @@ async function start() {
   try {
     console.log('🔄 Starting server...')
     
-    // Start server first, then connect to database
+    // Start server immediately
     server.listen(PORT, () => {
       console.log('🚀 KickSpot API Server Started!')
       console.log(`📡 Server running on: http://localhost:${PORT}`)
@@ -82,8 +89,8 @@ async function start() {
       console.log(`📚 API Base: http://localhost:${PORT}/api/v1`)
     })
     
-    // Connect to database in background
-    setTimeout(async () => {
+    // Connect to database in background (non-blocking)
+    setImmediate(async () => {
       try {
         console.log('🔄 Connecting to MySQL database...')
         if (process.env.DATABASE_URL) {
@@ -105,7 +112,7 @@ async function start() {
         console.error('❌ Database connection failed:', dbError.message)
         console.log('🔄 Server will continue running without database...')
       }
-    }, 1000)
+    })
     
   } catch (e: any) {
     console.error('❌ Failed to start server!')
