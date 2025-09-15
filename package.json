@@ -1,0 +1,15 @@
+{
+  "name": "kickspot-monorepo",
+  "version": "1.0.0",
+  "description": "KickSpot E-commerce Application",
+  "private": true,
+  "workspaces": [
+    "frontend",
+    "backend"
+  ],
+  "scripts": {
+    "dev": "cd backend && npm run dev",
+    "build": "cd backend && npm run build",
+    "start": "cd backend && npm start"
+  }
+}
