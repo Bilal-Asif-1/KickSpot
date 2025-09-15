@@ -66,6 +66,12 @@ export async function createProduct(req: Request, res: Response) {
         
         // Clean up temporary file
         fs.unlinkSync(req.file.path)
+        
+        // If Cloudinary is not configured, use a placeholder
+        if (finalImageUrl === null) {
+          finalImageUrl = 'https://via.placeholder.com/400x400?text=No+Image'
+          console.log('Using placeholder image due to missing Cloudinary config')
+        }
       } catch (error) {
         console.error('Failed to upload to Cloudinary:', error)
         // Clean up temporary file on error

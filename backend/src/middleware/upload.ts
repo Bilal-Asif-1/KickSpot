@@ -4,11 +4,15 @@ import { v2 as cloudinary } from 'cloudinary'
 import path from 'path'
 
 // Configure Cloudinary
-cloudinary.config({
-  cloud_name: process.env.CLOUDINARY_CLOUD_NAME,
-  api_key: process.env.CLOUDINARY_API_KEY,
-  api_secret: process.env.CLOUDINARY_API_SECRET,
-})
+if (process.env.CLOUDINARY_CLOUD_NAME && process.env.CLOUDINARY_API_KEY && process.env.CLOUDINARY_API_SECRET) {
+  cloudinary.config({
+    cloud_name: process.env.CLOUDINARY_CLOUD_NAME,
+    api_key: process.env.CLOUDINARY_API_KEY,
+    api_secret: process.env.CLOUDINARY_API_SECRET,
+  })
+} else {
+  console.warn('Cloudinary credentials not found. Image uploads will be disabled.')
+}
 
 // Configure temporary storage for Cloudinary upload
 const storage = multer.diskStorage({
@@ -49,6 +53,12 @@ export const uploadMultiple = upload.array('images', 5)
 // Cloudinary upload function
 export const uploadToCloudinary = async (filePath: string, folder: string = 'kickspot/products') => {
   try {
+    // Check if Cloudinary is configured
+    if (!process.env.CLOUDINARY_CLOUD_NAME || !process.env.CLOUDINARY_API_KEY || !process.env.CLOUDINARY_API_SECRET) {
+      console.warn('Cloudinary not configured. Skipping image upload.')
+      return null
+    }
+    
     const result = await cloudinary.uploader.upload(filePath, {
       folder: folder,
       transformation: [
