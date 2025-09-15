@@ -3,6 +3,7 @@ import { Sequelize } from 'sequelize'
 // Check if DATABASE_URL is provided (Railway format)
 if (process.env.DATABASE_URL) {
   console.log('🔄 Using DATABASE_URL for connection...')
+  console.log('🔗 Connection URL:', process.env.DATABASE_URL.replace(/\/\/.*@/, '//***:***@')) // Hide credentials in logs
   export const sequelize = new Sequelize(process.env.DATABASE_URL, {
     dialect: 'mysql',
     logging: false,
