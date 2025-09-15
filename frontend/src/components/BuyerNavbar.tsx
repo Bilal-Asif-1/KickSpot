@@ -6,7 +6,6 @@ import { useAppSelector, useAppDispatch } from '@/store'
 import { logoutUser } from '@/store/authSlice'
 import { addNotification, fetchUnreadCount, setUnreadCount } from '@/store/notificationSlice'
 import type { Notification } from '@/store/notificationSlice'
-import ThemeToggle from '@/components/ThemeToggle'
 import NotificationDrawer from '@/components/NotificationDrawer'
 import CartDrawer from '@/components/CartDrawer'
 import { toast } from 'sonner'
@@ -135,7 +134,6 @@ export default function BuyerNavbar() {
           )}
         </nav>
         <div className="ml-auto flex items-center gap-2 md:ml-4">
-          <ThemeToggle />
           <Button 
             variant="ghost" 
             size="icon" 

@@ -2,10 +2,6 @@
 @tailwind components;
 @tailwind utilities;
 
-@tailwind base;
-@tailwind components;
-@tailwind utilities;
-
 /* Custom responsive breakpoints for extra small screens */
 @media (max-width: 475px) {
   .xs\:grid-cols-2 {

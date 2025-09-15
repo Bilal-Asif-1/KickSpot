@@ -13,13 +13,31 @@ import { toast } from 'sonner'
 import { SparklesCore } from '@/components/ui/sparkles'
 
 const schema = z.object({
-  name: z.string().min(2),
-  email: z.string().email(),
-  password: z.string().min(6),
+  name: z.string()
+    .min(2, "Name must be at least 2 characters")
+    .max(50, "Name must be less than 50 characters")
+    .regex(/^[a-zA-Z\s]+$/, "Name can only contain letters and spaces"),
+  
+  email: z.string()
+    .email("Please enter a valid email address")
+    .min(5, "Email must be at least 5 characters")
+    .max(100, "Email must be less than 100 characters"),
+  
+  password: z.string()
+    .min(6, "Password must be at least 6 characters")
+    .max(50, "Password must be less than 50 characters")
+    .regex(/^(?=.*[a-z])(?=.*[A-Z])(?=.*\d)/, "Password must contain at least one uppercase letter, one lowercase letter, and one number"),
+  
   role: z.enum(['buyer', 'seller']),
+  
   // Common fields for both buyers and sellers
-  contactNumber: z.string().min(10),
-  deliveryAddress: z.string().min(10).optional(),
+  contactNumber: z.string()
+    .min(10, "Contact number must be at least 10 digits")
+    .max(15, "Contact number must be less than 15 digits")
+    .regex(/^[\+]?[0-9\s\-\(\)]+$/, "Please enter a valid contact number"),
+  
+  deliveryAddress: z.string().optional(),
+  
   // Seller-specific fields
   businessAddress: z.string().optional(),
   cnicNumber: z.string().optional(),
@@ -28,25 +46,42 @@ const schema = z.object({
 }).refine((data) => {
   // If role is buyer, deliveryAddress is required
   if (data.role === 'buyer') {
-    return data.deliveryAddress && data.deliveryAddress.trim().length > 0
+    return data.deliveryAddress && data.deliveryAddress.trim().length >= 10
   }
-  // For sellers, delivery address is not required
   return true
 }, {
-  message: "Delivery address is required for buyers",
+  message: "Delivery address is required and must be at least 10 characters for buyers",
   path: ["deliveryAddress"]
 }).refine((data) => {
   // If role is seller, make seller fields required
   if (data.role === 'seller') {
-    return data.businessAddress && data.businessAddress.trim().length > 0 &&
-           data.cnicNumber && data.cnicNumber.trim().length > 0 &&
-           data.bankAccountNumber && data.bankAccountNumber.trim().length > 0 &&
-           data.bankName && data.bankName.trim().length > 0
+    return data.businessAddress && data.businessAddress.trim().length >= 10 &&
+           data.cnicNumber && data.cnicNumber.trim().length >= 13 &&
+           data.bankAccountNumber && data.bankAccountNumber.trim().length >= 10 &&
+           data.bankName && data.bankName.trim().length >= 2
   }
   return true
 }, {
   message: "All seller fields are required when registering as a seller",
-  path: ["businessAddress"] // This will show the error on the businessAddress field
+  path: ["businessAddress"]
+}).refine((data) => {
+  // CNIC validation for sellers
+  if (data.role === 'seller' && data.cnicNumber) {
+    return /^\d{5}-\d{7}-\d{1}$/.test(data.cnicNumber.trim())
+  }
+  return true
+}, {
+  message: "CNIC must be in format: 12345-1234567-1",
+  path: ["cnicNumber"]
+}).refine((data) => {
+  // Bank account validation for sellers
+  if (data.role === 'seller' && data.bankAccountNumber) {
+    return /^\d{10,20}$/.test(data.bankAccountNumber.trim())
+  }
+  return true
+}, {
+  message: "Bank account number must be 10-20 digits",
+  path: ["bankAccountNumber"]
 })
 
 export default function RegisterPage() {
@@ -54,6 +89,26 @@ export default function RegisterPage() {
   const navigate = useNavigate()
   const { loading, error } = useAppSelector(s => s.auth)
   const [selectedRole, setSelectedRole] = useState<'buyer' | 'seller'>('buyer')
+  const [password, setPassword] = useState('')
+  
+  // Password strength checker
+  const getPasswordStrength = (password: string) => {
+    let score = 0
+    if (password.length >= 6) score++
+    if (/[a-z]/.test(password)) score++
+    if (/[A-Z]/.test(password)) score++
+    if (/\d/.test(password)) score++
+    if (/[^a-zA-Z\d]/.test(password)) score++
+    return score
+  }
+  
+  const passwordStrength = getPasswordStrength(password)
+  const getStrengthColor = (strength: number) => {
+    if (strength <= 2) return 'bg-red-500'
+    if (strength <= 3) return 'bg-yellow-500'
+    return 'bg-green-500'
+  }
+  
   const form = useForm<z.infer<typeof schema>>({ 
     resolver: zodResolver(schema), 
     defaultValues: { 
@@ -71,47 +126,91 @@ export default function RegisterPage() {
   })
 
   async function onSubmit(values: z.infer<typeof schema>) {
-    console.log('🚀 FORM SUBMITTED!')
-    console.log('Form values:', values)
-    console.log('Selected role:', selectedRole)
-    
-    const res = await dispatch(registerUser(values))
-    console.log('Registration response:', res)
-    
-    if ((res as any).meta.requestStatus === 'fulfilled') {
-      const user = (res as any).payload
-      console.log('Registration successful, user:', user)
+    try {
+      console.log('🚀 FORM SUBMITTED!')
+      console.log('Form values:', values)
+      console.log('Selected role:', selectedRole)
       
-      toast.success(`Registration successful! Welcome to KickSpot, ${user.name}!`, {
-        style: {
-          background: '#dc2626',
-          color: '#ffffff',
-          fontWeight: 'bold',
-          borderRadius: '9999px',
-          padding: '10px 16px',
-          fontSize: '14px',
-          border: 'none',
-          boxShadow: '0 4px 12px rgba(0, 0, 0, 0.15)',
-          width: 'fit-content',
-          minWidth: 'auto'
+      // Clean up the data before sending
+      const cleanValues = {
+        ...values,
+        name: values.name.trim(),
+        email: values.email.trim().toLowerCase(),
+        contactNumber: values.contactNumber.trim(),
+        deliveryAddress: values.deliveryAddress?.trim() || '',
+        businessAddress: values.businessAddress?.trim() || '',
+        cnicNumber: values.cnicNumber?.trim() || '',
+        bankAccountNumber: values.bankAccountNumber?.trim() || '',
+        bankName: values.bankName?.trim() || ''
+      }
+      
+      console.log('Cleaned values:', cleanValues)
+      
+      const res = await dispatch(registerUser(cleanValues))
+      console.log('Registration response:', res)
+      
+      if ((res as any).meta.requestStatus === 'fulfilled') {
+        const user = (res as any).payload
+        console.log('Registration successful, user:', user)
+        
+        toast.success(`Registration successful! Welcome to KickSpot, ${user.name}!`, {
+          style: {
+            background: '#10b981',
+            color: '#ffffff',
+            fontWeight: 'bold',
+            borderRadius: '9999px',
+            padding: '10px 16px',
+            fontSize: '14px',
+            border: 'none',
+            boxShadow: '0 4px 12px rgba(0, 0, 0, 0.15)',
+            width: 'fit-content',
+            minWidth: 'auto'
+          }
+        })
+        
+        // Redirect based on user role
+        console.log('Registration successful, redirecting based on role:', user.role)
+        if (user.role === 'seller') {
+          navigate('/admin') // Redirect sellers to admin dashboard
+        } else {
+          navigate('/') // Redirect buyers to homepage
         }
-      })
-      
-      // Redirect to login page with success message
-      console.log('Registration successful, redirecting to login')
-      navigate('/login', { 
-        state: { 
-          message: `Registration successful! Welcome to KickSpot, ${user.name}! Please login to continue.`,
-          email: user.email 
-        } 
-      })
-    } else {
-      const error = (res as any).payload || (res as any).error?.message || 'Registration failed'
-      console.error('Registration failed:', error)
-      
-      toast.error(`Registration failed: ${error}`, {
+      } else {
+        const error = (res as any).payload || (res as any).error?.message || 'Registration failed'
+        console.error('Registration failed:', error)
+        
+        // Handle specific error messages
+        let errorMessage = 'Registration failed. Please try again.'
+        if (error.includes('email')) {
+          errorMessage = 'This email is already registered. Please use a different email.'
+        } else if (error.includes('password')) {
+          errorMessage = 'Password does not meet requirements.'
+        } else if (error.includes('validation')) {
+          errorMessage = 'Please check all fields and try again.'
+        } else if (error.includes('network') || error.includes('fetch')) {
+          errorMessage = 'Network error. Please check your connection and try again.'
+        }
+        
+        toast.error(errorMessage, {
+          style: {
+            background: '#ef4444',
+            color: '#ffffff',
+            fontWeight: 'bold',
+            borderRadius: '9999px',
+            padding: '10px 16px',
+            fontSize: '14px',
+            border: 'none',
+            boxShadow: '0 4px 12px rgba(0, 0, 0, 0.15)',
+            width: 'fit-content',
+            minWidth: 'auto'
+          }
+        })
+      }
+    } catch (error) {
+      console.error('Unexpected error during registration:', error)
+      toast.error('An unexpected error occurred. Please try again.', {
         style: {
-          background: '#dc2626',
+          background: '#ef4444',
           color: '#ffffff',
           fontWeight: 'bold',
           borderRadius: '9999px',
@@ -162,26 +261,26 @@ export default function RegisterPage() {
               <p className="text-gray-300 text-sm">Start your sneaker journey today</p>
             </div>
 
-      <Form {...form}>
+            <Form {...form}>
               <form onSubmit={form.handleSubmit(onSubmit)} className="space-y-3">
                 {/* Role Selection - Always show */}
                 <FormField name="role" control={form.control} render={({ field }) => (
                   <FormItem>
                     <FormLabel className="text-white font-medium text-sm">Account Type</FormLabel>
-                    <Select onValueChange={(value) => {
-                      field.onChange(value)
-                      setSelectedRole(value as 'buyer' | 'seller')
-                    }} defaultValue={field.value}>
-                      <FormControl>
+                    <FormControl>
+                      <Select onValueChange={(value) => {
+                        field.onChange(value)
+                        setSelectedRole(value as 'buyer' | 'seller')
+                      }} defaultValue={field.value}>
                         <SelectTrigger className="bg-white/20 border-white/30 text-white focus:border-white/50 h-10">
                           <SelectValue placeholder="Select your account type" />
                         </SelectTrigger>
-                      </FormControl>
-                      <SelectContent className="bg-gray-800 border-gray-600">
-                        <SelectItem value="buyer" className="text-white hover:bg-gray-700">Customer (Buyer)</SelectItem>
-                        <SelectItem value="seller" className="text-white hover:bg-gray-700">Seller</SelectItem>
-                      </SelectContent>
-                    </Select>
+                        <SelectContent className="bg-gray-800 border-gray-600">
+                          <SelectItem value="buyer" className="text-white hover:bg-gray-700">Customer (Buyer)</SelectItem>
+                          <SelectItem value="seller" className="text-white hover:bg-gray-700">Seller</SelectItem>
+                        </SelectContent>
+                      </Select>
+                    </FormControl>
                     <FormMessage className="text-red-300 text-xs" />
                   </FormItem>
                 )} />
@@ -195,9 +294,10 @@ export default function RegisterPage() {
                           <FormLabel className="text-white font-medium text-sm">Full Name</FormLabel>
                           <FormControl>
                             <Input 
-                              placeholder="Enter your full name" 
+                              placeholder="e.g., John Doe" 
                               {...field} 
                               className="bg-white/20 border-white/30 text-white placeholder:text-gray-300 focus:border-white/50 h-10"
+                              maxLength={50}
                             />
                           </FormControl>
                           <FormMessage className="text-red-300 text-xs" />
@@ -210,9 +310,10 @@ export default function RegisterPage() {
                           <FormControl>
                             <Input 
                               type="email" 
-                              placeholder="you@example.com" 
+                              placeholder="john.doe@example.com" 
                               {...field} 
                               className="bg-white/20 border-white/30 text-white placeholder:text-gray-300 focus:border-white/50 h-10"
+                              maxLength={100}
                             />
                           </FormControl>
                           <FormMessage className="text-red-300 text-xs" />
@@ -229,6 +330,7 @@ export default function RegisterPage() {
                               placeholder="+92 300 1234567" 
                               {...field} 
                               className="bg-white/20 border-white/30 text-white placeholder:text-gray-300 focus:border-white/50 h-10"
+                              maxLength={15}
                             />
                           </FormControl>
                           <FormMessage className="text-red-300 text-xs" />
@@ -241,11 +343,40 @@ export default function RegisterPage() {
                           <FormControl>
                             <Input 
                               type="password" 
-                              placeholder="Create a strong password" 
+                              placeholder="Password123" 
                               {...field} 
+                              onChange={(e) => {
+                                field.onChange(e)
+                                setPassword(e.target.value)
+                              }}
                               className="bg-white/20 border-white/30 text-white placeholder:text-gray-300 focus:border-white/50 h-10"
+                              maxLength={50}
                             />
                           </FormControl>
+                          <div className="mt-1 min-h-[20px]">
+                            {password && (
+                              <div>
+                                <div className="flex space-x-1">
+                                  {[1, 2, 3, 4, 5].map((level) => (
+                                    <div
+                                      key={level}
+                                      className={`h-1 w-full rounded ${
+                                        level <= passwordStrength 
+                                          ? getStrengthColor(passwordStrength)
+                                          : 'bg-gray-300'
+                                      }`}
+                                    />
+                                  ))}
+                                </div>
+                                <p className="text-xs text-gray-300 mt-1">
+                                  Password strength: {
+                                    passwordStrength <= 2 ? 'Weak' :
+                                    passwordStrength <= 3 ? 'Medium' : 'Strong'
+                                  }
+                                </p>
+                              </div>
+                            )}
+                          </div>
                           <FormMessage className="text-red-300 text-xs" />
                         </FormItem>
                       )} />
@@ -256,9 +387,10 @@ export default function RegisterPage() {
                         <FormLabel className="text-white font-medium text-sm">Delivery Address</FormLabel>
                         <FormControl>
                           <Input 
-                            placeholder="Your complete delivery address" 
+                            placeholder="House 123, Street 45, City, Country" 
                             {...field} 
                             className="bg-white/20 border-white/30 text-white placeholder:text-gray-300 focus:border-white/50 h-10"
+                            maxLength={200}
                           />
                         </FormControl>
                         <FormMessage className="text-red-300 text-xs" />
@@ -271,126 +403,161 @@ export default function RegisterPage() {
                 {selectedRole === 'seller' && (
                   <div className="space-y-3">
                     <div className="grid grid-cols-2 gap-4">
-                      {/* Left Column */}
-                      <div className="space-y-3">
-          <FormField name="name" control={form.control} render={({ field }) => (
-            <FormItem>
-                            <FormLabel className="text-white font-medium text-sm">Full Name</FormLabel>
-              <FormControl>
-                              <Input 
-                                placeholder="Enter your full name" 
-                                {...field} 
-                                className="bg-white/20 border-white/30 text-white placeholder:text-gray-300 focus:border-white/50 h-10"
-                              />
-              </FormControl>
-                            <FormMessage className="text-red-300 text-xs" />
-            </FormItem>
-          )} />
+                      <FormField name="name" control={form.control} render={({ field }) => (
+                        <FormItem>
+                          <FormLabel className="text-white font-medium text-sm">Full Name</FormLabel>
+                          <FormControl>
+                            <Input 
+                              placeholder="e.g., John Doe" 
+                              {...field} 
+                              className="bg-white/20 border-white/30 text-white placeholder:text-gray-300 focus:border-white/50 h-10"
+                              maxLength={50}
+                            />
+                          </FormControl>
+                          <FormMessage className="text-red-300 text-xs" />
+                        </FormItem>
+                      )} />
 
-          <FormField name="email" control={form.control} render={({ field }) => (
-            <FormItem>
-                            <FormLabel className="text-white font-medium text-sm">Email Address</FormLabel>
-              <FormControl>
-                              <Input 
-                                type="email" 
-                                placeholder="you@example.com" 
-                                {...field} 
-                                className="bg-white/20 border-white/30 text-white placeholder:text-gray-300 focus:border-white/50 h-10"
-                              />
-              </FormControl>
-                            <FormMessage className="text-red-300 text-xs" />
-            </FormItem>
-          )} />
+                      <FormField name="email" control={form.control} render={({ field }) => (
+                        <FormItem>
+                          <FormLabel className="text-white font-medium text-sm">Email Address</FormLabel>
+                          <FormControl>
+                            <Input 
+                              type="email" 
+                              placeholder="john.doe@example.com" 
+                              {...field} 
+                              className="bg-white/20 border-white/30 text-white placeholder:text-gray-300 focus:border-white/50 h-10"
+                              maxLength={100}
+                            />
+                          </FormControl>
+                          <FormMessage className="text-red-300 text-xs" />
+                        </FormItem>
+                      )} />
+                    </div>
 
-          <FormField name="password" control={form.control} render={({ field }) => (
-            <FormItem>
-                            <FormLabel className="text-white font-medium text-sm">Password</FormLabel>
-                            <FormControl>
-                              <Input 
-                                type="password" 
-                                placeholder="Create a strong password" 
-                                {...field} 
-                                className="bg-white/20 border-white/30 text-white placeholder:text-gray-300 focus:border-white/50 h-10"
-                              />
-                            </FormControl>
-                            <FormMessage className="text-red-300 text-xs" />
-                          </FormItem>
-                        )} />
+                    <div className="grid grid-cols-2 gap-4">
+                      <FormField name="password" control={form.control} render={({ field }) => (
+                        <FormItem>
+                          <FormLabel className="text-white font-medium text-sm">Password</FormLabel>
+                          <FormControl>
+                            <Input 
+                              type="password" 
+                              placeholder="Password123" 
+                              {...field} 
+                              onChange={(e) => {
+                                field.onChange(e)
+                                setPassword(e.target.value)
+                              }}
+                              className="bg-white/20 border-white/30 text-white placeholder:text-gray-300 focus:border-white/50 h-10"
+                              maxLength={50}
+                            />
+                          </FormControl>
+                          <div className="mt-1 min-h-[20px]">
+                            {password && (
+                              <div>
+                                <div className="flex space-x-1">
+                                  {[1, 2, 3, 4, 5].map((level) => (
+                                    <div
+                                      key={level}
+                                      className={`h-1 w-full rounded ${
+                                        level <= passwordStrength 
+                                          ? getStrengthColor(passwordStrength)
+                                          : 'bg-gray-300'
+                                      }`}
+                                    />
+                                  ))}
+                                </div>
+                                <p className="text-xs text-gray-300 mt-1">
+                                  Password strength: {
+                                    passwordStrength <= 2 ? 'Weak' :
+                                    passwordStrength <= 3 ? 'Medium' : 'Strong'
+                                  }
+                                </p>
+                              </div>
+                            )}
+                          </div>
+                          <FormMessage className="text-red-300 text-xs" />
+                        </FormItem>
+                      )} />
 
-                        <FormField name="contactNumber" control={form.control} render={({ field }) => (
-                          <FormItem>
-                            <FormLabel className="text-white font-medium text-sm">Contact Number</FormLabel>
-                            <FormControl>
-                              <Input 
-                                placeholder="+92 300 1234567" 
-                                {...field} 
-                                className="bg-white/20 border-white/30 text-white placeholder:text-gray-300 focus:border-white/50 h-10"
-                              />
-                            </FormControl>
-                            <FormMessage className="text-red-300 text-xs" />
-                          </FormItem>
-                        )} />
+                      <FormField name="contactNumber" control={form.control} render={({ field }) => (
+                        <FormItem>
+                          <FormLabel className="text-white font-medium text-sm">Contact Number</FormLabel>
+                          <FormControl>
+                            <Input 
+                              placeholder="+92 300 1234567" 
+                              {...field} 
+                              className="bg-white/20 border-white/30 text-white placeholder:text-gray-300 focus:border-white/50 h-10"
+                              maxLength={15}
+                            />
+                          </FormControl>
+                          <FormMessage className="text-red-300 text-xs" />
+                        </FormItem>
+                      )} />
+                    </div>
 
-                      </div>
+                    <div className="grid grid-cols-2 gap-4">
+                      <FormField name="businessAddress" control={form.control} render={({ field }) => (
+                        <FormItem>
+                          <FormLabel className="text-white font-medium text-sm">Business Address</FormLabel>
+                          <FormControl>
+                            <Input 
+                              placeholder="Shop 123, Mall Road, City" 
+                              {...field} 
+                              className="bg-white/20 border-white/30 text-white placeholder:text-gray-300 focus:border-white/50 h-10"
+                              maxLength={200}
+                            />
+                          </FormControl>
+                          <FormMessage className="text-red-300 text-xs" />
+                        </FormItem>
+                      )} />
 
-                      {/* Right Column - Seller-specific fields */}
-                      <div className="space-y-3">
-                        <FormField name="businessAddress" control={form.control} render={({ field }) => (
-                          <FormItem>
-                            <FormLabel className="text-white font-medium text-sm">Business Address</FormLabel>
-                            <FormControl>
-                              <Input 
-                                placeholder="Your business address" 
-                                {...field} 
-                                className="bg-white/20 border-white/30 text-white placeholder:text-gray-300 focus:border-white/50 h-10"
-                              />
-                            </FormControl>
-                            <FormMessage className="text-red-300 text-xs" />
-                          </FormItem>
-                        )} />
+                      <FormField name="cnicNumber" control={form.control} render={({ field }) => (
+                        <FormItem>
+                          <FormLabel className="text-white font-medium text-sm">CNIC Number</FormLabel>
+                          <FormControl>
+                            <Input 
+                              placeholder="12345-1234567-1" 
+                              {...field} 
+                              className="bg-white/20 border-white/30 text-white placeholder:text-gray-300 focus:border-white/50 h-10"
+                              maxLength={15}
+                            />
+                          </FormControl>
+                          <FormMessage className="text-red-300 text-xs" />
+                        </FormItem>
+                      )} />
+                    </div>
 
-                        <FormField name="cnicNumber" control={form.control} render={({ field }) => (
-                          <FormItem>
-                            <FormLabel className="text-white font-medium text-sm">CNIC Number</FormLabel>
-                            <FormControl>
-                              <Input 
-                                placeholder="12345-1234567-1" 
-                                {...field} 
-                                className="bg-white/20 border-white/30 text-white placeholder:text-gray-300 focus:border-white/50 h-10"
-                              />
-                            </FormControl>
-                            <FormMessage className="text-red-300 text-xs" />
-                          </FormItem>
-                        )} />
+                    <div className="grid grid-cols-2 gap-4">
+                      <FormField name="bankAccountNumber" control={form.control} render={({ field }) => (
+                        <FormItem>
+                          <FormLabel className="text-white font-medium text-sm">Account Number</FormLabel>
+                          <FormControl>
+                            <Input 
+                              placeholder="1234567890123456" 
+                              {...field} 
+                              className="bg-white/20 border-white/30 text-white placeholder:text-gray-300 focus:border-white/50 h-10"
+                              maxLength={20}
+                            />
+                          </FormControl>
+                          <FormMessage className="text-red-300 text-xs" />
+                        </FormItem>
+                      )} />
 
-                        <FormField name="bankName" control={form.control} render={({ field }) => (
-                          <FormItem>
-                            <FormLabel className="text-white font-medium text-sm">Bank Name</FormLabel>
-              <FormControl>
-                              <Input 
-                                placeholder="Enter bank name (e.g., HBL, MCB, UBL)" 
-                                {...field} 
-                                className="bg-white/20 border-white/30 text-white placeholder:text-gray-300 focus:border-white/50 h-10"
-                              />
-              </FormControl>
-                            <FormMessage className="text-red-300 text-xs" />
-            </FormItem>
-          )} />
-
-                        <FormField name="bankAccountNumber" control={form.control} render={({ field }) => (
-            <FormItem>
-                            <FormLabel className="text-white font-medium text-sm">Account Number</FormLabel>
-                <FormControl>
-                              <Input 
-                                placeholder="1234567890123456" 
-                                {...field} 
-                                className="bg-white/20 border-white/30 text-white placeholder:text-gray-300 focus:border-white/50 h-10"
-                              />
-                </FormControl>
-                            <FormMessage className="text-red-300 text-xs" />
-            </FormItem>
-          )} />
-                      </div>
+                      <FormField name="bankName" control={form.control} render={({ field }) => (
+                        <FormItem>
+                          <FormLabel className="text-white font-medium text-sm">Bank Name</FormLabel>
+                          <FormControl>
+                            <Input 
+                              placeholder="HBL, MCB, UBL, etc." 
+                              {...field} 
+                              className="bg-white/20 border-white/30 text-white placeholder:text-gray-300 focus:border-white/50 h-10"
+                              maxLength={50}
+                            />
+                          </FormControl>
+                          <FormMessage className="text-red-300 text-xs" />
+                        </FormItem>
+                      )} />
                     </div>
                   </div>
                 )}
@@ -404,56 +571,12 @@ export default function RegisterPage() {
                 <Button 
                   type="submit" 
                   disabled={loading} 
-                  onClick={(e) => {
-                    e.preventDefault()
-                    console.log('🔘 BUTTON CLICKED!')
-                    console.log('Form values:', form.getValues())
-                    console.log('Form errors:', form.formState.errors)
-                    console.log('Form is valid:', form.formState.isValid)
-                    
-                    // Test direct API call
-                    const values = form.getValues()
-                    
-                    // Clean up the data - remove empty deliveryAddress for sellers
-                    const cleanValues = { ...values }
-                    if (cleanValues.role === 'seller' && (!cleanValues.deliveryAddress || cleanValues.deliveryAddress.trim() === '')) {
-                      delete cleanValues.deliveryAddress
-                    }
-                    
-                    console.log('Testing direct API call with values:', cleanValues)
-                    console.log('JSON stringified:', JSON.stringify(cleanValues))
-                    
-                    fetch('http://localhost:5000/api/v1/auth/register', {
-                      method: 'POST',
-                      headers: {
-                        'Content-Type': 'application/json',
-                      },
-                      body: JSON.stringify(cleanValues)
-                    })
-                    .then(response => {
-                      console.log('Response status:', response.status)
-                      return response.json()
-                    })
-                    .then(data => {
-                      console.log('✅ API response:', data)
-                      if (data.id) {
-                        alert('Registration successful! User ID: ' + data.id)
-                      } else {
-                        alert('Registration failed: ' + (data.message || 'Unknown error'))
-                        console.log('Full response:', data)
-                      }
-                    })
-                    .catch(error => {
-                      console.error('❌ Direct API call failed:', error)
-                      alert('Registration failed: ' + error.message)
-                    })
-                  }}
-                  className="w-full bg-white text-black hover:bg-gray-200 font-semibold py-2 text-base rounded-lg transition-all duration-200 mt-4"
+                  className="w-full bg-white text-black hover:bg-gray-200 font-semibold py-2 text-base rounded-lg transition-all duration-200 mt-4 disabled:opacity-50 disabled:cursor-not-allowed"
                 >
                   {loading ? 'Creating Account...' : 'Create Account'}
                 </Button>
-        </form>
-      </Form>
+              </form>
+            </Form>
 
             {/* Login Link */}
             <div className="text-center mt-4">

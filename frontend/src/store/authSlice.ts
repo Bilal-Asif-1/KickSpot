@@ -71,10 +71,25 @@ export const registerUser = createAsyncThunk(
     cnicNumber?: string;
     bankAccountNumber?: string;
     bankName?: string;
-  }, { rejectWithValue }) => {
+  }, { rejectWithValue, dispatch }) => {
     try {
       const res = await axios.post(`${import.meta.env.VITE_API_URL || 'http://localhost:5000'}/api/v1/auth/register`, payload)
-      return res.data as { id: number; name: string; email: string; role: 'buyer' | 'seller' }
+      const { token, ...userData } = res.data
+      
+      // If token is provided, automatically login the user
+      if (token) {
+        localStorage.setItem('token', token)
+        
+        // Dispatch login action to update state
+        dispatch(login.fulfilled({ user: userData, token }, '', { email: payload.email, password: payload.password }))
+        
+        // Fetch notifications for sellers
+        if (userData.role === 'seller') {
+          dispatch(fetchNotifications({ page: 1, limit: 20 }))
+        }
+      }
+      
+      return res.data
     } catch (error: any) {
       return rejectWithValue(error.response?.data?.message || 'Registration failed')
     }

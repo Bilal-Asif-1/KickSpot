@@ -115,6 +115,19 @@ export async function register(req: Request, res: Response) {
   
   console.log('✅ User created successfully:', user.id)
   
+  // Generate JWT token for automatic login
+  const token = jwt.sign(
+    { 
+      id: user.id, 
+      email: user.email, 
+      role: user.role 
+    },
+    process.env.JWT_SECRET || 'your-secret-key',
+    { expiresIn: '7d' }
+  )
+  
+  console.log('🔑 Token generated for new user')
+  
   return res.status(201).json({ 
     id: user.id, 
     name: user.name, 
@@ -125,7 +138,8 @@ export async function register(req: Request, res: Response) {
     businessAddress: user.businessAddress,
     cnicNumber: user.cnicNumber,
     bankAccountNumber: user.bankAccountNumber,
-    bankName: user.bankName
+    bankName: user.bankName,
+    token // Include token for automatic login
   })
 }
 

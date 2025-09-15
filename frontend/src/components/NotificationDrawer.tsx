@@ -224,7 +224,7 @@ export default function NotificationDrawer({ isOpen, onClose, onUnreadCountChang
       />
       
       {/* Drawer */}
-      <div className="fixed right-0 top-0 h-full w-full sm:w-96 bg-white shadow-xl z-40 transform transition-transform duration-300 ease-in-out">
+      <div className="fixed right-0 top-0 h-full w-full sm:w-96 md:w-[480px] lg:w-[520px] bg-white shadow-xl z-40 transform transition-transform duration-300 ease-in-out overflow-hidden flex flex-col isolate">
         <div className="flex flex-col h-full">
           {/* Header */}
           <div className="flex items-center justify-between p-2 sm:p-3 lg:p-4 border-b">

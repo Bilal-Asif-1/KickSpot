@@ -37,6 +37,7 @@ function AppContent() {
   const isSellerRoute = location.pathname.startsWith('/admin')
   const isOriginalLayout = location.pathname.startsWith('/original')
   const isCustomLayout = location.pathname === '/custom'
+  const isAuthPage = location.pathname === '/login' || location.pathname === '/register'
   const isSeller = user?.role === 'seller'
 
   // Initialize cart persistence
@@ -70,7 +71,7 @@ function AppContent() {
       {/* Show logout loading screen */}
       {logoutLoading && <LogoutLoadingScreen />}
       
-      {!isCustomLayout && !isOriginalLayout && ((isSellerRoute || isSeller) ? <AdminNavbar /> : null)}
+      {!isCustomLayout && !isOriginalLayout && !isAuthPage && ((isSellerRoute || isSeller) ? <AdminNavbar /> : null)}
           <Routes>
         <Route path="/" element={
           isSeller ? <Navigate to="/admin" replace /> : (

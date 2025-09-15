@@ -50,20 +50,24 @@ export const fetchProducts = createAsyncThunk('products/fetch', async () => {
 
 export const fetchSaleProducts = createAsyncThunk('products/fetchSaleProducts', async () => {
   try {
+    console.log('Fetching sale products from API...')
     const res = await axios.get<Product[]>(`${import.meta.env.VITE_API_URL || 'http://localhost:5000'}/api/v1/products/sale`)
+    console.log('Sale products API response:', res.data)
     return res.data
   } catch (error) {
-    console.log('Sale Products API not available, using sample data')
+    console.log('Sale Products API not available, using sample data', error)
     return []
   }
 })
 
 export const fetchBestSellers = createAsyncThunk('products/fetchBestSellers', async () => {
   try {
+    console.log('Fetching best sellers from API...')
     const res = await axios.get<Product[]>(`${import.meta.env.VITE_API_URL || 'http://localhost:5000'}/api/v1/products/bestsellers`)
+    console.log('Best sellers API response:', res.data)
     return res.data
   } catch (error) {
-    console.log('Best Sellers API not available, using sample data')
+    console.log('Best Sellers API not available, using sample data', error)
     return []
   }
 })
@@ -120,9 +124,11 @@ const productsSlice = createSlice({
         state.error = action.error.message
       })
       .addCase(fetchSaleProducts.fulfilled, (state, action: PayloadAction<Product[]>) => {
+        console.log('Storing sale products in Redux store:', action.payload)
         state.saleProducts = action.payload
       })
       .addCase(fetchBestSellers.fulfilled, (state, action: PayloadAction<Product[]>) => {
+        console.log('Storing best sellers in Redux store:', action.payload)
         state.bestSellers = action.payload
       })
       .addCase(fetchMenProducts.fulfilled, (state, action: PayloadAction<any>) => {

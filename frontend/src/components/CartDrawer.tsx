@@ -5,10 +5,6 @@ import {
   Plus, 
   Minus, 
   ShoppingBag, 
-  Gift, 
-  ChevronDown,
-  ChevronLeft,
-  ChevronRight,
   Truck
 } from 'lucide-react'
 import { toast } from 'sonner'
@@ -22,62 +18,18 @@ type CartDrawerProps = {
 }
 
 
-type RecommendedProduct = {
-  id: number
-  name: string
-  price: number
-  originalPrice?: number
-  image_url?: string
-  colors?: string[]
-  sizes?: string[]
-  category?: string
-}
 
 export default function CartDrawer({ isOpen, onClose }: CartDrawerProps) {
   const dispatch = useAppDispatch()
   const navigate = useNavigate()
   const { items, total } = useAppSelector(state => state.cart)
-  const [recommendedProducts, setRecommendedProducts] = useState<RecommendedProduct[]>([])
-  const [showRecommended, setShowRecommended] = useState(true)
   const [freeShippingEarned, setFreeShippingEarned] = useState(false)
 
   useEffect(() => {
     if (isOpen) {
-      loadRecommendedProducts()
       checkFreeShipping()
     }
   }, [isOpen, total])
-
-  const loadRecommendedProducts = async () => {
-    try {
-      // Mock recommended products - replace with actual API call
-      const mockRecommended = [
-        {
-          id: 101,
-          name: 'Anytime No Show Sock',
-          price: 9,
-          originalPrice: 14,
-          image_url: '/api/placeholder/80/80',
-          colors: ['white', 'black', 'grey', 'beige', 'dark-grey', 'dark-blue', 'navy'],
-          sizes: ['S (W5-7)', 'M (W8-10)', 'L (W11-13)'],
-          category: 'Accessories'
-        },
-        {
-          id: 102,
-          name: 'Performance Running Sock',
-          price: 12,
-          originalPrice: 16,
-          image_url: '/api/placeholder/80/80',
-          colors: ['white', 'black', 'grey'],
-          sizes: ['S (W5-7)', 'M (W8-10)', 'L (W11-13)'],
-          category: 'Accessories'
-        }
-      ]
-      setRecommendedProducts(mockRecommended)
-    } catch (error) {
-      console.error('Failed to load recommended products:', error)
-    }
-  }
 
   const checkFreeShipping = () => {
     // Free shipping threshold - adjust as needed
@@ -125,37 +77,6 @@ export default function CartDrawer({ isOpen, onClose }: CartDrawerProps) {
     })
   }
 
-  const handleAddRecommended = (product: RecommendedProduct) => {
-    // Add recommended product to cart
-    const processedImageUrl = product.image_url?.startsWith('http') 
-      ? product.image_url 
-      : `${import.meta.env.VITE_API_URL || 'http://localhost:5000'}${product.image_url || ''}`
-    
-    const cartItem = {
-      id: product.id,
-      name: product.name,
-      price: product.price,
-      quantity: 1,
-      image_url: processedImageUrl,
-      category: product.category
-    }
-    
-    // This would typically dispatch an action to add to cart
-    toast.success(`${product.name} added to cart`, {
-      style: {
-        background: '#dc2626',
-        color: '#ffffff',
-        fontWeight: 'bold',
-        borderRadius: '9999px',
-        padding: '10px 16px',
-        fontSize: '14px',
-        border: 'none',
-        boxShadow: '0 4px 12px rgba(0, 0, 0, 0.15)',
-        width: 'fit-content',
-        minWidth: 'auto'
-      }
-    })
-  }
 
   const handleCheckout = () => {
     if (items.length === 0) {
@@ -194,7 +115,7 @@ export default function CartDrawer({ isOpen, onClose }: CartDrawerProps) {
       />
       
       {/* Cart Drawer */}
-      <div className="fixed right-0 top-0 h-full w-full sm:w-96 md:w-[480px] bg-white shadow-xl z-[200] transform transition-transform duration-300 ease-in-out overflow-hidden flex flex-col isolate" style={{ zIndex: 200 }}>
+      <div className="fixed right-0 top-0 h-full w-full sm:w-96 md:w-[480px] lg:w-[520px] bg-white shadow-xl z-[200] transform transition-transform duration-300 ease-in-out overflow-hidden flex flex-col isolate" style={{ zIndex: 200 }}>
         
         {/* Header */}
         <div className="flex items-center justify-between p-3 sm:p-4 border-b bg-white relative z-10 isolate">

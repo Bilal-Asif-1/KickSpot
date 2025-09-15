@@ -8,6 +8,10 @@ export function SaleBestSellersSection() {
   const { saleProducts, bestSellers } = useAppSelector(s => s.products)
   const navigate = useNavigate()
   
+  // Debug logging
+  console.log('SaleBestSellersSection - saleProducts:', saleProducts)
+  console.log('SaleBestSellersSection - bestSellers:', bestSellers)
+  
   // Sample data for both categories
   const sampleSaleProducts = [
     { id: 1, name: 'Nike Air Max 270', price: 120, originalPrice: 150, image_url: 'https://images.unsplash.com/photo-1549298916-b41d501d3772?w=800&h=1000&fit=crop', buyCount: 25, discount: 20, isOnSale: true },

@@ -1,6 +1,6 @@
 import { useEffect } from 'react'
 import { useAppDispatch } from '@/store'
-import { fetchProducts } from '@/store/productsSlice'
+import { fetchProducts, fetchSaleProducts, fetchBestSellers } from '@/store/productsSlice'
 
 // Individual Section Components
 import { CategoryCards } from '@/components/CategoryCards'
@@ -17,6 +17,8 @@ export default function HomePage() {
   useEffect(() => {
     // Fetch all product data
     dispatch(fetchProducts())
+    dispatch(fetchSaleProducts())
+    dispatch(fetchBestSellers())
   }, [dispatch])
 
   return (
