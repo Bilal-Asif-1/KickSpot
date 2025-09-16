@@ -15,7 +15,16 @@ app.use(morgan("dev"));
 
 // ✅ Root route (for Railway healthcheck)
 app.get("/", (_req: Request, res: Response) => {
-  res.send("🚀 KickSpot API is live!");
+  res.json({
+    message: "🚀 KickSpot API is live!",
+    status: "running",
+    timestamp: new Date().toISOString(),
+    endpoints: {
+      health: "/api/health",
+      products: "/api/v1/products",
+      auth: "/api/v1/auth"
+    }
+  });
 });
 
 // ✅ Serve uploaded files
