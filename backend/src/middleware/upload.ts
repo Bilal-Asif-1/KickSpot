@@ -17,20 +17,27 @@ if (process.env.CLOUDINARY_CLOUD_NAME && process.env.CLOUDINARY_API_KEY && proce
 // Configure temporary storage for Cloudinary upload
 const storage = multer.diskStorage({
   destination: (req: Request, file: Express.Multer.File, cb: Function) => {
-    cb(null, 'uploads/temp/')
+    const uploadPath = path.join(process.cwd(), 'uploads', 'temp')
+    console.log('📁 Multer destination:', uploadPath)
+    cb(null, uploadPath)
   },
   filename: (req: Request, file: Express.Multer.File, cb: Function) => {
     // Generate unique filename: timestamp + random + original extension
     const uniqueSuffix = Date.now() + '-' + Math.round(Math.random() * 1E9)
-    cb(null, file.fieldname + '-' + uniqueSuffix + path.extname(file.originalname))
+    const filename = file.fieldname + '-' + uniqueSuffix + path.extname(file.originalname)
+    console.log('📄 Multer filename:', filename)
+    cb(null, filename)
   }
 })
 
 // File filter for images only
 const fileFilter = (req: Request, file: Express.Multer.File, cb: Function) => {
+  console.log('🔍 File filter - mimetype:', file.mimetype, 'originalname:', file.originalname)
   if (file.mimetype.startsWith('image/')) {
+    console.log('✅ File accepted by filter')
     cb(null, true)
   } else {
+    console.log('❌ File rejected by filter')
     cb(new Error('Only image files are allowed!'), false)
   }
 }

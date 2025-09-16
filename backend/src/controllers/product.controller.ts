@@ -57,8 +57,11 @@ export async function createProduct(req: Request, res: Response) {
     }
 
     // Handle file upload
+    console.log('📤 File upload check - req.file:', req.file)
+    console.log('📤 File upload check - req.files:', req.files)
     let finalImageUrl = image_url || null
     if (req.file) {
+      console.log('✅ File received:', req.file.filename, 'at path:', req.file.path)
       try {
         // Upload to Cloudinary
         finalImageUrl = await uploadToCloudinary(req.file.path)
