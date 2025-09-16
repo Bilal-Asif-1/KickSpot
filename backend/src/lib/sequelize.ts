@@ -1,10 +1,13 @@
 import { Sequelize } from 'sequelize'
 
+// Initialize sequelize instance
+let sequelize: Sequelize
+
 // Check if DATABASE_URL is provided (Railway format)
 if (process.env.DATABASE_URL) {
   console.log('🔄 Using DATABASE_URL for connection...')
   console.log('🔗 Connection URL:', process.env.DATABASE_URL.replace(/\/\/.*@/, '//***:***@')) // Hide credentials in logs
-  export const sequelize = new Sequelize(process.env.DATABASE_URL, {
+  sequelize = new Sequelize(process.env.DATABASE_URL, {
     dialect: 'mysql',
     logging: false,
     pool: {
@@ -28,7 +31,7 @@ if (process.env.DATABASE_URL) {
   console.log('🌐 Host:', dbHost)
   console.log('🔌 Port:', dbPort)
 
-  export const sequelize = new Sequelize(dbName, dbUser, dbPass, {
+  sequelize = new Sequelize(dbName, dbUser, dbPass, {
     host: dbHost,
     port: dbPort,
     dialect: 'mysql',
@@ -41,5 +44,7 @@ if (process.env.DATABASE_URL) {
     }
   })
 }
+
+export { sequelize }
 
 
