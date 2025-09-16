@@ -75,8 +75,10 @@ async function seedProducts() {
       }
     ]
 
-    // Clear existing products
+    // Clear existing products and related data
+    await sequelize.query('SET FOREIGN_KEY_CHECKS = 0')
     await Product.destroy({ where: {} })
+    await sequelize.query('SET FOREIGN_KEY_CHECKS = 1')
     console.log('Cleared existing products')
 
     // Create sample products

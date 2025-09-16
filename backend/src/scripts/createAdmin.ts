@@ -11,7 +11,9 @@ async function createAdmin() {
       name: 'Test Admin',
       email: 'admin@kickspot.com',
       password: await bcrypt.hash('password123', 10),
-      role: 'admin' as const
+        role: 'seller' as const,
+      contactNumber: '+1234567890',
+      deliveryAddress: 'Admin Office, KickSpot HQ'
     }
 
     const existingAdmin = await User.findOne({ where: { email: adminData.email } })
