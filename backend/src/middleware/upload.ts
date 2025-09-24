@@ -12,7 +12,7 @@ if (process.env.CLOUDINARY_CLOUD_NAME && process.env.CLOUDINARY_API_KEY && proce
   })
 } else {
   console.warn('Cloudinary credentials not found. Image uploads will be disabled.')
-}
+} 
 
 // Configure temporary storage for Cloudinary upload
 const storage = multer.diskStorage({

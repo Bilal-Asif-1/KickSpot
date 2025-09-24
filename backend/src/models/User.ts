@@ -1,5 +1,5 @@
 import { DataTypes, Model } from 'sequelize'
-import { sequelize } from '../lib/sequelize.ts'
+import { sequelize } from '../lib/sequelize.js'
 
 export class User extends Model {
   declare id: number

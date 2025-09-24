@@ -1,5 +1,6 @@
 import { DataTypes, Model } from 'sequelize'
-import { sequelize } from '../lib/sequelize.ts'
+import { sequelize } from '../lib/sequelize.js'
+import { OrderItem } from './OrderItem.js'
 
 export class Order extends Model {
   declare id: number
@@ -16,6 +17,9 @@ export class Order extends Model {
   declare customer_details?: any
   declare items?: any
   declare created_at: Date
+  
+  // ✅ Relationship declarations
+  declare orderItems?: OrderItem[]
 }
 
 Order.init(

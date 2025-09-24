@@ -1,5 +1,5 @@
 import { DataTypes, Model } from 'sequelize'
-import { sequelize } from '../lib/sequelize.ts'
+import { sequelize } from '../lib/sequelize.js'
 
 export class Product extends Model {
   declare id: number
@@ -24,6 +24,8 @@ Product.init(
     image_url: { type: DataTypes.STRING, allowNull: true },
     seller_id: { type: DataTypes.INTEGER.UNSIGNED, allowNull: true },
     buyCount: { type: DataTypes.INTEGER.UNSIGNED, allowNull: false, defaultValue: 0 },
+    is_deleted: { type: DataTypes.BOOLEAN, allowNull: false, defaultValue: false },
+    deleted_at: { type: DataTypes.DATE, allowNull: true },
   },
   { sequelize, tableName: 'products', timestamps: true, createdAt: 'created_at', updatedAt: false }
 )

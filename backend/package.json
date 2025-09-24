@@ -8,11 +8,11 @@
     "dev": "nodemon --watch src --ext ts --exec tsx src/index.ts",
     "build": "tsc -p tsconfig.json",
     "start": "tsx src/index.ts",
-    "reset-db": "tsx src/scripts/resetDatabase.ts",
     "lint": "eslint .",
     "lint:fix": "eslint . --fix",
-    "create-admin": "tsx src/scripts/createAdmin.ts",
-    "seed-products": "tsx src/scripts/seedProducts.ts"
+    "check-indexes": "tsx src/scripts/checkIndexes.ts",
+    "add-indexes": "tsx src/scripts/addIndexes.ts",
+    "demo-performance": "tsx src/scripts/queryPerformanceDemo.ts"
   },
   "dependencies": {
     "@types/multer": "^2.0.0",

@@ -25,7 +25,7 @@ r.patch('/:id/read', authenticate, markAsReadValidators, markAsRead)
 r.patch('/mark-all-read', authenticate, markAllAsRead)
 
 // Delete notification
-r.delete('/:id', authenticate, deleteNotificationValidators, deleteNotification)
+r.delete('/:id', authenticate, deleteNotification)
 
 export default r
 

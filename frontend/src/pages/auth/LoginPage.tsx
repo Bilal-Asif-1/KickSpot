@@ -13,7 +13,7 @@ import { useEffect } from 'react'
 
 const schema = z.object({
   email: z.string().email(),
-  password: z.string().min(6),
+  password: z.string().min(6),  
 })
 
 export default function LoginPage() {

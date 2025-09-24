@@ -1,8 +1,8 @@
-import { User } from './User.ts'
-import { Product } from './Product.ts'
-import { Order } from './Order.ts'
-import { OrderItem } from './OrderItem.ts'
-import { Notification } from './Notification.ts'
+import { User } from './User.js'
+import { Product } from './Product.js'
+import { Order } from './Order.js'
+import { OrderItem } from './OrderItem.js'
+import { Notification } from './Notification.js'
 
 Order.belongsTo(User, { foreignKey: 'user_id', as: 'user' })
 OrderItem.belongsTo(Order, { foreignKey: 'order_id' })
