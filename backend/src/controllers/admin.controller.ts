@@ -1,8 +1,4 @@
-import { Request, Response } from 'express'
-import { User, Product, Order, OrderItem } from '../models/index.js'
-import { Op } from 'sequelize'
-import { body, param, validationResult } from 'express-validator'
-import { sequelize } from '../lib/sequelize.js'
+
 
 // Get admin dashboard stats
 export async function getAdminDashboard(req: Request, res: Response) {
