@@ -13,14 +13,7 @@ if ($existingProcess) {
     }
 }
 
-# Set environment variables for Railway MySQL
-$env:STRIPE_SECRET_KEY = "sk_test_51234567890abcdefghijklmnopqrstuvwxyz"
-$env:DATABASE_URL = "mysql://root:vkZENdGnsCocrbPsUkwmXVICmRFvJAIh@trolley.proxy.rlwy.net:20786/railway"
-$env:MYSQL_HOST = "trolley.proxy.rlwy.net"
-$env:MYSQL_DB = "railway"
-$env:MYSQL_USER = "root"
-$env:MYSQL_PASSWORD = "vkZENdGnsCocrbPsUkwmXVICmRFvJAIh"
-$env:MYSQL_PORT = "20786"
+
 
 # Navigate to backend directory
 Set-Location "backend"
