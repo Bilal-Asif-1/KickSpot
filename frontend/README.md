@@ -11,6 +11,14 @@ ions
 npm install
 ```
 
+## Features
+
+- User authentication
+- Product browsing and search
+- Shopping cart
+- Order management
+- Admin dashboard
+- Real-time notificat
 2. Run development server:
 ```bash
 npm run dev
