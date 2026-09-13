@@ -1,15 +1,7 @@
 # KickSpot Frontend
 
 Modern React e-commerce frontend for KickSpot shoe store.
-
-## Features
-
-- User authentication
-- Product browsing and search
-- Shopping cart
-- Order management
-- Admin dashboard
-- Real-time notifications
+ions
 - Responsive design
 
 ## Setup
