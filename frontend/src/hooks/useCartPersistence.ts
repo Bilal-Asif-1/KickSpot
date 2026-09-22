@@ -1,7 +1,4 @@
-import { useEffect, useRef } from 'react'
-import { useAppSelector, useAppDispatch } from '@/store'
-import { loadCartFromStorage, clearCart } from '@/store/cartSlice'
-import type { CartItem } from '@/store/cartSlice'
+
 
 export function useCartPersistence() {
   const dispatch = useAppDispatch()
